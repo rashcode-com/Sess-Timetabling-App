@@ -773,15 +773,15 @@
 <script>
 import { mapFields } from "vuex-map-fields";
 import { mapGetters } from "vuex";
-import { isTimeInBetween } from "../helpers/timeCalculator";
-import { placeSearchHelper } from "../helpers/placeSearch";
 import {
+  isTimeInBetween,
+  placeSearchHelper,
   checkClassTimeInterference,
   checkFinalTimeInterference,
-} from "../helpers/timeInterference";
-import { convertPersianNumToEng } from "../helpers/persianNumber_To_English";
-import { toFarsiNumber } from "../helpers/english_to_persian";
-import { teacherSearch } from "../helpers/teacherName";
+  convertPersianNumToEng,
+  toFarsiNumber,
+  teacherSearch,
+} from "@sess/core";
 export default {
   name: "Home",
   data() {

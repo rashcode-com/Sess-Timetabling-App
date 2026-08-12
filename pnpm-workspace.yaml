@@ -1,4 +1,4 @@
-﻿packages:
+packages:
   - 'apps/*'
   - 'packages/*'
   - 'services/*'
@@ -8,3 +8,11 @@ onlyBuiltDependencies:
   - core-js
   - ejs
   - yorkie
+  - esbuild
+
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
+  ejs: true
+  yorkie: true
+  esbuild: true

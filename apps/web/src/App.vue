@@ -10,8 +10,7 @@
 import { mapFields } from "vuex-map-fields";
 import j from "./data/data.json";
 import "./assets/css/font.css";
-import { teacherNameDivider } from './helpers/teacherName';
-import  { toFarsiNumber} from './helpers/english_to_persian';
+import { teacherNameDivider, toFarsiNumber } from "@sess/core";
 
 
 export default {
