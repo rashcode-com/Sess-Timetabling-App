@@ -1,0 +1,10 @@
+﻿packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'services/*'
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - core-js
+  - ejs
+  - yorkie

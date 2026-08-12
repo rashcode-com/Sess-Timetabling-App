@@ -1,57 +1,16 @@
 {
-  "name": "sess-semester",
+  "name": "sess-timetabling-app",
   "version": "0.1.5",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "postinstall": "npm run build",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "web:serve": "pnpm --filter @sess/web serve",
+    "web:build": "pnpm --filter @sess/web build",
     "start": "node server.js"
   },
-  "dependencies": {
-    "core-js": "^3.6.5",
-    "express": "^4.17.1",
-    "serve-static": "^1.14.1",
-    "vue": "^2.6.11",
-    "vue-router": "^3.2.0",
-    "vuetify": "^2.4.0",
-    "vuex": "^3.4.0",
-    "vuex-map-fields": "^1.4.1",
-    "vuex-persistedstate": "^4.0.0-beta.3"
-  },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-router": "~4.5.0",
-    "@vue/cli-plugin-vuex": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
-    "sass": "^1.32.0",
-    "sass-loader": "^10.0.0",
-    "vue-cli-plugin-vuetify": "~2.1.0",
-    "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.7.0"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    "turbo": "^2.0.0"
+  }
 }
