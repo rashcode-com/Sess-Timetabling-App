@@ -2,12 +2,15 @@
   "name": "sess-timetabling-app",
   "version": "0.1.5",
   "private": true,
+  "packageManager": "pnpm@11.21.0",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "web:serve": "pnpm --filter @sess/web serve",
     "web:build": "pnpm --filter @sess/web build",
+    "api:dev": "pnpm --filter @sess/api dev",
+    "api:build": "pnpm --filter @sess/api build",
     "start": "node server.js"
   },
   "devDependencies": {

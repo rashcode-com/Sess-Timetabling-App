@@ -9,6 +9,7 @@ onlyBuiltDependencies:
   - ejs
   - yorkie
   - esbuild
+  - workerd
 
 allowBuilds:
   '@parcel/watcher': true
@@ -16,3 +17,5 @@ allowBuilds:
   ejs: true
   yorkie: true
   esbuild: true
+  workerd: true
+

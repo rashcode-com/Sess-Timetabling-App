@@ -1,0 +1,10 @@
+name = "sess-api"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+
+kv_namespaces = [
+  { binding = "DATA_KV", id = "sess_data_kv" }
+]
+
+[vars]
+ENVIRONMENT = "production"
