@@ -1,0 +1,33 @@
+{
+  "name": "@sess/crawler",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "sess-crawler": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsup",
+    "test": "tsx test/parser.test.ts"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.8.2",
+    "@sess/core": "workspace:*",
+    "colorette": "^2.0.20",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
+    "playwright": "^1.49.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

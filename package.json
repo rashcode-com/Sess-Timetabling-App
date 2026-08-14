@@ -11,6 +11,9 @@
     "web:build": "pnpm --filter @sess/web build",
     "api:dev": "pnpm --filter @sess/api dev",
     "api:build": "pnpm --filter @sess/api build",
+    "crawler:dev": "pnpm --filter @sess/crawler dev",
+    "crawler:start": "pnpm --filter @sess/crawler start",
+    "crawler:build": "pnpm --filter @sess/crawler build",
     "start": "node server.js"
   },
   "devDependencies": {
