@@ -1,6 +1,7 @@
 import type { Context } from 'hono';
 import type { AppEnv } from './types.js';
 import type { SemesterData } from '@sess/core';
+import { resolveDataFilePath } from './paths.js';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -31,24 +32,16 @@ export async function getSemesterData(c: Context<AppEnv>): Promise<SemesterData 
     return cachedData;
   }
 
-  // 3. Node.js local filesystem fallback
+  // 3. Node.js local filesystem fallback (using layered cascade path resolution)
   if (typeof process !== 'undefined' && process.versions && process.versions.node) {
-    const possiblePaths = [
-      path.resolve(process.cwd(), 'apps/web/src/data/data.json'),
-      path.resolve(process.cwd(), '../web/src/data/data.json'),
-      path.resolve(process.cwd(), 'data/data.json'),
-      path.resolve(process.cwd(), 'data.json')
-    ];
-
-    for (const filePath of possiblePaths) {
-      if (fs.existsSync(filePath)) {
-        try {
-          const content = fs.readFileSync(filePath, 'utf-8');
-          cachedData = JSON.parse(content) as SemesterData;
-          return cachedData;
-        } catch (err) {
-          console.warn(`Failed to parse local dataset at ${filePath}:`, err);
-        }
+    const filePath = resolveDataFilePath();
+    if (fs.existsSync(filePath)) {
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        cachedData = JSON.parse(content) as SemesterData;
+        return cachedData;
+      } catch (err) {
+        console.warn(`Failed to parse local dataset at ${filePath}:`, err);
       }
     }
   }
@@ -61,7 +54,7 @@ export async function getSemesterData(c: Context<AppEnv>): Promise<SemesterData 
  * Writes to Cloudflare KV if bound, and updates in-memory cache / local file on Node.js.
  */
 export async function saveSemesterData(c: Context<AppEnv>, data: SemesterData): Promise<boolean> {
-  const jsonStr = JSON.stringify(data);
+  const jsonStr = JSON.stringify(data, null, 4);
   cachedData = data;
 
   let savedToKv = false;
@@ -79,7 +72,7 @@ export async function saveSemesterData(c: Context<AppEnv>, data: SemesterData): 
   // 2. Save to Node.js filesystem if running under Node
   if (typeof process !== 'undefined' && process.versions && process.versions.node) {
     try {
-      const targetPath = path.resolve(process.cwd(), 'apps/web/src/data/data.json');
+      const targetPath = resolveDataFilePath();
       const dir = path.dirname(targetPath);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });

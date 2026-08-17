@@ -2,18 +2,16 @@ import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import app from './app.js';
+import { resolveWebDistPath } from './paths.js';
 import path from 'node:path';
-import fs from 'node:fs';
 
 const rootApp = new Hono();
 
 // Mount API routes under /api
 rootApp.route('/', app);
 
-// Static file serving for apps/web/dist in Node environment
-const distPath = path.resolve(process.cwd(), 'apps/web/dist');
-const altDistPath = path.resolve(process.cwd(), 'dist');
-const activeDist = fs.existsSync(distPath) ? distPath : (fs.existsSync(altDistPath) ? altDistPath : null);
+// Static file serving for apps/web/dist in Node environment using layered cascade resolution
+const activeDist = resolveWebDistPath();
 
 if (activeDist) {
   const relativeDist = path.relative(process.cwd(), activeDist);
