@@ -1,7 +1,8 @@
-import type { KVNamespace } from '@cloudflare/workers-types';
+import type { KVNamespace, Fetcher } from '@cloudflare/workers-types';
 
 export type Bindings = {
   DATA_KV?: KVNamespace;
+  ASSETS?: Fetcher;
   SYNC_TOKEN?: string;
   ENVIRONMENT?: string;
 };

@@ -1,0 +1,30 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "sess-timetabling",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-17",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"observability": {
+		"enabled": true,
+		"logs": {
+			"head_sampling_rate": 1
+		}
+	},
+	"assets": {
+		"directory": "../../apps/web/dist",
+		"binding": "ASSETS",
+		"not_found_handling": "single-page-application",
+		"run_worker_first": false
+	},
+	"kv_namespaces": [
+		{
+			"binding": "DATA_KV",
+			"id": "<YOUR_KV_NAMESPACE_ID>"
+		}
+	],
+	"vars": {
+		"ENVIRONMENT": "production"
+	}
+}

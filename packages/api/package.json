@@ -11,7 +11,9 @@
     "dev:node": "node --loader ts-node/esm src/node.ts",
     "start:node": "node dist/node.js",
     "build": "tsup",
-    "deploy": "wrangler deploy"
+    "types": "wrangler types src/worker-configuration.d.ts",
+    "deploy": "wrangler deploy",
+    "kv:seed": "wrangler kv key put --binding=DATA_KV semester_data --path=../../apps/web/src/data/data.json"
   },
   "dependencies": {
     "@hono/node-server": "^1.11.0",
@@ -25,6 +27,6 @@
     "@types/node": "^20.12.0",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",
-    "wrangler": "^3.60.0"
+    "wrangler": "^4.0.0"
   }
 }

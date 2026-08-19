@@ -2,6 +2,7 @@
 node_modules
 dist/
 .turbo/
+.wrangler/
 .agents/
 AGENTS.md
 
@@ -9,6 +10,12 @@ AGENTS.md
 .env.local
 .env.*.local
 .env
+.dev.vars
+.dev.vars.*
+packages/api/wrangler.jsonc
+!packages/api/wrangler.jsonc.example
+!packages/api/.dev.vars.example
+
 
 # Log files
 npm-debug.log*

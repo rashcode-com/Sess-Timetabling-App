@@ -6,42 +6,61 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const KV_KEY = 'semester_data';
+const ISOLATE_CACHE_TTL_MS = 60 * 1000; // 60s in-memory TTL to balance performance & KV freshness
 
-// In-memory fallback / cache for Node runtime
-let cachedData: SemesterData | null = null;
+// In-memory isolate cache for Worker and Node runtimes
+let isolateCache: { data: SemesterData; timestamp: number } | null = null;
 
 /**
  * Universal getter for SemesterData.
- * Checks Cloudflare KV first, then in-memory cache, then fallback file paths on Node.js.
+ * Checks isolate in-memory cache first, then Cloudflare KV (with cacheTtl), then fallback file paths on Node.js.
  */
 export async function getSemesterData(c: Context<AppEnv>): Promise<SemesterData | null> {
-  // 1. Try Cloudflare KV if bound
+  const now = Date.now();
+
+  // 1. Return in-memory isolate cached data if still fresh
+  if (isolateCache && (now - isolateCache.timestamp < ISOLATE_CACHE_TTL_MS)) {
+    return isolateCache.data;
+  }
+
+  // 2. Try Cloudflare KV if bound
   if (c.env?.DATA_KV) {
     try {
-      const dataStr = await c.env.DATA_KV.get(KV_KEY);
+      const dataStr = await c.env.DATA_KV.get(KV_KEY, { cacheTtl: 300 });
       if (dataStr) {
-        return JSON.parse(dataStr) as SemesterData;
+        const parsed = JSON.parse(dataStr) as SemesterData;
+        isolateCache = { data: parsed, timestamp: now };
+        return parsed;
       }
     } catch (err) {
-      console.warn('Error reading from DATA_KV:', err);
+      console.warn(JSON.stringify({
+        level: 'warn',
+        message: 'Error reading from DATA_KV',
+        error: err instanceof Error ? err.message : String(err)
+      }));
     }
   }
 
-  // 2. Return in-memory cached data if available
-  if (cachedData) {
-    return cachedData;
+  // 3. Fallback to existing isolate cache even if slightly stale when KV is empty or failed
+  if (isolateCache) {
+    return isolateCache.data;
   }
 
-  // 3. Node.js local filesystem fallback (using layered cascade path resolution)
+  // 4. Node.js local filesystem fallback (using layered cascade path resolution)
   if (typeof process !== 'undefined' && process.versions && process.versions.node) {
     const filePath = resolveDataFilePath();
     if (fs.existsSync(filePath)) {
       try {
         const content = fs.readFileSync(filePath, 'utf-8');
-        cachedData = JSON.parse(content) as SemesterData;
-        return cachedData;
+        const parsed = JSON.parse(content) as SemesterData;
+        isolateCache = { data: parsed, timestamp: now };
+        return parsed;
       } catch (err) {
-        console.warn(`Failed to parse local dataset at ${filePath}:`, err);
+        console.warn(JSON.stringify({
+          level: 'warn',
+          message: `Failed to parse local dataset at ${filePath}`,
+          error: err instanceof Error ? err.message : String(err)
+        }));
       }
     }
   }
@@ -55,7 +74,7 @@ export async function getSemesterData(c: Context<AppEnv>): Promise<SemesterData 
  */
 export async function saveSemesterData(c: Context<AppEnv>, data: SemesterData): Promise<boolean> {
   const jsonStr = JSON.stringify(data, null, 4);
-  cachedData = data;
+  isolateCache = { data, timestamp: Date.now() };
 
   let savedToKv = false;
 
@@ -65,7 +84,11 @@ export async function saveSemesterData(c: Context<AppEnv>, data: SemesterData): 
       await c.env.DATA_KV.put(KV_KEY, jsonStr);
       savedToKv = true;
     } catch (err) {
-      console.error('Error writing to DATA_KV:', err);
+      console.error(JSON.stringify({
+        level: 'error',
+        message: 'Error writing to DATA_KV',
+        error: err instanceof Error ? err.message : String(err)
+      }));
     }
   }
 
@@ -79,9 +102,14 @@ export async function saveSemesterData(c: Context<AppEnv>, data: SemesterData): 
       }
       fs.writeFileSync(targetPath, jsonStr, 'utf-8');
     } catch (err) {
-      console.warn('Could not write dataset to Node local file:', err);
+      console.warn(JSON.stringify({
+        level: 'warn',
+        message: 'Could not write dataset to Node local file',
+        error: err instanceof Error ? err.message : String(err)
+      }));
     }
   }
 
-  return savedToKv || cachedData !== null;
+  return savedToKv || isolateCache !== null;
 }
+

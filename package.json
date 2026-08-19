@@ -14,6 +14,8 @@
     "crawler:dev": "pnpm --filter @sess/crawler dev",
     "crawler:start": "pnpm --filter @sess/crawler start",
     "crawler:build": "pnpm --filter @sess/crawler build",
+    "deploy:cf": "turbo run build && pnpm --filter @sess/api run deploy",
+    "kv:seed": "pnpm --filter @sess/api kv:seed",
     "start": "node server.js"
   },
   "devDependencies": {

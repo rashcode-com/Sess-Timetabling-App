@@ -1,0 +1,3 @@
+# Local development secrets for Cloudflare Workers (git-ignored)
+SYNC_TOKEN=your-secret-sync-token-here
+ENVIRONMENT=development

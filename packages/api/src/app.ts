@@ -17,6 +17,22 @@ app.use('*', cors({
   allowHeaders: ['Content-Type', 'Authorization', 'X-Sync-Token']
 }));
 
+// Global Error & Not Found Handlers
+app.onError((err, c) => {
+  console.error(JSON.stringify({
+    level: 'error',
+    message: err.message || 'Internal Server Error',
+    stack: err.stack,
+    path: c.req.path,
+    method: c.req.method
+  }));
+  return c.json({ error: 'Internal server error', message: err.message }, 500);
+});
+
+app.notFound((c) => {
+  return c.json({ error: 'Not found', path: c.req.path }, 404);
+});
+
 // Route composition (Chained for Hono RPC type inference)
 const routes = app
   .route('/health', healthRouter)
@@ -26,3 +42,4 @@ const routes = app
 
 export default app;
 export type AppType = typeof routes;
+
