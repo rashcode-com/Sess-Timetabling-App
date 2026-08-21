@@ -45,7 +45,17 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {
+      "no-restricted-imports": [
+        "error",
+        {
+          "patterns": [
+            "@/features/*/components/*",
+            "@/features/*/*/*"
+          ]
+        }
+      ]
+    }
   },
   "browserslist": [
     "> 1%",

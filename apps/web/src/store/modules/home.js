@@ -1,5 +1,6 @@
-import { processDataset } from "@/shared/services/courseDataService";
+import { processDataset } from "@/shared";
 import rawData from "@/data/data.json";
+
 
 const state = {
   results: [],

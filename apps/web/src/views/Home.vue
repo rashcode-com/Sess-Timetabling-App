@@ -126,17 +126,16 @@ import {
   convertPersianNumToEng,
   toFarsiNumber,
 } from "@sess/core";
-import { searchCourses } from "@/shared/services/courseDataService";
+import { AppHeader, searchCourses } from "@/shared";
+import { FilterDrawer, ErrorDialog } from "@/features/filters";
+import { CourseDataTable, CourseDetailDialog } from "@/features/courses";
+import {
+  WeeklyCalendar,
+  SelectedCoursesTab,
+  ClashAlertModal,
+  ClashSnackbar,
+} from "@/features/timetable";
 
-import AppHeader from "@/shared/components/AppHeader.vue";
-import ErrorDialog from "@/features/filters/components/ErrorDialog.vue";
-import FilterDrawer from "@/features/filters/components/FilterDrawer.vue";
-import CourseDataTable from "@/features/courses/components/CourseDataTable.vue";
-import CourseDetailDialog from "@/features/courses/components/CourseDetailDialog.vue";
-import WeeklyCalendar from "@/features/timetable/components/WeeklyCalendar.vue";
-import SelectedCoursesTab from "@/features/timetable/components/SelectedCoursesTab.vue";
-import ClashAlertModal from "@/features/timetable/components/ClashAlertModal.vue";
-import ClashSnackbar from "@/features/timetable/components/ClashSnackbar.vue";
 
 export default {
   name: "Home",
