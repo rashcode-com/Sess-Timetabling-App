@@ -19,15 +19,12 @@
       <!-- 2. Filter Navigation Drawer -->
       <FilterDrawer
         v-model="drawer"
-        :filters="filters"
         :semesters="getSemesters"
         :units="getUnits"
         :courses="getCourses"
         :teachers="getTeachers"
         :places="getPlaces"
         :genders="getGenders"
-        :time-start.sync="timeStart"
-        :time-end.sync="timeEnd"
         @search="search"
       >
         <template v-slot:selected-courses>
@@ -122,7 +119,6 @@
 </template>
 
 <script>
-import { mapFields } from "vuex-map-fields";
 import { mapGetters } from "vuex";
 import {
   checkClassTimeInterference,
@@ -157,10 +153,9 @@ export default {
   },
   data() {
     return {
-      timeStart: "",
-      timeEnd: "",
       drawer: true,
       itemsPerPage: 10,
+      results: [],
 
       dialog: false,
       dialogContent: {},
@@ -183,9 +178,6 @@ export default {
       updateTimeDateText: "به روز شده در ۹ شهریور",
       updateTimeClockText: "ساعت ۱۱:۱۸",
     };
-  },
-  created() {
-    this.filters.semester = this.getFilterItems.semesters[0];
   },
   watch: {
     selectedList() {
@@ -233,19 +225,20 @@ export default {
     removeFromSelected(id) {
       this.selectedList = this.selectedList.filter((item) => item.id !== id);
     },
-    search() {
+    search({ filters, timeRange }) {
       let flag = 0;
       this.errorMessages = [];
 
-      if (!this.filters.semester) {
+      if (!filters || !filters.semester) {
         this.errorMessages.push("نیمسال تحصیلی باید انتخاب شود");
         flag = 1;
       }
       if (
+        !filters ||
         !(
-          this.filters.unit.length ||
-          this.filters.course.length ||
-          this.filters.teacherName.length
+          (filters.unit && filters.unit.length) ||
+          (filters.course && filters.course.length) ||
+          (filters.teacherName && filters.teacherName.length)
         )
       ) {
         this.errorMessages.push(
@@ -258,18 +251,15 @@ export default {
         return;
       }
 
-      this.results = searchCourses(this.json, this.filters, {
-        timeStart: this.timeStart,
-        timeEnd: this.timeEnd,
-      });
+      this.results = searchCourses(this.getJson, filters, timeRange);
     },
   },
   computed: {
     mobileDevice() {
       return this.$vuetify.breakpoint.smAndDown;
     },
-    ...mapFields(["filters", "json", "course", "results"]),
     ...mapGetters([
+      "getJson",
       "getSemesters",
       "getUnits",
       "getCourses",

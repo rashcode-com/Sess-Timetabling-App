@@ -32,9 +32,6 @@ importers:
       vuex:
         specifier: ^3.4.0
         version: 3.6.2(vue@2.7.16)
-      vuex-map-fields:
-        specifier: ^1.4.1
-        version: 1.4.1
       vuex-persistedstate:
         specifier: ^4.0.0-beta.3
         version: 4.1.0(vuex@3.6.2(vue@2.7.16))
@@ -6364,9 +6361,6 @@ packages:
     resolution: {integrity: sha512-qr04ww7uzAPQbpk751x4fSdjsJ+zREzjQ/rBlcQGuWS6MIMFMXcXcwvp4+/tnGsULZxPMWfQ0kmZmg5Yc/XzgQ==}
     peerDependencies:
       vue: ^2.6.4
-
-  vuex-map-fields@1.4.1:
-    resolution: {integrity: sha512-jvIcpvoIPqwvJCOfRkPU9Rj0EbjWuk7GlNC5LXU9mCXVGZph6bWGHZssnoUzpLMxJtXQEHoVyZkKf7YQV+/bnQ==}
 
   vuex-persistedstate@4.1.0:
     resolution: {integrity: sha512-3SkEj4NqwM69ikJdFVw6gObeB0NHyspRYMYkR/EbhR0hbvAKyR5gksVhtAfY1UYuWUOCCA0QNGwv9pOwdj+XUQ==}
@@ -13444,8 +13438,6 @@ snapshots:
   vuetify@2.7.2(vue@2.7.16):
     dependencies:
       vue: 2.7.16
-
-  vuex-map-fields@1.4.1: {}
 
   vuex-persistedstate@4.1.0(vuex@3.6.2(vue@2.7.16)):
     dependencies:

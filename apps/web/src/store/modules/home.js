@@ -1,19 +1,8 @@
-import { getField, updateField } from "vuex-map-fields";
 import { processDataset } from "@/shared/services/courseDataService";
 import rawData from "@/data/data.json";
 
 const state = {
   results: [],
-
-  filters: {
-    semester: "",
-    unit: [],
-    course: [],
-    teacherName: [],
-    time: [],
-    place: [],
-    gender: [],
-  },
 
   filtersItems: {
     semesters: ["1402-1"],
@@ -35,7 +24,6 @@ const state = {
 };
 
 const getters = {
-  getField,
   getFilterItems: (state) => state.filtersItems,
   getSemesters: (state) => state.filtersItems.semesters,
   getUnits: (state) => state.filtersItems.units,
@@ -47,10 +35,10 @@ const getters = {
   getCourseList: (state) => state.courseList,
   getCourseById: (state) => (id) => state.courseMap.get(id),
   isDataLoaded: (state) => state.isDataLoaded,
+  getResults: (state) => state.results,
 };
 
 const mutations = {
-  updateField,
   SET_COURSE_DATA(state, { dataset, filterOptions, courseList, courseMap }) {
     state.json = dataset;
     state.filtersItems = filterOptions;
@@ -80,4 +68,5 @@ export default {
   mutations,
   actions,
 };
+
 

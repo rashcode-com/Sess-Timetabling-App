@@ -35,7 +35,7 @@
         <v-autocomplete
           solo
           label="نیمسال تحصیلی*"
-          v-model="filters.semester"
+          v-model="localFilters.semester"
           :rules="rules"
           :items="semesters"
           hide-no-data
@@ -58,7 +58,7 @@
         <v-autocomplete
           solo
           label="بخش"
-          v-model="filters.unit"
+          v-model="localFilters.unit"
           :items="units"
           multiple
           hide-no-data
@@ -80,7 +80,7 @@
         <v-autocomplete
           solo
           label="درس"
-          v-model="filters.course"
+          v-model="localFilters.course"
           :items="courses"
           multiple
           hide-no-data
@@ -102,7 +102,7 @@
         <v-autocomplete
           solo
           label="نام استاد"
-          v-model="filters.teacherName"
+          v-model="localFilters.teacherName"
           :items="teachers"
           hide-details="auto"
           class="mb-3"
@@ -124,7 +124,7 @@
         <v-autocomplete
           solo
           label="جنسیت"
-          v-model="filters.gender"
+          v-model="localFilters.gender"
           :items="genders"
           multiple
           hide-no-data
@@ -146,7 +146,7 @@
         <v-autocomplete
           solo
           label="مکان برگزاری کلاس"
-          v-model="filters.place"
+          v-model="localFilters.place"
           chips
           multiple
           hide-no-data
@@ -178,7 +178,7 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
-              :value="timeStart"
+              :value="localTimeStart"
               label="از ساعت"
               prepend-icon="mdi-clock-time-four-outline"
               readonly
@@ -187,7 +187,7 @@
               v-bind="attrs"
               v-on="on"
             ></v-text-field>
-            <v-icon class="closeTime" @click="$emit('update:timeStart', '')">
+            <v-icon class="closeTime" @click="clearTimeStart">
               mdi-close
             </v-icon>
           </template>
@@ -215,7 +215,7 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
-              :value="timeEnd"
+              :value="localTimeEnd"
               label="تا ساعت"
               prepend-icon="mdi-clock-time-four-outline"
               readonly
@@ -224,7 +224,7 @@
               v-bind="attrs"
               v-on="on"
             ></v-text-field>
-            <v-icon class="closeTime" @click="$emit('update:timeEnd', '')">
+            <v-icon class="closeTime" @click="clearTimeEnd">
               mdi-close
             </v-icon>
           </template>
@@ -243,7 +243,7 @@
           width="100%"
           x-large
           class="blue white--text"
-          @click="$emit('search')"
+          @click="handleSearch"
         >
           <h3>جستجو</h3>
         </v-btn>
@@ -263,10 +263,6 @@ export default {
     value: {
       type: Boolean,
       default: true,
-    },
-    filters: {
-      type: Object,
-      required: true,
     },
     semesters: {
       type: Array,
@@ -292,14 +288,6 @@ export default {
       type: Array,
       default: () => [],
     },
-    timeStart: {
-      type: String,
-      default: "",
-    },
-    timeEnd: {
-      type: String,
-      default: "",
-    },
   },
   data() {
     return {
@@ -308,8 +296,16 @@ export default {
       selectedTabActive: false,
       menuStart: false,
       menuEnd: false,
-      localTimeStart: this.timeStart,
-      localTimeEnd: this.timeEnd,
+      localTimeStart: "",
+      localTimeEnd: "",
+      localFilters: {
+        semester: "",
+        unit: [],
+        course: [],
+        teacherName: [],
+        place: [],
+        gender: [],
+      },
       searchInput1: "",
       searchInput2: "",
       searchInput3: "",
@@ -320,11 +316,13 @@ export default {
     };
   },
   watch: {
-    timeStart(val) {
-      this.localTimeStart = val;
-    },
-    timeEnd(val) {
-      this.localTimeEnd = val;
+    semesters: {
+      immediate: true,
+      handler(newSemesters) {
+        if (newSemesters && newSemesters.length && !this.localFilters.semester) {
+          this.localFilters.semester = newSemesters[0];
+        }
+      },
     },
   },
   methods: {
@@ -340,28 +338,57 @@ export default {
     },
     saveTimeStart() {
       this.$refs.menu1.save(this.localTimeStart);
-      this.$emit("update:timeStart", this.localTimeStart);
     },
     saveTimeEnd() {
       this.$refs.menu2.save(this.localTimeEnd);
-      this.$emit("update:timeEnd", this.localTimeEnd);
+    },
+    clearTimeStart() {
+      this.localTimeStart = "";
+      if (this.$refs.menu1) {
+        this.$refs.menu1.save("");
+      }
+    },
+    clearTimeEnd() {
+      this.localTimeEnd = "";
+      if (this.$refs.menu2) {
+        this.$refs.menu2.save("");
+      }
+    },
+    handleSearch() {
+      this.$emit("search", {
+        filters: {
+          semester: this.localFilters.semester,
+          unit: [...this.localFilters.unit],
+          course: [...this.localFilters.course],
+          teacherName: [...this.localFilters.teacherName],
+          place: [...this.localFilters.place],
+          gender: [...this.localFilters.gender],
+        },
+        timeRange: {
+          timeStart: this.localTimeStart,
+          timeEnd: this.localTimeEnd,
+        },
+      });
     },
     remove(item) {
-      if (item.parent.label.includes("بخش")) {
-        this.filters.unit.splice(this.filters.unit.indexOf(item.item), 1);
-      } else if (item.parent.label.includes("درس")) {
-        this.filters.course.splice(this.filters.course.indexOf(item.item), 1);
-      } else if (item.parent.label.includes("نام استاد")) {
-        this.filters.teacherName.splice(
-          this.filters.teacherName.indexOf(item.item),
-          1
-        );
-      } else if (item.parent.label.includes("نیمسال تحصیلی")) {
-        this.filters.semester = "";
-      } else if (item.parent.label.includes("مکان برگزاری کلاس")) {
-        this.filters.place.splice(this.filters.place.indexOf(item.item), 1);
-      } else if (item.parent.label.includes("جنسیت")) {
-        this.filters.gender.splice(this.filters.gender.indexOf(item.item), 1);
+      const parentLabel = (item.parent && item.parent.label) || "";
+      if (parentLabel.includes("بخش")) {
+        const idx = this.localFilters.unit.indexOf(item.item);
+        if (idx !== -1) this.localFilters.unit.splice(idx, 1);
+      } else if (parentLabel.includes("درس")) {
+        const idx = this.localFilters.course.indexOf(item.item);
+        if (idx !== -1) this.localFilters.course.splice(idx, 1);
+      } else if (parentLabel.includes("نام استاد")) {
+        const idx = this.localFilters.teacherName.indexOf(item.item);
+        if (idx !== -1) this.localFilters.teacherName.splice(idx, 1);
+      } else if (parentLabel.includes("نیمسال تحصیلی")) {
+        this.localFilters.semester = "";
+      } else if (parentLabel.includes("مکان برگزاری کلاس")) {
+        const idx = this.localFilters.place.indexOf(item.item);
+        if (idx !== -1) this.localFilters.place.splice(idx, 1);
+      } else if (parentLabel.includes("جنسیت")) {
+        const idx = this.localFilters.gender.indexOf(item.item);
+        if (idx !== -1) this.localFilters.gender.splice(idx, 1);
       }
     },
   },
