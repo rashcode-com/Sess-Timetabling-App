@@ -774,14 +774,12 @@
 import { mapFields } from "vuex-map-fields";
 import { mapGetters } from "vuex";
 import {
-  isTimeInBetween,
-  placeSearchHelper,
   checkClassTimeInterference,
   checkFinalTimeInterference,
   convertPersianNumToEng,
   toFarsiNumber,
-  teacherSearch,
 } from "@sess/core";
+import { searchCourses } from "@/shared/services/courseDataService";
 export default {
   name: "Home",
   data() {
@@ -1063,59 +1061,10 @@ export default {
         return;
       }
 
-      this.results = [];
-
-      for (let unit in this.json) {
-        if (
-          this.filters.unit.length === 0 ||
-          this.filters.unit.includes(unit)
-        ) {
-          for (let course in this.json[unit]) {
-            if (
-              this.filters.course.length === 0 ||
-              this.filters.course.includes(this.json[unit][course]["title"])
-            ) {
-              if (
-                this.filters.teacherName.length === 0 ||
-                teacherSearch(
-                  this.json[unit][course]["teacher"],
-                  this.filters.teacherName
-                )
-              ) {
-                if (
-                  this.filters.gender.length === 0 ||
-                  this.filters.gender.includes(
-                    this.json[unit][course]["gender"]
-                  )
-                ) {
-                  if (
-                    this.filters.place.length === 0 ||
-                    placeSearchHelper(
-                      this.filters.place,
-                      this.json[unit][course]
-                    )
-                  ) {
-                    if (
-                      (this.timeStart.length == 0 &&
-                        this.timeEnd.length == 0) ||
-                      isTimeInBetween(
-                        this.timeStart,
-                        this.timeEnd,
-                        this.json[unit][course].seperated_time_and_place
-                      )
-                    ) {
-                      this.results.push(this.json[unit][course]);
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      if (this.results.length === 0) {
-        this.results.push(-1);
-      }
+      this.results = searchCourses(this.json, this.filters, {
+        timeStart: this.timeStart,
+        timeEnd: this.timeEnd,
+      });
     },
     remove(item) {
       if (item.parent.label.includes("بخش")) {

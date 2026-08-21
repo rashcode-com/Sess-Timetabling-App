@@ -163,7 +163,7 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
-  services/tester:
+  services/e2e:
     dependencies:
       '@hono/node-server':
         specifier: ^1.11.0

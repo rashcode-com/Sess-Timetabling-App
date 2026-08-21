@@ -7,63 +7,13 @@
 </template>
 
 <script>
-import { mapFields } from "vuex-map-fields";
-import j from "./data/data.json";
 import "./assets/css/font.css";
-import { teacherNameDivider, toFarsiNumber } from "@sess/core";
-
 
 export default {
   name: "App",
 
-  computed: {
-    ...mapFields(["filtersItems", "json", "filters"]),
-  },
-  mounted() {
-    this.json = j;
-
-
-    //initializing filters for search
-      for (let unit in this.json) {
-        
-        for(let course in this.json[unit]){
-
-          this.json[unit][course]['id'] = course;
-          this.json[unit][course]['teacher'] = teacherNameDivider(this.json[unit][course]['teacher']);
-          this.json[unit][course]['vahed'] = toFarsiNumber(this.json[unit][course]['vahed']);
-          this.json[unit][course]['group'] = toFarsiNumber(this.json[unit][course]['group']);
-          this.json[unit][course]['time_room'] = toFarsiNumber(this.json[unit][course]['time_room']);
-          this.json[unit][course]['unit'] = this.json[unit][course]['unit'].slice(0,-1);
-          this.json[unit][course]['unit'] = this.json[unit][course]['unit'].replaceAll("*","|");
-
-          for(let index in this.json[unit][course]['seperated_time_and_place']){
-            this.json[unit][course]['seperated_time_and_place'][index].place = toFarsiNumber(this.json[unit][course]['seperated_time_and_place'][index].place);
-          }
-
-          //unit name
-          this.filtersItems.units.push(unit);
-          
-          //course name
-          this.filtersItems.course.push(
-            this.json[unit][course]["title"]
-          );
-
-          //teacher name
-          this.json[unit][course]['teacher'].split(' | ').forEach(str => {
-             this.filtersItems.teachersName.push(str);
-          });
-
-          //gender
-          this.filtersItems.genders.push(this.json[unit][course]['gender']);
-
-          //place name
-          for(let index in this.json[unit][course]['seperated_time_and_place']){
-            let obj = this.json[unit][course]['seperated_time_and_place'][index];
-            this.filtersItems.places.push(obj.place);
-          }
-        }
-        
-      }
+  created() {
+    this.$store.dispatch("initCourseData");
   },
 };
 </script>
