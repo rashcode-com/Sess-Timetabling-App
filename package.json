@@ -16,6 +16,7 @@
     "crawler:build": "pnpm --filter @sess/crawler build",
     "deploy:cf": "turbo run build && pnpm --filter @sess/api run deploy",
     "kv:seed": "pnpm --filter @sess/api kv:seed",
+    "e2e:baseline": "pnpm --filter @sess/e2e test:baseline",
     "start": "node server.js"
   },
   "devDependencies": {
