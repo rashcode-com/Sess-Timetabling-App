@@ -37,7 +37,7 @@
           >
             <v-card color="grey lighten-4" min-width="290px" flat>
               <v-toolbar :color="selectedEvent.color" dark>
-                <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
+                <v-toolbar-title>{{ selectedEvent.name }}</v-toolbar-title>
               </v-toolbar>
               <v-list style="background:none">
                 <v-list-item>
