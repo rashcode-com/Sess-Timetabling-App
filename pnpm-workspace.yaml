@@ -11,6 +11,7 @@ onlyBuiltDependencies:
   - esbuild
   - workerd
   - sharp
+  - vue-demi
 
 allowBuilds:
   '@parcel/watcher': true
@@ -20,3 +21,4 @@ allowBuilds:
   esbuild: true
   workerd: true
   sharp: true
+  vue-demi: true

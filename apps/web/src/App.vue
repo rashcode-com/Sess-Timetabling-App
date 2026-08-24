@@ -8,12 +8,14 @@
 
 <script>
 import "./assets/css/font.css";
+import { useCourseStore } from "@/store";
 
 export default {
   name: "App",
 
   created() {
-    this.$store.dispatch("initCourseData");
+    const courseStore = useCourseStore();
+    courseStore.initCourseData();
   },
 };
 </script>

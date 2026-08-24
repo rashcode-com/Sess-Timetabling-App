@@ -1,15 +1,10 @@
-import Vue from "vue";
-import Vuex from "vuex";
-import home from "./modules/home";
-import createPersistedState from "vuex-persistedstate";
+import { createPinia, PiniaVuePlugin } from "pinia";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
-Vue.use(Vuex);
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 
-export default new Vuex.Store({
-  modules: {
-    home,
-  },
-  plugins: [createPersistedState({
-    paths: ['']
-  })],
-});
+export { pinia, PiniaVuePlugin };
+export * from "./courseStore";
+export * from "./timetableStore";
+export default pinia;

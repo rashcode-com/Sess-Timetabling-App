@@ -9,15 +9,20 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .js,.vue",
-    "test": "node tests/courseDataService.test.mjs"
+    "test": "node tests/courseDataService.test.mjs && node tests/stores.test.mjs"
+  },
+  "imports": {
+    "@/*": "./src/*",
+    "@shared": "./src/shared/index.js",
+    "@features/*": "./src/features/*"
   },
   "dependencies": {
     "@sess/core": "workspace:*",
+    "pinia": "^2.3.1",
+    "pinia-plugin-persistedstate": "^3.2.3",
     "vue": "^2.7.16",
     "vue-router": "^3.6.5",
-    "vuetify": "^2.7.2",
-    "vuex": "^3.6.2",
-    "vuex-persistedstate": "^4.1.0"
+    "vuetify": "^2.7.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",

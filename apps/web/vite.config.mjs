@@ -22,7 +22,7 @@ export default defineConfig({
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
   },
   server: {
-    port: 8080,
+    port: 8081,
     strictPort: false,
     host: true,
   },
@@ -34,7 +34,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['vue', 'vue-router', 'vuex', 'vuetify'],
+          vendor: ['vue', 'vue-router', 'pinia', 'pinia-plugin-persistedstate', 'vuetify'],
         },
       },
     },

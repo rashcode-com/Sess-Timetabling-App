@@ -119,14 +119,9 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import {
-  checkClassTimeInterference,
-  checkFinalTimeInterference,
-  convertPersianNumToEng,
-  toFarsiNumber,
-} from "@sess/core";
-import { AppHeader, searchCourses } from "@/shared";
+import { mapState, mapWritableState } from "pinia";
+import { useCourseStore, useTimetableStore } from "@/store";
+import { AppHeader } from "@/shared";
 import { FilterDrawer, ErrorDialog } from "@/features/filters";
 import { CourseDataTable, CourseDetailDialog } from "@/features/courses";
 import {
@@ -135,7 +130,6 @@ import {
   ClashAlertModal,
   ClashSnackbar,
 } from "@/features/timetable";
-
 
 export default {
   name: "Home",
@@ -154,15 +148,11 @@ export default {
     return {
       drawer: true,
       itemsPerPage: 10,
-      results: [],
 
       dialog: false,
       dialogContent: {},
-      vahedsSum: "۰",
       snackbarAlert: false,
       showSelectedListAlert: false,
-      interferenceClassTimeCourse: [],
-      interferenceFinalTimeCourses: [],
       showAlert: false,
       errorMessages: [],
 
@@ -173,56 +163,23 @@ export default {
         { text: "زمان و مکان کلاس", value: "time_room" },
       ],
 
-      selectedList: [],
       updateTimeDateText: "به روز شده در ۹ شهریور",
       updateTimeClockText: "ساعت ۱۱:۱۸",
     };
   },
   watch: {
     selectedList() {
-      // Check time interference
-      this.interferenceClassTimeCourse = [];
-      this.interferenceFinalTimeCourses = [];
-      for (let i = 0; i < this.selectedList.length; i++) {
-        for (let j = i + 1; j < this.selectedList.length; j++) {
-          let course1 = this.selectedList[i];
-          let course2 = this.selectedList[j];
-          if (checkClassTimeInterference(course1, course2)) {
-            this.interferenceClassTimeCourse.push([course1, course2]);
-          }
-          if (checkFinalTimeInterference(course1, course2)) {
-            this.interferenceFinalTimeCourses.push([course1, course2]);
-          }
-        }
-      }
-      if (
-        this.interferenceClassTimeCourse.length +
-          this.interferenceFinalTimeCourses.length >
-        0
-      ) {
-        this.snackbarAlert = true;
-      } else {
-        this.snackbarAlert = false;
-      }
-
-      this.vahedsSum = toFarsiNumber(this.sumOfVaheds());
+      this.snackbarAlert = this.totalConflictCount > 0;
     },
   },
   methods: {
-    sumOfVaheds() {
-      let sum = 0;
-      for (let i = 0; i < this.selectedList.length; i++) {
-        let course = this.selectedList[i];
-        sum += convertPersianNumToEng(course["vahed"]);
-      }
-      return sum;
-    },
     setDialogContent(item) {
       this.dialogContent = { ...item };
       this.dialog = true;
     },
     removeFromSelected(id) {
-      this.selectedList = this.selectedList.filter((item) => item.id !== id);
+      const timetableStore = useTimetableStore();
+      timetableStore.removeCourse(id);
     },
     search({ filters, timeRange }) {
       let flag = 0;
@@ -250,23 +207,35 @@ export default {
         return;
       }
 
-      this.results = searchCourses(this.getJson, filters, timeRange);
+      const courseStore = useCourseStore();
+      const timetableStore = useTimetableStore();
+      timetableStore.executeSearch(courseStore.rawJson, filters, timeRange);
     },
   },
   computed: {
     mobileDevice() {
       return this.$vuetify.breakpoint.smAndDown;
     },
-    ...mapGetters([
-      "getJson",
-      "getSemesters",
-      "getUnits",
-      "getCourses",
-      "getTeachers",
-      "getFilterItems",
-      "getPlaces",
-      "getGenders",
-    ]),
+    ...mapState(useCourseStore, {
+      getSemesters: "semesters",
+      getUnits: "units",
+      getCourses: "courses",
+      getTeachers: "teachers",
+      getPlaces: "places",
+      getGenders: "genders",
+      getFilterItems: "filterOptions",
+      getJson: "rawJson",
+    }),
+    ...mapWritableState(useTimetableStore, {
+      selectedList: "selectedCourses",
+      results: "searchResults",
+    }),
+    ...mapState(useTimetableStore, {
+      interferenceClassTimeCourse: "classTimeConflicts",
+      interferenceFinalTimeCourses: "finalExamConflicts",
+      totalConflictCount: "totalConflictCount",
+      vahedsSum: "vahedsSum",
+    }),
   },
 };
 </script>
