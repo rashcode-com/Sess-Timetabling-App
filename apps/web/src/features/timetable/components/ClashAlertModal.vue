@@ -175,28 +175,28 @@
   </v-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { toFarsiNumber } from "@sess/core";
 import { normalizeDayName } from "@shared";
+import type { Course, CourseConflictPair, TimeSlot } from "@/types";
 
-defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
-  classTimeConflicts: {
-    type: Array,
-    default: () => [],
-  },
-  finalExamConflicts: {
-    type: Array,
-    default: () => [],
-  },
-});
+interface Props {
+  modelValue?: boolean;
+  classTimeConflicts?: CourseConflictPair[];
+  finalExamConflicts?: CourseConflictPair[];
+}
 
-defineEmits(["update:modelValue"]);
+const {
+  modelValue = false,
+  classTimeConflicts = [],
+  finalExamConflicts = [],
+} = defineProps<Props>();
 
-const formatSlot = (slot) => {
+defineEmits<{
+  (e: "update:modelValue", value: boolean): void;
+}>();
+
+const formatSlot = (slot: TimeSlot): string => {
   const hStart = toFarsiNumber(String(slot.startHour).padStart(2, "0"));
   const mStart = toFarsiNumber(String(slot.startMinute || 0).padStart(2, "0"));
   const hEnd = toFarsiNumber(String(slot.endHour).padStart(2, "0"));
@@ -204,12 +204,19 @@ const formatSlot = (slot) => {
   return `${slot.day} ${hStart}:${mStart} تا ${hEnd}:${mEnd}`;
 };
 
-const getConflictAnalysis = (course1, course2) => {
-  const slots1 = course1.seperated_time_and_place || [];
-  const slots2 = course2.seperated_time_and_place || [];
+interface ConflictAnalysis {
+  clashing1: string[];
+  clashing2: string[];
+  other1: string[];
+  other2: string[];
+}
 
-  const clashIndices1 = new Set();
-  const clashIndices2 = new Set();
+const getConflictAnalysis = (course1: Course, course2: Course): ConflictAnalysis => {
+  const slots1: TimeSlot[] = course1.seperated_time_and_place || [];
+  const slots2: TimeSlot[] = course2.seperated_time_and_place || [];
+
+  const clashIndices1 = new Set<number>();
+  const clashIndices2 = new Set<number>();
 
   for (let i = 0; i < slots1.length; i++) {
     const s1 = slots1[i];
@@ -233,8 +240,8 @@ const getConflictAnalysis = (course1, course2) => {
     }
   }
 
-  const clashing1 = [];
-  const other1 = [];
+  const clashing1: string[] = [];
+  const other1: string[] = [];
   slots1.forEach((s, idx) => {
     const formatted = formatSlot(s) + (s.place ? ` (${s.place})` : "");
     if (clashIndices1.has(idx)) {
@@ -244,8 +251,8 @@ const getConflictAnalysis = (course1, course2) => {
     }
   });
 
-  const clashing2 = [];
-  const other2 = [];
+  const clashing2: string[] = [];
+  const other2: string[] = [];
   slots2.forEach((s, idx) => {
     const formatted = formatSlot(s) + (s.place ? ` (${s.place})` : "");
     if (clashIndices2.has(idx)) {

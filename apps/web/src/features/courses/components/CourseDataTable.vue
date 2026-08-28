@@ -150,76 +150,80 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from "vue";
 import { toFarsiNumber } from "@sess/core";
+import type { Course } from "@/types";
 
-const props = defineProps({
-  results: {
-    type: Array,
-    required: true,
-  },
-  modelValue: {
-    type: Array,
-    default: () => [],
-  },
-  headers: {
-    type: Array,
-    default: () => [
-      { title: "درس", key: "title", sortable: true },
-      { title: "استاد", key: "teacher", sortable: true },
-      { title: "گروه", key: "group", sortable: true, width: "100px" },
-      { title: "زمان و مکان کلاس", key: "time_room", sortable: false },
-    ],
-  },
-  itemsPerPage: {
-    type: Number,
-    default: 10,
-  },
-  mobileDevice: {
-    type: Boolean,
-    default: false,
-  },
-});
+export interface DataTableHeader {
+  title: string;
+  key: string;
+  sortable?: boolean;
+  width?: string;
+  align?: "start" | "center" | "end";
+}
 
-const emit = defineEmits(["update:modelValue"]);
+interface Props {
+  results: Course[];
+  modelValue?: Course[];
+  headers?: DataTableHeader[];
+  itemsPerPage?: number;
+  mobileDevice?: boolean;
+}
 
-const expanded = ref([]);
-const page = ref(1);
+const {
+  results,
+  modelValue = [],
+  headers = [
+    { title: "درس", key: "title", sortable: true },
+    { title: "استاد", key: "teacher", sortable: true },
+    { title: "گروه", key: "group", sortable: true, width: "100px" },
+    { title: "زمان و مکان کلاس", key: "time_room", sortable: false },
+  ],
+  itemsPerPage = 10,
+  mobileDevice = false,
+} = defineProps<Props>();
 
-const formatSlotTime = (h, m) => {
+const emit = defineEmits<{
+  (e: "update:modelValue", value: Course[]): void;
+}>();
+
+const expanded = ref<string[]>([]);
+const page = ref<number>(1);
+
+const formatSlotTime = (h: number, m?: number): string => {
   const hStr = toFarsiNumber(String(h).padStart(2, "0"));
   const mStr = toFarsiNumber(String(m || 0).padStart(2, "0"));
   return `${hStr}:${mStr}`;
 };
 
 // Two-way synchronization between v-data-table IDs and full course objects
-const selectedIds = computed({
+const selectedIds = computed<string[]>({
   get() {
-    return (props.modelValue || [])
+    return (modelValue || [])
       .map((item) => (item && typeof item === "object" ? item.id : item))
-      .filter(Boolean);
+      .filter((id): id is string => Boolean(id));
   },
-  set(newIds) {
-    const courseMap = new Map();
-    (props.results || []).forEach((c) => {
+  set(newIds: string[]) {
+    const courseMap = new Map<string, Course>();
+    (results || []).forEach((c) => {
       if (c && c.id) courseMap.set(c.id, c);
     });
-    (props.modelValue || []).forEach((c) => {
+    (modelValue || []).forEach((c) => {
       if (c && c.id) courseMap.set(c.id, c);
     });
 
-    const newSelectedObjects = newIds
+    const newSelectedObjects: Course[] = newIds
       .map((id) => courseMap.get(id))
-      .filter(Boolean);
+      .filter((c): c is Course => Boolean(c));
 
     emit("update:modelValue", newSelectedObjects);
   },
 });
 
-const pageCount = computed(() => {
-  if (!props.results || props.results.length === 0) return 0;
-  return Math.ceil(props.results.length / props.itemsPerPage);
+const pageCount = computed<number>(() => {
+  if (!results || results.length === 0) return 0;
+  return Math.ceil(results.length / itemsPerPage);
 });
 </script>
 

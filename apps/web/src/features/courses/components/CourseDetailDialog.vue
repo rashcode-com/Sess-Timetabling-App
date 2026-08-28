@@ -128,23 +128,25 @@
   </v-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { toFarsiNumber } from "@sess/core";
+import type { Course } from "@/types";
 
-defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
-  course: {
-    type: Object,
-    default: () => ({}),
-  },
-});
+interface Props {
+  modelValue?: boolean;
+  course?: Partial<Course> | null;
+}
 
-defineEmits(["update:modelValue"]);
+const {
+  modelValue = false,
+  course = null,
+} = defineProps<Props>();
 
-const formatSlotTime = (h, m) => {
+defineEmits<{
+  (e: "update:modelValue", value: boolean): void;
+}>();
+
+const formatSlotTime = (h: number, m?: number): string => {
   const hStr = toFarsiNumber(String(h).padStart(2, "0"));
   const mStr = toFarsiNumber(String(m || 0).padStart(2, "0"));
   return `${hStr}:${mStr}`;

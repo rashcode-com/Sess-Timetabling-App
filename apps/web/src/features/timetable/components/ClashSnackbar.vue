@@ -42,15 +42,19 @@
   </v-snackbar>
 </template>
 
-<script setup>
-defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
-});
+<script setup lang="ts">
+interface Props {
+  modelValue?: boolean;
+}
 
-defineEmits(["update:modelValue", "view-details"]);
+const {
+  modelValue = false,
+} = defineProps<Props>();
+
+defineEmits<{
+  (e: "update:modelValue", value: boolean): void;
+  (e: "view-details"): void;
+}>();
 </script>
 
 <style scoped>

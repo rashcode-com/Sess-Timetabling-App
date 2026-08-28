@@ -6,14 +6,15 @@
   "scripts": {
     "dev": "vite",
     "serve": "vite",
-    "build": "vite build",
+    "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "lint": "eslint src --ext .js,.vue",
-    "test": "node tests/courseDataService.test.mjs && node tests/stores.test.mjs"
+    "lint": "eslint src --ext .js,.ts,.vue",
+    "type-check": "vue-tsc --noEmit",
+    "test": "tsx tests/courseDataService.test.mjs && tsx tests/stores.test.mjs"
   },
   "imports": {
     "@/*": "./src/*",
-    "@shared": "./src/shared/index.js",
+    "@shared": "./src/shared/index.ts",
     "@features/*": "./src/features/*"
   },
   "dependencies": {
@@ -28,13 +29,17 @@
   "devDependencies": {
     "@babel/core": "^7.25.0",
     "@babel/eslint-parser": "^7.25.0",
+    "@types/node": "^26.4.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/compiler-sfc": "^3.5.13",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.20.0",
     "sass-embedded": "^1.80.0",
+    "tsx": "^4.23.12",
+    "typescript": "^5.7.3",
     "vite": "^6.0.0",
-    "vite-plugin-vuetify": "^2.0.4"
+    "vite-plugin-vuetify": "^2.0.4",
+    "vue-tsc": "^3.3.11"
   },
   "eslintConfig": {
     "root": true,

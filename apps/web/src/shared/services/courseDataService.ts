@@ -5,15 +5,22 @@ import {
   placeSearchHelper,
   isTimeInBetween,
 } from "@sess/core";
+import type {
+  Course,
+  TimeSlot,
+  ProcessedDataset,
+  SearchFilters,
+  TimeRangeFilter,
+} from "../../types";
 
 /**
- * Normalizes an individual course record.
- * @param {Object} rawCourse - The raw course data from JSON/API.
- * @param {string} courseId - The unique identifier of the course.
- * @returns {Object} A cloned and normalized course object.
+ * Normalizes an individual course record with strict typing.
+ * @param rawCourse - Raw course object from JSON or API.
+ * @param courseId - The unique identifier of the course.
+ * @returns Normalized Course object.
  */
-export function normalizeCourse(rawCourse, courseId) {
-  const course = {
+export function normalizeCourse(rawCourse: any, courseId: string): Course {
+  const course: Course = {
     ...rawCourse,
     id: courseId,
   };
@@ -41,7 +48,7 @@ export function normalizeCourse(rawCourse, courseId) {
 
   if (Array.isArray(course.seperated_time_and_place)) {
     course.seperated_time_and_place = course.seperated_time_and_place.map(
-      (slot) => ({
+      (slot: TimeSlot) => ({
         ...slot,
         day: normalizeDayName(slot.day),
         place: slot.place ? toFarsiNumber(slot.place) : "",
@@ -54,7 +61,10 @@ export function normalizeCourse(rawCourse, courseId) {
   return course;
 }
 
-export function normalizeDayName(rawDay) {
+/**
+ * Normalizes Persian day strings to standard representation.
+ */
+export function normalizeDayName(rawDay?: string): string {
   const d = (rawDay || "").replace(/[^\u0600-\u06FF]/g, "").trim();
   if (d.includes("یک")) return "یک‌شنبه";
   if (d.includes("سه")) return "سه‌شنبه";
@@ -68,15 +78,15 @@ export function normalizeDayName(rawDay) {
 
 /**
  * Processes a raw dataset into a structured, indexed, and deduplicated data model.
- * @param {Object} rawData - The raw JSON dataset (departments -> courses).
- * @returns {Object} Processed dataset, course map, list, and deduplicated filter items.
+ * @param rawData - The raw JSON dataset (departments -> courses).
+ * @returns Processed dataset, course map, list, and deduplicated filter items.
  */
-export function processDataset(rawData) {
+export function processDataset(rawData: unknown): ProcessedDataset {
   if (!rawData || typeof rawData !== "object") {
     return {
       dataset: {},
       courseList: [],
-      courseMap: new Map(),
+      courseMap: new Map<string, Course>(),
       filterOptions: {
         semesters: ["1402-1"],
         units: [],
@@ -89,22 +99,22 @@ export function processDataset(rawData) {
     };
   }
 
-  const dataset = {};
-  const courseList = [];
-  const courseMap = new Map();
+  const dataset: Record<string, Record<string, Course>> = {};
+  const courseList: Course[] = [];
+  const courseMap = new Map<string, Course>();
 
-  const unitSet = new Set();
-  const courseSet = new Set();
-  const teacherSet = new Set();
-  const placeSet = new Set();
-  const genderSet = new Set();
+  const unitSet = new Set<string>();
+  const courseSet = new Set<string>();
+  const teacherSet = new Set<string>();
+  const placeSet = new Set<string>();
+  const genderSet = new Set<string>();
 
-  for (const [unitName, rawCourses] of Object.entries(rawData)) {
+  for (const [unitName, rawCourses] of Object.entries(rawData as Record<string, any>)) {
     dataset[unitName] = {};
     unitSet.add(unitName);
 
     if (rawCourses && typeof rawCourses === "object") {
-      for (const [courseKey, rawCourse] of Object.entries(rawCourses)) {
+      for (const [courseKey, rawCourse] of Object.entries(rawCourses as Record<string, any>)) {
         const normalized = normalizeCourse(rawCourse, courseKey);
 
         dataset[unitName][courseKey] = normalized;
@@ -116,7 +126,7 @@ export function processDataset(rawData) {
         }
 
         if (normalized.teacher) {
-          normalized.teacher.split(" | ").forEach((t) => {
+          normalized.teacher.split(" | ").forEach((t: string) => {
             const trimmed = t.trim();
             if (trimmed) {
               teacherSet.add(trimmed);
@@ -138,7 +148,7 @@ export function processDataset(rawData) {
   }
 
   const collator = new Intl.Collator("fa");
-  const sortFa = (set) => Array.from(set).sort(collator.compare);
+  const sortFa = (set: Set<string>): string[] => Array.from(set).sort(collator.compare);
 
   const filterOptions = {
     semesters: ["1402-1"],
@@ -160,12 +170,16 @@ export function processDataset(rawData) {
 
 /**
  * Executes a deterministic multi-criteria search over the dataset.
- * @param {Object} dataset - The normalized hierarchical dataset (unit -> courseKey -> Course).
- * @param {Object} filters - The active filter selections.
- * @param {Object} [timeRange] - Optional time range object { timeStart, timeEnd }.
- * @returns {Array} Array of matched Course objects (or [-1] if no matches are found).
+ * @param dataset - The normalized hierarchical dataset (unit -> courseKey -> Course).
+ * @param filters - The active filter selections.
+ * @param timeRange - Optional time range object { timeStart, timeEnd }.
+ * @returns Array of matched Course objects (or [-1] if no matches are found).
  */
-export function searchCourses(dataset, filters = {}, timeRange = {}) {
+export function searchCourses(
+  dataset?: Record<string, Record<string, Course>> | null,
+  filters: SearchFilters = {},
+  timeRange: TimeRangeFilter = {}
+): Course[] | [-1] {
   if (!dataset) return [-1];
 
   const {
@@ -178,7 +192,7 @@ export function searchCourses(dataset, filters = {}, timeRange = {}) {
 
   const { timeStart = "", timeEnd = "" } = timeRange;
 
-  const results = [];
+  const results: Course[] = [];
 
   for (const unitName in dataset) {
     if (unit.length === 0 || unit.includes(unitName)) {
@@ -207,10 +221,7 @@ export function searchCourses(dataset, filters = {}, timeRange = {}) {
         }
 
         // 5. Time range filter
-        if (
-          timeStart.length !== 0 ||
-          timeEnd.length !== 0
-        ) {
+        if (timeStart.length !== 0 || timeEnd.length !== 0) {
           if (!isTimeInBetween(timeStart, timeEnd, item.seperated_time_and_place)) {
             continue;
           }
@@ -230,6 +241,7 @@ export function searchCourses(dataset, filters = {}, timeRange = {}) {
 
 export const courseDataService = {
   normalizeCourse,
+  normalizeDayName,
   processDataset,
   searchCourses,
 };

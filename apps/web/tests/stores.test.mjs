@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { setActivePinia, createPinia } from "pinia";
-import { useCourseStore } from "../src/store/courseStore.js";
-import { useTimetableStore } from "../src/store/timetableStore.js";
+import { useCourseStore } from "../src/store/courseStore.ts";
+import { useTimetableStore } from "../src/store/timetableStore.ts";
 
 const rawData = JSON.parse(
   fs.readFileSync(new URL("../src/data/data.json", import.meta.url), "utf-8")

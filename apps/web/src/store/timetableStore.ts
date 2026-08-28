@@ -5,20 +5,31 @@ import {
   convertPersianNumToEng,
   toFarsiNumber,
 } from "@sess/core";
-import { searchCourses } from "../shared/services/courseDataService.js";
+import { searchCourses } from "../shared/services/courseDataService";
+import type {
+  Course,
+  CourseConflictPair,
+  SearchFilters,
+  TimeRangeFilter,
+} from "../types";
+
+export interface TimetableState {
+  selectedCourses: Course[];
+  searchResults: Course[] | [-1];
+}
 
 export const useTimetableStore = defineStore("timetable", {
-  state: () => ({
+  state: (): TimetableState => ({
     selectedCourses: [],
     searchResults: [],
   }),
 
   getters: {
-    selectedList: (state) => state.selectedCourses,
-    results: (state) => state.searchResults,
-    selectedCount: (state) => state.selectedCourses.length,
+    selectedList: (state): Course[] => state.selectedCourses,
+    results: (state): Course[] | [-1] => state.searchResults,
+    selectedCount: (state): number => state.selectedCourses.length,
 
-    vahedsSumNumber: (state) => {
+    vahedsSumNumber: (state): number => {
       let sum = 0;
       for (let i = 0; i < state.selectedCourses.length; i++) {
         const course = state.selectedCourses[i];
@@ -29,7 +40,7 @@ export const useTimetableStore = defineStore("timetable", {
       return sum;
     },
 
-    vahedsSum: (state) => {
+    vahedsSum: (state): string => {
       let sum = 0;
       for (let i = 0; i < state.selectedCourses.length; i++) {
         const course = state.selectedCourses[i];
@@ -40,8 +51,8 @@ export const useTimetableStore = defineStore("timetable", {
       return toFarsiNumber(sum);
     },
 
-    classTimeConflicts: (state) => {
-      const conflicts = [];
+    classTimeConflicts: (state): CourseConflictPair[] => {
+      const conflicts: CourseConflictPair[] = [];
       const list = state.selectedCourses;
       for (let i = 0; i < list.length; i++) {
         for (let j = i + 1; j < list.length; j++) {
@@ -53,8 +64,8 @@ export const useTimetableStore = defineStore("timetable", {
       return conflicts;
     },
 
-    finalExamConflicts: (state) => {
-      const conflicts = [];
+    finalExamConflicts: (state): CourseConflictPair[] => {
+      const conflicts: CourseConflictPair[] = [];
       const list = state.selectedCourses;
       for (let i = 0; i < list.length; i++) {
         for (let j = i + 1; j < list.length; j++) {
@@ -66,36 +77,36 @@ export const useTimetableStore = defineStore("timetable", {
       return conflicts;
     },
 
-    totalConflictCount() {
+    totalConflictCount(): number {
       return this.classTimeConflicts.length + this.finalExamConflicts.length;
     },
 
-    hasConflicts() {
+    hasConflicts(): boolean {
       return this.totalConflictCount > 0;
     },
 
-    isCourseSelected: (state) => (id) => {
+    isCourseSelected: (state) => (id: string): boolean => {
       return state.selectedCourses.some((c) => c.id === id);
     },
   },
 
   actions: {
-    setSelectedCourses(courses) {
+    setSelectedCourses(courses: Course[]): void {
       this.selectedCourses = Array.isArray(courses) ? courses : [];
     },
 
-    addCourse(course) {
+    addCourse(course: Course): void {
       if (!course) return;
       if (!this.selectedCourses.some((c) => c.id === course.id)) {
         this.selectedCourses.push(course);
       }
     },
 
-    removeCourse(courseId) {
+    removeCourse(courseId: string): void {
       this.selectedCourses = this.selectedCourses.filter((c) => c.id !== courseId);
     },
 
-    toggleCourse(course) {
+    toggleCourse(course: Course): void {
       if (!course) return;
       const index = this.selectedCourses.findIndex((c) => c.id === course.id);
       if (index !== -1) {
@@ -105,15 +116,19 @@ export const useTimetableStore = defineStore("timetable", {
       }
     },
 
-    clearSelectedCourses() {
+    clearSelectedCourses(): void {
       this.selectedCourses = [];
     },
 
-    setSearchResults(results) {
+    setSearchResults(results: Course[] | [-1]): void {
       this.searchResults = Array.isArray(results) ? results : [];
     },
 
-    executeSearch(dataset, filters, timeRange) {
+    executeSearch(
+      dataset?: Record<string, Record<string, Course>> | null,
+      filters?: SearchFilters,
+      timeRange?: TimeRangeFilter
+    ): Course[] | [-1] {
       this.searchResults = searchCourses(dataset, filters, timeRange);
       return this.searchResults;
     },

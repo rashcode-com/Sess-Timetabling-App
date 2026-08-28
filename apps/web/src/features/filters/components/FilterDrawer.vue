@@ -257,69 +257,59 @@
   </v-navigation-drawer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, watch, computed } from "vue";
 import { useDisplay } from "vuetify";
 import { toFarsiNumber } from "@sess/core";
+import type { SearchEventPayload } from "@/types";
 
 const { xs } = useDisplay();
-const drawerWidth = computed(() =>
-  xs.value ? Math.min(300, (typeof window !== 'undefined' ? window.innerWidth : 350) - 16) : 350
+const drawerWidth = computed<number>(() =>
+  xs.value ? Math.min(300, (typeof window !== "undefined" ? window.innerWidth : 350) - 16) : 350
 );
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: true,
-  },
-  semesters: {
-    type: Array,
-    default: () => [],
-  },
-  units: {
-    type: Array,
-    default: () => [],
-  },
-  courses: {
-    type: Array,
-    default: () => [],
-  },
-  teachers: {
-    type: Array,
-    default: () => [],
-  },
-  places: {
-    type: Array,
-    default: () => [],
-  },
-  genders: {
-    type: Array,
-    default: () => [],
-  },
-  selectedCount: {
-    type: Number,
-    default: 0,
-  },
-  temporary: {
-    type: Boolean,
-    default: false,
-  },
-});
+interface Props {
+  modelValue?: boolean;
+  semesters?: string[];
+  units?: string[];
+  courses?: string[];
+  teachers?: string[];
+  places?: string[];
+  genders?: string[];
+  selectedCount?: number;
+  temporary?: boolean;
+}
 
-const emit = defineEmits(["update:modelValue", "tab-change", "search"]);
+const {
+  modelValue = true,
+  semesters = [],
+  units = [],
+  courses = [],
+  teachers = [],
+  places = [],
+  genders = [],
+  selectedCount = 0,
+  temporary = false,
+} = defineProps<Props>();
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: boolean): void;
+  (e: "tab-change", tab: string): void;
+  (e: "search", payload: SearchEventPayload): void;
+}>();
 
 // Single reactive source of truth for tabs
-const activeTab = ref("filter");
-const localTimeStart = ref("");
-const localTimeEnd = ref("");
-const rawTimeStart = ref(null);
-const rawTimeEnd = ref(null);
-const startMenu = ref(false);
-const endMenu = ref(false);
+const activeTab = ref<string>("filter");
+const localTimeStart = ref<string>("");
+const localTimeEnd = ref<string>("");
+const rawTimeStart = ref<string | null>(null);
+const rawTimeEnd = ref<string | null>(null);
+const startMenu = ref<boolean>(false);
+const endMenu = ref<boolean>(false);
 
 // Inline Validation Error State
-const semesterError = ref("");
-const filterSelectionError = ref("");
+const semesterError = ref<string>("");
+const filterSelectionError = ref<string>("");
 
 const autocompleteMenuProps = {
   maxWidth: 420,
@@ -327,7 +317,16 @@ const autocompleteMenuProps = {
   contentClass: "app-autocomplete-menu",
 };
 
-const localFilters = reactive({
+interface LocalFiltersState {
+  semester: string;
+  unit: string[];
+  course: string[];
+  teacherName: string[];
+  place: string[];
+  gender: string[];
+}
+
+const localFilters = reactive<LocalFiltersState>({
   semester: "",
   unit: [],
   course: [],
@@ -337,7 +336,7 @@ const localFilters = reactive({
 });
 
 watch(
-  () => props.semesters,
+  () => semesters,
   (newSemesters) => {
     if (newSemesters && newSemesters.length && !localFilters.semester) {
       localFilters.semester = newSemesters[0];
@@ -379,37 +378,37 @@ watch(
 );
 
 // Time conversion helpers
-const toStandardTime = (str) => {
+const toStandardTime = (str?: string): string => {
   if (!str) return "";
   const persianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
-  return str.replace(/[۰-۹]/g, (w) => persianDigits.indexOf(w));
+  return str.replace(/[۰-۹]/g, (w) => String(persianDigits.indexOf(w)));
 };
 
-const onTimeStartSelected = (val) => {
+const onTimeStartSelected = (val: string | null): void => {
   if (val) {
     localTimeStart.value = toFarsiNumber(val);
     startMenu.value = false;
   }
 };
 
-const onTimeEndSelected = (val) => {
+const onTimeEndSelected = (val: string | null): void => {
   if (val) {
     localTimeEnd.value = toFarsiNumber(val);
     endMenu.value = false;
   }
 };
 
-const setTimeStartDirect = (slot) => {
+const setTimeStartDirect = (slot: string): void => {
   localTimeStart.value = slot;
   startMenu.value = false;
 };
 
-const setTimeEndDirect = (slot) => {
+const setTimeEndDirect = (slot: string): void => {
   localTimeEnd.value = slot;
   endMenu.value = false;
 };
 
-const handleSearch = () => {
+const handleSearch = (): void => {
   let hasError = false;
 
   if (!localFilters.semester) {

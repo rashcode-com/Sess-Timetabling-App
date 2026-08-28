@@ -59,7 +59,7 @@
     <div class="courses-card-list d-flex flex-column gap-2">
       <v-card
         v-for="item in selectedList"
-        :key="item.id || item.index"
+        :key="item.id"
         class="course-item-card pa-3"
         rounded="lg"
         elevation="1"
@@ -122,25 +122,27 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { toFarsiNumber } from "@sess/core";
+import type { Course } from "@/types";
 
-defineProps({
-  selectedList: {
-    type: Array,
-    default: () => [],
-  },
-  interferenceCount: {
-    type: Number,
-    default: 0,
-  },
-  vahedsSum: {
-    type: [String, Number],
-    default: "۰",
-  },
-});
+interface Props {
+  selectedList?: Course[];
+  interferenceCount?: number;
+  vahedsSum?: string | number;
+}
 
-defineEmits(["show-details", "remove-course", "open-clash-modal"]);
+const {
+  selectedList = [],
+  interferenceCount = 0,
+  vahedsSum = "۰",
+} = defineProps<Props>();
+
+defineEmits<{
+  (e: "show-details", course: Course): void;
+  (e: "remove-course", courseId: string): void;
+  (e: "open-clash-modal"): void;
+}>();
 </script>
 
 <style scoped>

@@ -54,35 +54,34 @@
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 import { useTheme } from "vuetify";
 
-defineProps({
-  updateTimeDateText: {
-    type: String,
-    default: "به روز شده در ۹ شهریور",
-  },
-  updateTimeClockText: {
-    type: String,
-    default: "ساعت ۱۱:۱۸",
-  },
-  version: {
-    type: String,
-    default: `نسخه ${typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.1.5'}`,
-  },
-});
+interface Props {
+  updateTimeDateText?: string;
+  updateTimeClockText?: string;
+  version?: string;
+}
 
-defineEmits(["toggle-drawer"]);
+const {
+  updateTimeDateText = "به روز شده در ۹ شهریور",
+  updateTimeClockText = "ساعت ۱۱:۱۸",
+  version = `نسخه ${typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "0.1.5"}`,
+} = defineProps<Props>();
+
+defineEmits<{
+  (e: "toggle-drawer"): void;
+}>();
 
 const theme = useTheme();
 const isDark = computed(() => theme.global.current.value.dark);
 
-const toggleTheme = () => {
-  const next = isDark.value ? 'light' : 'dark';
+const toggleTheme = (): void => {
+  const next = isDark.value ? "light" : "dark";
   theme.global.name.value = next;
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('sess-theme', next);
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("sess-theme", next);
   }
 };
 </script>

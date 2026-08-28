@@ -4,7 +4,7 @@ import {
   normalizeCourse,
   processDataset,
   searchCourses,
-} from '../src/shared/services/courseDataService.js';
+} from '../src/shared/services/courseDataService.ts';
 
 const rawData = JSON.parse(
   fs.readFileSync(new URL('../src/data/data.json', import.meta.url), 'utf-8')

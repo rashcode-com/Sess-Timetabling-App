@@ -8,7 +8,7 @@
   </v-locale-provider>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onBeforeMount } from "vue";
 import { useCourseStore } from "@/store";
 

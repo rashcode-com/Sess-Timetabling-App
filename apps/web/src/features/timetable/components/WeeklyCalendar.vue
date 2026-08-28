@@ -168,7 +168,7 @@
               <template #prepend>
                 <span class="font-weight-bold text-caption text-medium-emphasis ml-2">شماره گروه:</span>
               </template>
-              <span class="text-body-2">گروه {{ toFarsiNumber(selectedEvent.group) }}</span>
+              <span class="text-body-2">گروه {{ toFarsiNumber(selectedEvent.group || "") }}</span>
             </v-list-item>
 
             <v-list-item v-if="selectedEvent.room" class="px-0 py-1">
@@ -191,7 +191,7 @@
               </template>
               <v-chip color="error" variant="tonal" size="x-small" class="font-weight-bold">
                 <span>{{ selectedEvent.final_date }}</span>
-                <span v-if="selectedEvent.final_time" class="mr-1">(ساعت <span dir="ltr">{{ toFarsiNumber(selectedEvent.final_time) }}</span>)</span>
+                <span v-if="selectedEvent.final_time" class="mr-1">(ساعت <span dir="ltr">{{ toFarsiNumber(selectedEvent.final_time || "") }}</span>)</span>
               </v-chip>
             </v-list-item>
           </v-list>
@@ -214,27 +214,32 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from "vue";
 import { toFarsiNumber } from "@sess/core";
 import { normalizeDayName } from "@shared";
+import type { Course, CalendarEvent, TimeSlot } from "@/types";
 
-const props = defineProps({
-  selectedList: {
-    type: Array,
-    default: () => [],
-  },
-  mobileDevice: {
-    type: Boolean,
-    default: false,
-  },
-});
+interface Props {
+  selectedList?: Course[];
+  mobileDevice?: boolean;
+}
 
-const calendarOpen = ref(true);
-const selectedOpen = ref(false);
-const selectedEvent = ref({});
+const {
+  selectedList = [],
+  mobileDevice = false,
+} = defineProps<Props>();
 
-const iranianDays = [
+const calendarOpen = ref<boolean>(true);
+const selectedOpen = ref<boolean>(false);
+const selectedEvent = ref<Partial<CalendarEvent>>({});
+
+interface IranianDay {
+  id: string;
+  name: string;
+}
+
+const iranianDays: IranianDay[] = [
   { id: "شنبه", name: "شنبه" },
   { id: "یک‌شنبه", name: "یک‌شنبه" },
   { id: "دوشنبه", name: "دوشنبه" },
@@ -250,42 +255,42 @@ const HOURS_COUNT = END_HOUR - START_HOUR; // 13 intervals
 const HOUR_HEIGHT = 48; // Explicit pixel height per hour
 const MATRIX_HEIGHT = HOURS_COUNT * HOUR_HEIGHT; // 624px
 
-const timeLabels = [
+const timeLabels: string[] = [
   "۰۷:۰۰", "۰۸:۰۰", "۰۹:۰۰", "۱۰:۰۰", "۱۱:۰۰", "۱۲:۰۰",
   "۱۳:۰۰", "۱۴:۰۰", "۱۵:۰۰", "۱۶:۰۰", "۱۷:۰۰", "۱۸:۰۰", "۱۹:۰۰", "۲۰:۰۰"
 ];
 
-const paletteColors = [
+const paletteColors: string[] = [
   "#8C57FF", "#16B1FF", "#56CA00", "#FFB400", "#FF4C51",
   "#00ADB5", "#F08A5D", "#B83B5E", "#6A2C70", "#3282B8", "#17B978"
 ];
 
-const toggleCalendar = () => {
+const toggleCalendar = (): void => {
   calendarOpen.value = !calendarOpen.value;
 };
 
-const formatTimePersian = (h, m) => {
+const formatTimePersian = (h: number, m?: number): string => {
   const hStr = toFarsiNumber(String(h).padStart(2, "0"));
   const mStr = toFarsiNumber(String(m || 0).padStart(2, "0"));
   return `${hStr}:${mStr}`;
 };
 
 // Bug 1 & 4 Fix: Accurate Connected-Component Clustering & Symmetrical Interval Partitioning
-const dayEventsMap = computed(() => {
-  const map = new Map();
+const dayEventsMap = computed<Map<string, CalendarEvent[]>>(() => {
+  const map = new Map<string, CalendarEvent[]>();
   iranianDays.forEach((d) => map.set(d.id, []));
 
   // Deduplicate courses from props.selectedList
-  const courses = [];
-  const seenCourseIds = new Set();
-  (props.selectedList || []).forEach((c) => {
+  const courses: Course[] = [];
+  const seenCourseIds = new Set<string>();
+  (selectedList || []).forEach((c) => {
     if (c && c.id && !seenCourseIds.has(c.id)) {
       seenCourseIds.add(c.id);
       courses.push(c);
     }
   });
 
-  const rawList = [];
+  const rawList: CalendarEvent[] = [];
 
   for (let i = 0; i < courses.length; i++) {
     const course = courses[i];
@@ -294,10 +299,10 @@ const dayEventsMap = computed(() => {
     const baseColor = paletteColors[i % paletteColors.length];
 
     // Deduplicate slots for this course so duplicate records in data don't render twice
-    const seenSlots = new Set();
+    const seenSlots = new Set<string>();
 
     for (let j = 0; j < course.seperated_time_and_place.length; j++) {
-      const slot = course.seperated_time_and_place[j];
+      const slot: TimeSlot = course.seperated_time_and_place[j];
       const day = normalizeDayName(slot.day);
       const slotKey = `${day}-${slot.startHour}:${slot.startMinute}-${slot.endHour}:${slot.endMinute}`;
       if (seenSlots.has(slotKey)) continue;
@@ -334,12 +339,13 @@ const dayEventsMap = computed(() => {
     dayEvents.sort((a, b) => a.startMin - b.startMin || b.durationMin - a.durationMin);
 
     // Two events overlap if and only if they strictly overlap in time
-    const overlaps = (a, b) => !(a.startMin >= b.endMin || a.endMin <= b.startMin);
+    const overlaps = (a: CalendarEvent, b: CalendarEvent): boolean =>
+      !(a.startMin >= b.endMin || a.endMin <= b.startMin);
 
     // Find connected components (clusters) of mutually overlapping events
-    const clusters = [];
+    const clusters: CalendarEvent[][] = [];
     dayEvents.forEach((ev) => {
-      const matchingClusterIndices = [];
+      const matchingClusterIndices: number[] = [];
       clusters.forEach((cl, idx) => {
         if (cl.some((c) => overlaps(ev, c))) {
           matchingClusterIndices.push(idx);
@@ -367,7 +373,7 @@ const dayEventsMap = computed(() => {
       cluster.sort((a, b) => a.startMin - b.startMin || b.durationMin - a.durationMin);
 
       // Pack into columns greedily
-      const columns = [];
+      const columns: CalendarEvent[][] = [];
       cluster.forEach((ev) => {
         let placed = false;
         for (let colIdx = 0; !placed; colIdx++) {
@@ -386,7 +392,7 @@ const dayEventsMap = computed(() => {
       cluster.forEach((ev) => {
         ev.totalCols = totalCols;
         ev.widthPercent = 100 / totalCols;
-        ev.rightPercent = ev.colIndex * ev.widthPercent;
+        ev.rightPercent = (ev.colIndex ?? 0) * ev.widthPercent;
       });
     });
 
@@ -396,25 +402,25 @@ const dayEventsMap = computed(() => {
   return map;
 });
 
-const getEventsForDay = (dayId) => {
+const getEventsForDay = (dayId: string): CalendarEvent[] => {
   return dayEventsMap.value.get(dayId) || [];
 };
 
-const getEventStyle = (event) => {
+const getEventStyle = (event: CalendarEvent): Record<string, string> => {
   const topPx = (event.startMin / 60) * HOUR_HEIGHT;
   const heightPx = Math.max(44, (event.durationMin / 60) * HOUR_HEIGHT - 2);
 
   return {
     top: `${topPx}px`,
     height: `${heightPx}px`,
-    width: `calc(${event.widthPercent}% - 4px)`,
-    right: `calc(${event.rightPercent}% + 2px)`,
+    width: `calc(${event.widthPercent ?? 100}% - 4px)`,
+    right: `calc(${event.rightPercent ?? 0}% + 2px)`,
     borderRight: `4px solid ${event.rawColor}`,
     backgroundColor: `${event.rawColor}1F`, // 12% opacity tint
   };
 };
 
-const openEventModal = (event) => {
+const openEventModal = (event: CalendarEvent): void => {
   selectedEvent.value = event;
   selectedOpen.value = true;
 };

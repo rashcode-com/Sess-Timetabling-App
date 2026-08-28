@@ -65,14 +65,14 @@
           />
 
           <!-- 2. Search Results Section -->
-          <div v-if="results.length > 0 && results[0] !== -1">
+          <div v-if="courseResults.length > 0">
             <!-- Section Title & Results Counter (Persian Digits - Fix Bug 17) -->
             <div class="d-flex align-center justify-space-between mb-3 mt-4">
               <div class="d-flex align-center gap-2">
                 <v-icon color="primary" size="22">mdi-table</v-icon>
                 <h2 class="text-h6 font-weight-bold mb-0">نتایج جستجو</h2>
                 <v-chip color="primary" variant="tonal" size="x-small" class="font-weight-bold mr-2">
-                  {{ toFarsiNumber(results.length) }} درس یافت شد
+                  {{ toFarsiNumber(courseResults.length) }} درس یافت شد
                 </v-chip>
               </div>
             </div>
@@ -80,7 +80,7 @@
             <!-- Results Data Table -->
             <CourseDataTable
               v-model="selectedList"
-              :results="results"
+              :results="courseResults"
               :headers="dataTableHeaders"
               :items-per-page="itemsPerPage"
               :mobile-device="mobileDevice"
@@ -135,8 +135,8 @@
   </div>
 </template>
 
-<script setup>
-import { ref, watch } from "vue";
+<script setup lang="ts">
+import { ref, watch, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useDisplay } from "vuetify";
 import { toFarsiNumber } from "@sess/core";
@@ -150,6 +150,8 @@ import {
   ClashAlertModal,
   ClashSnackbar,
 } from "@/features/timetable";
+import type { Course, SearchEventPayload } from "@/types";
+import type { DataTableHeader } from "@/features/courses/components/CourseDataTable.vue";
 
 const { smAndDown: mobileDevice } = useDisplay();
 
@@ -175,14 +177,14 @@ const {
   vahedsSum,
 } = storeToRefs(timetableStore);
 
-const drawer = ref(true);
-const itemsPerPage = ref(10);
-const dialog = ref(false);
-const dialogContent = ref({});
-const snackbarAlert = ref(false);
-const showSelectedListAlert = ref(false);
+const drawer = ref<boolean>(true);
+const itemsPerPage = ref<number>(10);
+const dialog = ref<boolean>(false);
+const dialogContent = ref<Partial<Course>>({});
+const snackbarAlert = ref<boolean>(false);
+const showSelectedListAlert = ref<boolean>(false);
 
-const dataTableHeaders = [
+const dataTableHeaders: DataTableHeader[] = [
   { title: "درس", key: "title", sortable: true },
   { title: "استاد", key: "teacher", sortable: true },
   { title: "گروه", key: "group", sortable: true, width: "100px" },
@@ -191,6 +193,13 @@ const dataTableHeaders = [
 
 const updateTimeDateText = "به روز شده در ۹ شهریور";
 const updateTimeClockText = "ساعت ۱۱:۱۸";
+
+const courseResults = computed<Course[]>(() => {
+  if (results.value && results.value.length > 0 && results.value[0] !== -1) {
+    return results.value as Course[];
+  }
+  return [];
+});
 
 watch(
   () => totalConflictCount.value,
@@ -201,16 +210,16 @@ watch(
   }
 );
 
-const setDialogContent = (item) => {
+const setDialogContent = (item: Course): void => {
   dialogContent.value = { ...item };
   dialog.value = true;
 };
 
-const removeFromSelected = (id) => {
+const removeFromSelected = (id: string): void => {
   timetableStore.removeCourse(id);
 };
 
-const search = ({ filters, timeRange }) => {
+const search = ({ filters, timeRange }: SearchEventPayload): void => {
   timetableStore.executeSearch(rawJson.value, filters, timeRange);
 };
 </script>
