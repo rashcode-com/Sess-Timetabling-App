@@ -1,405 +1,493 @@
 <template>
   <v-navigation-drawer
-    fixed
-    right
-    :value="value"
-    @input="$emit('input', $event)"
-    style="width:320px"
-    hide-overlay
+    location="right"
+    :model-value="modelValue"
+    @update:model-value="$emit('update:modelValue', $event)"
+    :temporary="temporary"
+    :width="drawerWidth"
+    class="filter-drawer"
+    elevation="0"
   >
-    <template v-slot:prepend>
-      <v-list-item two-line>
-        <v-tabs v-model="activeTabIndex">
-          <v-tab @click="filterTabClick">
-            فیلتر
-          </v-tab>
-          <v-tab @click="selectTabClicked">
-            دروس انتخاب شده
-          </v-tab>
-
-          <v-tabs-slider color="blue"></v-tabs-slider>
-        </v-tabs>
-        <v-app-bar-nav-icon
-          style="background:#eee6"
-          @click.stop="$emit('input', !value)"
+    <template #prepend>
+      <!-- Dedicated Drawer Header Bar aligned with AppHeader height -->
+      <div class="drawer-header-bar px-2">
+        <v-tabs
+          v-model="activeTab"
+          color="primary"
+          density="compact"
+          :show-arrows="false"
+          grow
+          class="filter-tabs"
         >
-          <v-icon x-large>mdi-chevron-right</v-icon>
-        </v-app-bar-nav-icon>
-      </v-list-item>
+          <v-tab value="filter" class="tab-item">
+            <v-icon start size="16">mdi-filter-variant</v-icon>
+            فیلترها
+          </v-tab>
+          <v-tab value="selected" class="tab-item">
+            <v-badge
+              v-if="selectedCount > 0"
+              :content="toFarsiNumber(selectedCount)"
+              color="primary"
+              inline
+              class="ml-1 font-weight-bold"
+            ></v-badge>
+            <v-icon start size="16">mdi-format-list-checks</v-icon>
+            انتخاب‌شده‌ها
+          </v-tab>
+        </v-tabs>
+      </div>
+      <v-divider></v-divider>
     </template>
 
-    <v-divider></v-divider>
+    <!-- 1. Filter Tab Content -->
+    <div v-show="activeTab === 'filter'" class="px-3 pb-4 pt-4">
+      <v-autocomplete
+        label="نیمسال تحصیلی *"
+        v-model="localFilters.semester"
+        :items="semesters"
+        :error-messages="semesterError"
+        :menu-props="autocompleteMenuProps"
+        variant="outlined"
+        density="comfortable"
+        color="primary"
+        hide-details="auto"
+        class="mb-3 custom-form-field"
+        clearable
+      ></v-autocomplete>
 
-    <v-list v-if="filterTabActive" dense>
-      <v-list-item>
-        <v-autocomplete
-          solo
-          label="نیمسال تحصیلی*"
-          v-model="localFilters.semester"
-          :rules="rules"
-          :items="semesters"
-          hide-no-data
-          hide-details="auto"
-          class="mb-3"
-          hide-selected
-          chips
-          :search-input.sync="searchInput1"
-          @change="searchInput1 = ''"
+      <v-autocomplete
+        label="بخش"
+        v-model="localFilters.unit"
+        :items="units"
+        :menu-props="autocompleteMenuProps"
+        multiple
+        chips
+        closable-chips
+        variant="outlined"
+        density="comfortable"
+        color="primary"
+        hide-details="auto"
+        class="mb-3 custom-form-field"
+        clearable
+      ></v-autocomplete>
+
+      <v-autocomplete
+        label="درس"
+        v-model="localFilters.course"
+        :items="courses"
+        :menu-props="autocompleteMenuProps"
+        multiple
+        chips
+        closable-chips
+        variant="outlined"
+        density="comfortable"
+        color="primary"
+        hide-details="auto"
+        class="mb-3 custom-form-field"
+        clearable
+      ></v-autocomplete>
+
+      <v-autocomplete
+        label="نام استاد"
+        v-model="localFilters.teacherName"
+        :items="teachers"
+        :menu-props="autocompleteMenuProps"
+        multiple
+        chips
+        closable-chips
+        variant="outlined"
+        density="comfortable"
+        color="primary"
+        hide-details="auto"
+        class="mb-3 custom-form-field"
+        clearable
+      ></v-autocomplete>
+
+      <v-autocomplete
+        label="جنسیت"
+        v-model="localFilters.gender"
+        :items="genders"
+        :menu-props="autocompleteMenuProps"
+        multiple
+        chips
+        closable-chips
+        variant="outlined"
+        density="comfortable"
+        color="primary"
+        hide-details="auto"
+        class="mb-3 custom-form-field"
+        clearable
+      ></v-autocomplete>
+
+      <v-autocomplete
+        label="مکان برگزاری کلاس"
+        v-model="localFilters.place"
+        :items="places"
+        :menu-props="autocompleteMenuProps"
+        multiple
+        chips
+        closable-chips
+        variant="outlined"
+        density="comfortable"
+        color="primary"
+        hide-details="auto"
+        class="mb-3 custom-form-field"
+        clearable
+      ></v-autocomplete>
+
+      <!-- Interactive Clock Time Pickers with Balanced RTL Append Icons -->
+      <v-row no-gutters class="mb-3">
+        <!-- Start Time -->
+        <v-col cols="6" class="pl-1">
+          <v-menu v-model="startMenu" :close-on-content-click="false" location="bottom end">
+            <template #activator="{ props }">
+              <v-text-field
+                v-bind="props"
+                v-model="localTimeStart"
+                label="از ساعت"
+                append-inner-icon="mdi-clock-time-four-outline"
+                variant="outlined"
+                density="comfortable"
+                color="primary"
+                hide-details="auto"
+                class="custom-form-field cursor-pointer"
+                readonly
+                clearable
+                @click:clear="localTimeStart = ''"
+              ></v-text-field>
+            </template>
+            <v-card class="pa-2 time-picker-card" rounded="lg" elevation="3">
+              <v-time-picker
+                v-model="rawTimeStart"
+                format="24hr"
+                color="primary"
+                @update:model-value="onTimeStartSelected"
+              ></v-time-picker>
+              <div class="quick-slots d-flex flex-wrap gap-1 mt-2 justify-center">
+                <v-chip
+                  v-for="slot in ['۰۸:۰۰', '۱۰:۰۰', '۱۲:۰۰', '۱۴:۰۰', '۱۶:۰۰']"
+                  :key="slot"
+                  size="x-small"
+                  variant="tonal"
+                  color="primary"
+                  class="cursor-pointer"
+                  @click="setTimeStartDirect(slot)"
+                >
+                  {{ slot }}
+                </v-chip>
+              </div>
+            </v-card>
+          </v-menu>
+        </v-col>
+
+        <!-- End Time -->
+        <v-col cols="6" class="pr-1">
+          <v-menu v-model="endMenu" :close-on-content-click="false" location="bottom end">
+            <template #activator="{ props }">
+              <v-text-field
+                v-bind="props"
+                v-model="localTimeEnd"
+                label="تا ساعت"
+                append-inner-icon="mdi-clock-time-eight-outline"
+                variant="outlined"
+                density="comfortable"
+                color="primary"
+                hide-details="auto"
+                class="custom-form-field cursor-pointer"
+                readonly
+                clearable
+                @click:clear="localTimeEnd = ''"
+              ></v-text-field>
+            </template>
+            <v-card class="pa-2 time-picker-card" rounded="lg" elevation="3">
+              <v-time-picker
+                v-model="rawTimeEnd"
+                format="24hr"
+                color="primary"
+                @update:model-value="onTimeEndSelected"
+              ></v-time-picker>
+              <div class="quick-slots d-flex flex-wrap gap-1 mt-2 justify-center">
+                <v-chip
+                  v-for="slot in ['۱۰:۰۰', '۱۲:۰۰', '۱۴:۰۰', '۱۶:۰۰', '۱۸:۰۰']"
+                  :key="slot"
+                  size="x-small"
+                  variant="tonal"
+                  color="primary"
+                  class="cursor-pointer"
+                  @click="setTimeEndDirect(slot)"
+                >
+                  {{ slot }}
+                </v-chip>
+              </div>
+            </v-card>
+          </v-menu>
+        </v-col>
+      </v-row>
+
+      <!-- Inline Validation Warning Banner -->
+      <v-expand-transition>
+        <v-alert
+          v-if="filterSelectionError"
+          type="warning"
+          variant="tonal"
+          density="compact"
+          rounded="md"
+          class="mb-3 text-caption font-weight-medium"
         >
-          <template v-slot:selection="data">
-            <v-chip v-bind="data.attrs" close @click:close="remove(data)">
-              {{ data.item }}
-            </v-chip>
-          </template>
-        </v-autocomplete>
-      </v-list-item>
+          {{ filterSelectionError }}
+        </v-alert>
+      </v-expand-transition>
 
-      <v-list-item>
-        <v-autocomplete
-          solo
-          label="بخش"
-          v-model="localFilters.unit"
-          :items="units"
-          multiple
-          hide-no-data
-          hide-details="auto"
-          class="mb-3"
-          chips
-          :search-input.sync="searchInput2"
-          @change="searchInput2 = ''"
-        >
-          <template v-slot:selection="data">
-            <v-chip v-bind="data.attrs" close @click:close="remove(data)">
-              {{ data.item }}
-            </v-chip>
-          </template>
-        </v-autocomplete>
-      </v-list-item>
+      <!-- High-Impact Gradient Search CTA Button -->
+      <v-btn
+        block
+        size="large"
+        class="btn-app-primary mt-2"
+        @click="handleSearch"
+      >
+        <v-icon start size="20">mdi-magnify</v-icon>
+        <span class="font-weight-bold">جستجو</span>
+      </v-btn>
+    </div>
 
-      <v-list-item>
-        <v-autocomplete
-          solo
-          label="درس"
-          v-model="localFilters.course"
-          :items="courses"
-          multiple
-          hide-no-data
-          hide-details="auto"
-          class="mb-3"
-          chips
-          :search-input.sync="searchInput3"
-          @change="searchInput3 = ''"
-        >
-          <template v-slot:selection="data">
-            <v-chip v-bind="data.attrs" close @click:close="remove(data)">
-              {{ data.item }}
-            </v-chip>
-          </template>
-        </v-autocomplete>
-      </v-list-item>
-
-      <v-list-item>
-        <v-autocomplete
-          solo
-          label="نام استاد"
-          v-model="localFilters.teacherName"
-          :items="teachers"
-          hide-details="auto"
-          class="mb-3"
-          hide-no-data
-          multiple
-          chips
-          :search-input.sync="searchInput4"
-          @change="searchInput4 = ''"
-        >
-          <template v-slot:selection="data">
-            <v-chip v-bind="data.attrs" close @click:close="remove(data)">
-              {{ data.item }}
-            </v-chip>
-          </template>
-        </v-autocomplete>
-      </v-list-item>
-
-      <v-list-item>
-        <v-autocomplete
-          solo
-          label="جنسیت"
-          v-model="localFilters.gender"
-          :items="genders"
-          multiple
-          hide-no-data
-          hide-details="auto"
-          class="mb-3"
-          chips
-          :search-input.sync="searchInput7"
-          @change="searchInput7 = ''"
-        >
-          <template v-slot:selection="data">
-            <v-chip v-bind="data.attrs" close @click:close="remove(data)">
-              {{ data.item }}
-            </v-chip>
-          </template>
-        </v-autocomplete>
-      </v-list-item>
-
-      <v-list-item>
-        <v-autocomplete
-          solo
-          label="مکان برگزاری کلاس"
-          v-model="localFilters.place"
-          chips
-          multiple
-          hide-no-data
-          hide-details="auto"
-          class="mb-3"
-          :items="places"
-          :search-input.sync="searchInput6"
-          @change="searchInput6 = ''"
-        >
-          <template v-slot:selection="data">
-            <v-chip v-bind="data.attrs" close @click:close="remove(data)">
-              {{ data.item }}
-            </v-chip>
-          </template>
-        </v-autocomplete>
-      </v-list-item>
-
-      <v-list-item>
-        <v-menu
-          ref="menu1"
-          v-model="menuStart"
-          :close-on-content-click="false"
-          :nudge-right="40"
-          :return-value.sync="localTimeStart"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              :value="localTimeStart"
-              label="از ساعت"
-              prepend-icon="mdi-clock-time-four-outline"
-              readonly
-              hide-details="auto"
-              class="mb-3"
-              v-bind="attrs"
-              v-on="on"
-            ></v-text-field>
-            <v-icon class="closeTime" @click="clearTimeStart">
-              mdi-close
-            </v-icon>
-          </template>
-          <v-time-picker
-            v-if="menuStart"
-            v-model="localTimeStart"
-            format="24hr"
-            full-width
-            @click:minute="saveTimeStart"
-          ></v-time-picker>
-        </v-menu>
-      </v-list-item>
-
-      <v-list-item>
-        <v-menu
-          ref="menu2"
-          v-model="menuEnd"
-          :close-on-content-click="false"
-          :nudge-right="40"
-          :return-value.sync="localTimeEnd"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              :value="localTimeEnd"
-              label="تا ساعت"
-              prepend-icon="mdi-clock-time-four-outline"
-              readonly
-              hide-details="auto"
-              class="mb-3"
-              v-bind="attrs"
-              v-on="on"
-            ></v-text-field>
-            <v-icon class="closeTime" @click="clearTimeEnd">
-              mdi-close
-            </v-icon>
-          </template>
-          <v-time-picker
-            v-if="menuEnd"
-            v-model="localTimeEnd"
-            format="24hr"
-            full-width
-            @click:minute="saveTimeEnd"
-          ></v-time-picker>
-        </v-menu>
-      </v-list-item>
-
-      <v-list-item>
-        <v-btn
-          width="100%"
-          x-large
-          class="blue white--text"
-          @click="handleSearch"
-        >
-          <h3>جستجو</h3>
-        </v-btn>
-      </v-list-item>
-    </v-list>
-
-    <v-list v-if="selectedTabActive">
+    <!-- 2. Selected Courses Tab Content -->
+    <div v-show="activeTab === 'selected'" class="px-2 pb-4 pt-4">
       <slot name="selected-courses"></slot>
-    </v-list>
+    </div>
   </v-navigation-drawer>
 </template>
 
-<script>
-export default {
-  name: "FilterDrawer",
-  props: {
-    value: {
-      type: Boolean,
-      default: true,
-    },
-    semesters: {
-      type: Array,
-      default: () => [],
-    },
-    units: {
-      type: Array,
-      default: () => [],
-    },
-    courses: {
-      type: Array,
-      default: () => [],
-    },
-    teachers: {
-      type: Array,
-      default: () => [],
-    },
-    places: {
-      type: Array,
-      default: () => [],
-    },
-    genders: {
-      type: Array,
-      default: () => [],
-    },
+<script setup>
+import { ref, reactive, watch, computed } from "vue";
+import { useDisplay } from "vuetify";
+import { toFarsiNumber } from "@sess/core";
+
+const { xs } = useDisplay();
+const drawerWidth = computed(() =>
+  xs.value ? Math.min(300, (typeof window !== 'undefined' ? window.innerWidth : 350) - 16) : 350
+);
+
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: true,
   },
-  data() {
-    return {
-      activeTabIndex: 0,
-      filterTabActive: true,
-      selectedTabActive: false,
-      menuStart: false,
-      menuEnd: false,
-      localTimeStart: "",
-      localTimeEnd: "",
-      localFilters: {
-        semester: "",
-        unit: [],
-        course: [],
-        teacherName: [],
-        place: [],
-        gender: [],
-      },
-      searchInput1: "",
-      searchInput2: "",
-      searchInput3: "",
-      searchInput4: "",
-      searchInput6: "",
-      searchInput7: "",
-      rules: [(value) => !!value || "نیمسال تحصیلی باید انتخاب شود."],
-    };
+  semesters: {
+    type: Array,
+    default: () => [],
   },
-  watch: {
-    semesters: {
-      immediate: true,
-      handler(newSemesters) {
-        if (newSemesters && newSemesters.length && !this.localFilters.semester) {
-          this.localFilters.semester = newSemesters[0];
-        }
-      },
-    },
+  units: {
+    type: Array,
+    default: () => [],
   },
-  methods: {
-    filterTabClick() {
-      this.filterTabActive = true;
-      this.selectedTabActive = false;
-      this.$emit("tab-change", "filter");
-    },
-    selectTabClicked() {
-      this.filterTabActive = false;
-      this.selectedTabActive = true;
-      this.$emit("tab-change", "selected");
-    },
-    saveTimeStart() {
-      this.$refs.menu1.save(this.localTimeStart);
-    },
-    saveTimeEnd() {
-      this.$refs.menu2.save(this.localTimeEnd);
-    },
-    clearTimeStart() {
-      this.localTimeStart = "";
-      if (this.$refs.menu1) {
-        this.$refs.menu1.save("");
-      }
-    },
-    clearTimeEnd() {
-      this.localTimeEnd = "";
-      if (this.$refs.menu2) {
-        this.$refs.menu2.save("");
-      }
-    },
-    handleSearch() {
-      this.$emit("search", {
-        filters: {
-          semester: this.localFilters.semester,
-          unit: [...this.localFilters.unit],
-          course: [...this.localFilters.course],
-          teacherName: [...this.localFilters.teacherName],
-          place: [...this.localFilters.place],
-          gender: [...this.localFilters.gender],
-        },
-        timeRange: {
-          timeStart: this.localTimeStart,
-          timeEnd: this.localTimeEnd,
-        },
-      });
-    },
-    remove(item) {
-      const parentLabel = (item.parent && item.parent.label) || "";
-      if (parentLabel.includes("بخش")) {
-        const idx = this.localFilters.unit.indexOf(item.item);
-        if (idx !== -1) this.localFilters.unit.splice(idx, 1);
-      } else if (parentLabel.includes("درس")) {
-        const idx = this.localFilters.course.indexOf(item.item);
-        if (idx !== -1) this.localFilters.course.splice(idx, 1);
-      } else if (parentLabel.includes("نام استاد")) {
-        const idx = this.localFilters.teacherName.indexOf(item.item);
-        if (idx !== -1) this.localFilters.teacherName.splice(idx, 1);
-      } else if (parentLabel.includes("نیمسال تحصیلی")) {
-        this.localFilters.semester = "";
-      } else if (parentLabel.includes("مکان برگزاری کلاس")) {
-        const idx = this.localFilters.place.indexOf(item.item);
-        if (idx !== -1) this.localFilters.place.splice(idx, 1);
-      } else if (parentLabel.includes("جنسیت")) {
-        const idx = this.localFilters.gender.indexOf(item.item);
-        if (idx !== -1) this.localFilters.gender.splice(idx, 1);
-      }
-    },
+  courses: {
+    type: Array,
+    default: () => [],
   },
+  teachers: {
+    type: Array,
+    default: () => [],
+  },
+  places: {
+    type: Array,
+    default: () => [],
+  },
+  genders: {
+    type: Array,
+    default: () => [],
+  },
+  selectedCount: {
+    type: Number,
+    default: 0,
+  },
+  temporary: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const emit = defineEmits(["update:modelValue", "tab-change", "search"]);
+
+// Single reactive source of truth for tabs
+const activeTab = ref("filter");
+const localTimeStart = ref("");
+const localTimeEnd = ref("");
+const rawTimeStart = ref(null);
+const rawTimeEnd = ref(null);
+const startMenu = ref(false);
+const endMenu = ref(false);
+
+// Inline Validation Error State
+const semesterError = ref("");
+const filterSelectionError = ref("");
+
+const autocompleteMenuProps = {
+  maxWidth: 420,
+  minWidth: 326,
+  contentClass: "app-autocomplete-menu",
+};
+
+const localFilters = reactive({
+  semester: "",
+  unit: [],
+  course: [],
+  teacherName: [],
+  place: [],
+  gender: [],
+});
+
+watch(
+  () => props.semesters,
+  (newSemesters) => {
+    if (newSemesters && newSemesters.length && !localFilters.semester) {
+      localFilters.semester = newSemesters[0];
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => activeTab.value,
+  (newTab) => {
+    emit("tab-change", newTab);
+  }
+);
+
+// Clear errors when fields are edited
+watch(
+  () => localFilters.semester,
+  (val) => {
+    if (val) semesterError.value = "";
+  }
+);
+
+watch(
+  () => [
+    localFilters.unit.length,
+    localFilters.course.length,
+    localFilters.teacherName.length,
+  ],
+  () => {
+    if (
+      localFilters.unit.length ||
+      localFilters.course.length ||
+      localFilters.teacherName.length
+    ) {
+      filterSelectionError.value = "";
+    }
+  }
+);
+
+// Time conversion helpers
+const toStandardTime = (str) => {
+  if (!str) return "";
+  const persianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+  return str.replace(/[۰-۹]/g, (w) => persianDigits.indexOf(w));
+};
+
+const onTimeStartSelected = (val) => {
+  if (val) {
+    localTimeStart.value = toFarsiNumber(val);
+    startMenu.value = false;
+  }
+};
+
+const onTimeEndSelected = (val) => {
+  if (val) {
+    localTimeEnd.value = toFarsiNumber(val);
+    endMenu.value = false;
+  }
+};
+
+const setTimeStartDirect = (slot) => {
+  localTimeStart.value = slot;
+  startMenu.value = false;
+};
+
+const setTimeEndDirect = (slot) => {
+  localTimeEnd.value = slot;
+  endMenu.value = false;
+};
+
+const handleSearch = () => {
+  let hasError = false;
+
+  if (!localFilters.semester) {
+    semesterError.value = "نیمسال تحصیلی باید انتخاب شود";
+    hasError = true;
+  }
+
+  if (
+    !localFilters.unit.length &&
+    !localFilters.course.length &&
+    !localFilters.teacherName.length
+  ) {
+    filterSelectionError.value =
+      "حداقل یکی از موارد بخش، درس یا نام استاد باید انتخاب شود.";
+    hasError = true;
+  }
+
+  if (hasError) {
+    return;
+  }
+
+  semesterError.value = "";
+  filterSelectionError.value = "";
+
+  emit("search", {
+    filters: {
+      semester: localFilters.semester,
+      unit: [...localFilters.unit],
+      course: [...localFilters.course],
+      teacherName: [...localFilters.teacherName],
+      place: [...localFilters.place],
+      gender: [...localFilters.gender],
+    },
+    timeRange: {
+      timeStart: toStandardTime(localTimeStart.value),
+      timeEnd: toStandardTime(localTimeEnd.value),
+    },
+  });
 };
 </script>
 
 <style scoped>
-.closeTime {
-  position: absolute !important;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
+.filter-drawer {
+  background-color: rgb(var(--v-theme-surface)) !important;
+  border-left: 1px solid rgba(var(--v-theme-on-surface), 0.08) !important;
+  box-shadow: -2px 0 12px 0 rgba(var(--v-theme-on-surface), 0.04) !important;
+}
+
+.drawer-header-bar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-tabs {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+:deep(.v-slide-group__prev),
+:deep(.v-slide-group__next) {
+  display: none !important;
+}
+
+.tab-item {
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  min-width: 0 !important;
+  padding: 0 8px !important;
+}
+
+.time-picker-card {
+  max-width: 320px;
+  background-color: rgb(var(--v-theme-surface));
+}
+
+.cursor-pointer :deep(input) {
+  cursor: pointer !important;
 }
 </style>

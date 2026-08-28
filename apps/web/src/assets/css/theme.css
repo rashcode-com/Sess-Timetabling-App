@@ -1,0 +1,375 @@
+/* ==========================================================================
+   SESS Web Application — Master Theme Tokens & Utility Stylesheet
+   ========================================================================== */
+
+:root {
+  /* Brand & Semantic Colors — derived from Vuetify 3 theme tokens */
+  --color-primary: rgb(var(--v-theme-primary));
+  --color-primary-dark: rgb(var(--v-theme-primary-darken-1));
+  --color-primary-soft: rgba(var(--v-theme-primary), 0.16);
+  --color-secondary: rgb(var(--v-theme-secondary));
+  --color-secondary-dark: rgb(var(--v-theme-secondary-darken-1));
+  --color-success: rgb(var(--v-theme-success));
+  --color-success-soft: rgba(var(--v-theme-success), 0.16);
+  --color-info: rgb(var(--v-theme-info));
+  --color-info-soft: rgba(var(--v-theme-info), 0.16);
+  --color-warning: rgb(var(--v-theme-warning));
+  --color-warning-soft: rgba(var(--v-theme-warning), 0.16);
+  --color-error: rgb(var(--v-theme-error));
+  --color-error-soft: rgba(var(--v-theme-error), 0.16);
+
+  /* Neutrals — bridge to Vuetify 3 theme tokens */
+  --color-bg: rgb(var(--v-theme-background));
+  --color-surface: rgb(var(--v-theme-surface));
+  --color-text-primary: rgba(var(--v-theme-on-surface), 0.92);
+  --color-text-secondary: rgba(var(--v-theme-on-surface), 0.72);
+  --color-text-disabled: rgba(var(--v-theme-on-surface), 0.45);
+  --color-border: rgba(var(--v-theme-on-surface), 0.12);
+  --table-header-bg: rgb(var(--v-theme-surface-bright));
+  --table-inset-bg: rgb(var(--v-theme-surface-light));
+
+  /* 100% Vazirmatn Typography Stack */
+  --font-family-base: "Vazirmatn FD", "Vazirmatn", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Geometry & Radii */
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* ==========================================================================
+     2026 Multi-Layer Ambient Elevation System (Key Light + Soft Negative Spread)
+     ========================================================================== */
+  --shadow-xs: 0 1px 2px 0 rgba(var(--v-theme-on-surface), 0.04);
+  --shadow-sm: 0 1px 2px 0 rgba(var(--v-theme-on-surface), 0.05), 0 2px 6px -1px rgba(var(--v-theme-on-surface), 0.06);
+  --shadow-md: 0 1px 3px 0 rgba(var(--v-theme-on-surface), 0.05), 0 6px 18px -3px rgba(var(--v-theme-on-surface), 0.08);
+  --shadow-lg: 0 2px 5px 0 rgba(var(--v-theme-on-surface), 0.06), 0 12px 28px -4px rgba(var(--v-theme-on-surface), 0.12);
+  --shadow-xl: 0 4px 8px 0 rgba(var(--v-theme-on-surface), 0.06), 0 20px 40px -6px rgba(var(--v-theme-on-surface), 0.16);
+
+  --shadow-primary-glow: 0 4px 14px -2px rgba(var(--v-theme-primary), 0.45);
+  --shadow-error-glow: 0 4px 14px -2px rgba(var(--v-theme-error), 0.45);
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(-72.47deg, rgb(140, 87, 255) 22.16%, rgba(140, 87, 255, 0.7) 76.47%);
+  --gradient-header-fade: linear-gradient(rgb(var(--v-theme-background)) 5%, rgba(var(--v-theme-background), 0.75) 45%, rgba(var(--v-theme-background), 0.2) 80%, rgba(0, 0, 0, 0));
+  --gradient-clash: linear-gradient(135deg, rgb(var(--v-theme-error)) 0%, rgb(var(--v-theme-error-darken-1)) 100%);
+
+  /* Animation & Physics */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.18s var(--ease-standard);
+  --transition-standard: 0.28s var(--ease-standard);
+}
+
+/* ==========================================================================
+   Master Persian Typography Overrides (100% Vazirmatn + Persian Digits)
+   ========================================================================== */
+html,
+body,
+#app,
+.v-application,
+.v-application *,
+.v-application .text-h1,
+.v-application .text-h2,
+.v-application .text-h3,
+.v-application .text-h4,
+.v-application .text-h5,
+.v-application .text-h6,
+.v-application .text-subtitle-1,
+.v-application .text-subtitle-2,
+.v-application .text-body-1,
+.v-application .text-body-2,
+.v-application .text-button,
+.v-application .text-caption,
+.v-application .text-overline,
+.v-btn,
+.v-btn *,
+.v-card,
+.v-card *,
+.v-chip,
+.v-chip *,
+.v-table,
+.v-table *,
+.v-data-table,
+.v-data-table *,
+.v-data-table__th,
+.v-data-table__td,
+.v-field,
+.v-field *,
+.v-field__input,
+.v-label,
+.v-list,
+.v-list-item,
+.v-list-item *,
+.v-tab,
+.v-tab *,
+.v-dialog,
+.v-dialog *,
+.v-menu,
+.v-menu *,
+.v-snackbar,
+.v-snackbar *,
+.v-pagination,
+.v-pagination *,
+input,
+button,
+select,
+textarea,
+h1, h2, h3, h4, h5, h6,
+p, span, label, div, td, th {
+  font-family: var(--font-family-base) !important;
+  font-feature-settings: "ss01" on !important;
+  -webkit-font-feature-settings: "ss01" on !important;
+}
+
+/* Global Reset & Canvas */
+body {
+  background-color: var(--color-bg) !important;
+  color: var(--color-text-primary) !important;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-on-surface), 0.18);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--v-theme-on-surface), 0.35);
+}
+
+/* ==========================================================================
+   Fix Bug 2: Outlined Label Notch Collision (No Line Cutting Across Persian)
+   ========================================================================== */
+.v-field--variant-outlined .v-field__outline__notch {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.v-field--variant-outlined .v-field__outline__notch::before,
+.v-field--variant-outlined .v-field__outline__notch::after {
+  border-top: none !important;
+}
+
+.v-field--variant-outlined .v-label.v-field-label--floating {
+  background-color: rgb(var(--v-theme-surface)) !important;
+  padding: 0 8px !important;
+  transform-origin: right top !important;
+  z-index: 3 !important;
+  opacity: 1 !important;
+  line-height: 1.2 !important;
+}
+
+[dir="rtl"] .v-field--variant-outlined .v-label.v-field-label--floating {
+  right: 10px !important;
+  left: auto !important;
+}
+
+/* ==========================================================================
+   Autocomplete & Select Dropdown Styling
+   ========================================================================== */
+.v-autocomplete__content,
+.v-select__content,
+.app-autocomplete-menu {
+  box-shadow: var(--shadow-lg) !important;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
+  border-radius: var(--radius-md) !important;
+  background-color: rgb(var(--v-theme-surface)) !important;
+  overflow: hidden !important;
+}
+
+.v-autocomplete__content .v-list,
+.v-select__content .v-list,
+.app-autocomplete-menu .v-list {
+  padding: 4px !important;
+}
+
+.v-autocomplete__content .v-list-item,
+.v-select__content .v-list-item,
+.app-autocomplete-menu .v-list-item {
+  direction: rtl !important;
+  text-align: right !important;
+  display: flex !important;
+  align-items: center !important;
+  min-height: 38px !important;
+  height: auto !important;
+  padding: 6px 8px !important;
+  border-radius: 6px !important;
+  margin-bottom: 2px !important;
+}
+
+.v-autocomplete__content .v-list-item__prepend,
+.v-select__content .v-list-item__prepend {
+  margin-inline-end: 8px !important;
+  margin-inline-start: 0 !important;
+}
+
+.v-autocomplete__content .v-list-item__append,
+.v-autocomplete__content .v-list-item__action,
+.v-select__content .v-list-item__append,
+.v-select__content .v-list-item__action {
+  order: -1 !important;
+  margin-inline-end: 8px !important;
+  margin-inline-start: 0 !important;
+}
+
+.v-autocomplete__content .v-list-item__content,
+.v-select__content .v-list-item__content,
+.app-autocomplete-menu .v-list-item__content {
+  overflow: hidden !important;
+  position: relative !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.v-autocomplete__content .v-list-item-title,
+.v-select__content .v-list-item-title,
+.app-autocomplete-menu .v-list-item-title {
+  display: block !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  direction: rtl !important;
+  text-align: right !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.45 !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* App Card Base Utility */
+.app-card {
+  background-color: var(--color-surface) !important;
+  border-radius: var(--radius-md) !important;
+  border: 1px solid rgba(46, 38, 61, 0.08) !important;
+  box-shadow: var(--shadow-md) !important;
+  transition: all var(--transition-standard);
+}
+
+/* High-Impact Primary Gradient Button */
+.btn-app-primary {
+  background: var(--gradient-primary) !important;
+  color: #ffffff !important;
+  border-radius: var(--radius-sm) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.4px !important;
+  box-shadow: 0 4px 8px -2px rgba(140, 87, 255, 0.4) !important;
+  transition: all var(--transition-standard) !important;
+}
+
+.btn-app-primary:hover {
+  box-shadow: 0 6px 16px -2px rgba(140, 87, 255, 0.6) !important;
+  transform: translateY(-1px);
+}
+
+/* Pulsing Red Conflict Alert Button */
+.conflict-pulse-btn {
+  background-color: var(--color-error) !important;
+  box-shadow: 0 0 0 0 rgba(255, 76, 81, 0.7);
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 76, 81, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(255, 76, 81, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 76, 81, 0);
+  }
+}
+
+/* Flex Gap Utilities */
+.gap-1 { gap: 4px !important; }
+.gap-2 { gap: 8px !important; }
+.gap-3 { gap: 12px !important; }
+.gap-4 { gap: 16px !important; }
+.gap-5 { gap: 20px !important; }
+
+/* ==========================================================================
+   Master Contrast & Typography Hierarchy Utilities (WCAG AA Compliant)
+   ========================================================================== */
+.text-high-emphasis {
+  color: var(--color-text-primary) !important;
+}
+
+.text-medium-emphasis {
+  color: var(--color-text-secondary) !important;
+}
+
+.text-disabled-emphasis {
+  color: var(--color-text-disabled) !important;
+}
+
+/* Fallback Protection: Prevent legacy grey classes from failing contrast in Dark Theme */
+.v-theme--dark .text-grey,
+.v-theme--dark .text-grey-darken-1,
+.v-theme--dark .text-grey-darken-2 {
+  color: var(--color-text-secondary) !important;
+}
+
+.v-theme--dark .text-grey-darken-3,
+.v-theme--dark .text-grey-darken-4 {
+  color: var(--color-text-primary) !important;
+}
+
+.v-theme--dark .text-error {
+  color: rgb(var(--v-theme-error)) !important;
+}
+
+/* ==========================================================================
+   Calendar Tooltip & Hover Card (Sleek Glassmorphic Dark Card)
+   ========================================================================== */
+.calendar-tooltip-card {
+  background: #1C192B !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(176, 133, 255, 0.3) !important;
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.75) !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  max-width: 320px !important;
+  direction: rtl !important;
+  line-height: 1.5 !important;
+  opacity: 1 !important;
+}
+
+.calendar-tooltip-body {
+  color: #FFFFFF !important;
+}
+
+.tooltip-badge-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.calendar-tooltip-body .tooltip-detail-row {
+  display: flex;
+  align-items: center;
+  color: rgba(231, 227, 252, 0.88) !important;
+}
+
+.calendar-tooltip-body .tooltip-time {
+  color: #B085FF !important;
+}
+

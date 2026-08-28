@@ -45,6 +45,15 @@ console.log('🧪 Running CourseDataService ETL & Search Unit Tests...\n');
   assert.equal(normalized.teacher, 'علي رضايي');
   assert.equal(normalized.seperated_time_and_place[0].place, '۱۰۱');
   console.log('  ✅ normalizeCourse unit test passed');
+
+  // Test multi-teacher course formatting (prevent truncation)
+  const multiTeacherSample = {
+    title: 'شبیه سازی پیشرفته',
+    teacher: 'احمدی*کامبیز*علوم کامپیوتر(۵۰)*احراری*وحیده*علوم کامپیوتر(۵۰)*',
+  };
+  const normalizedMulti = normalizeCourse(multiTeacherSample, '190140016^1');
+  assert.equal(normalizedMulti.teacher, 'کامبیز احمدی | وحیده احراری');
+  console.log('  ✅ normalizeCourse multi-teacher test passed');
 }
 
 // 2. Test processDataset deduplication and indexing

@@ -1,147 +1,303 @@
 <template>
-  <div>
-    <div id="app-back">
-      <v-layout class="d-flex" align-center child-flex>
-        <v-data-table
-          :headers="headers"
-          :items="results"
-          class="elevation-1 row-pointer"
-          :value="value"
-          @input="$emit('input', $event)"
-          show-select
-          hide-default-footer
-          item-key="id"
-          show-expand
-          :expanded.sync="expanded"
-          :page.sync="page"
-          :items-per-page="itemsPerPage"
-          @page-count="pageCount = $event"
-        >
-          <template v-slot:expanded-item="{ headers, item }">
-            <td :colspan="headers.length">
-              <div
-                class="white rounded-lg"
-                :class="mobileDevice ? 'pa-1 mt-2 mb-2' : 'pa-3 ma-4'"
-              >
-                <v-row>
-                  <h2>
-                    {{ item["title"] }} | {{ item["vahed"] }} واحد
-                  </h2>
-                </v-row>
+  <div class="course-data-table-wrapper">
+    <v-card class="app-table-card" rounded="lg" elevation="0">
+      <v-data-table
+        :headers="headers"
+        :items="results"
+        :items-per-page="itemsPerPage"
+        v-model="selectedIds"
+        v-model:expanded="expanded"
+        v-model:page="page"
+        show-select
+        show-expand
+        item-value="id"
+        density="comfortable"
+        hover
+        class="app-data-table"
+        hide-default-footer
+      >
+        <!-- Custom Formatting for Course Title -->
+        <template #item.title="{ item }">
+          <span class="font-weight-bold text-body-2 course-title-cell">{{ item.title }}</span>
+        </template>
 
-                <div class="body-font mt-8">
-                  <v-row>
-                    <v-col class="screen-expanded">
-                      <span class="title-font-weight">نام استاد : </span>
-                      <span>{{ item["teacher"] }}</span>
-                    </v-col>
-                    <v-col class="screen-expanded">
-                      <span class="title-font-weight">نام بخش : </span>
-                      <span>{{ item["unit"] }}</span>
-                    </v-col>
+        <!-- Custom Formatting for Instructor -->
+        <template #item.teacher="{ item }">
+          <span class="text-body-2">{{ item.teacher }}</span>
+        </template>
 
-                    <v-col class="screen-expanded">
-                      <span class="title-font-weight">تاریخ امتحان : </span>
-                      <span>{{ item["final_date"] }}</span>
-                    </v-col>
-                    <v-col class="screen-expanded">
-                      <span class="title-font-weight">ساعت امتحان : </span>
-                      <span>{{ item["final_time"] }}</span>
-                    </v-col>
-                  </v-row>
+        <!-- Custom Formatting for Group -->
+        <template #item.group="{ item }">
+          <v-chip size="x-small" variant="tonal" color="secondary" class="font-weight-medium">
+            گروه {{ toFarsiNumber(item.group) }}
+          </v-chip>
+        </template>
 
-                  <v-row>
-                    <v-col class="screen-expanded">
-                      <span class="title-font-weight">شماره گروه : </span>
-                      <span>{{ item["group"] }}</span>
-                    </v-col>
+        <!-- Fix Bug 16: Clean Pill/Badge Formatting for Time & Room Column -->
+        <template #item.time_room="{ item }">
+          <div
+            v-if="item.seperated_time_and_place && item.seperated_time_and_place.length"
+            class="time-room-slots d-flex flex-column gap-1 py-1"
+          >
+            <div
+              v-for="(slot, idx) in item.seperated_time_and_place"
+              :key="idx"
+              class="slot-pill d-flex align-center gap-1"
+            >
+              <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-medium slot-day-chip">
+                {{ slot.day }}
+              </v-chip>
+              <span dir="ltr" class="slot-time text-caption font-weight-medium">
+                {{ formatSlotTime(slot.startHour, slot.startMinute) }} - {{ formatSlotTime(slot.endHour, slot.endMinute) }}
+              </span>
+              <span v-if="slot.place" class="slot-place text-caption text-medium-emphasis">
+                ({{ slot.place }})
+              </span>
+            </div>
+          </div>
+          <span v-else class="text-caption text-medium-emphasis">{{ item.time_room }}</span>
+        </template>
 
-                    <v-col class="screen-expanded">
-                      <span class="title-font-weight">واحد : </span>
-                      <span>{{ item["vahed"] }}</span>
-                    </v-col>
-
-                    <v-col class="screen-expanded">
-                      <span class="title-font-weight">جنسیت : </span>
-                      <span>{{ item["gender"] }}</span>
-                    </v-col>
-
-                    <v-col class="screen-expanded">
-                      <span class="title-font-weight">زمان و مکان کلاس : </span>
-                      <span>{{ item["time_room"] }}</span>
-                    </v-col>
-                  </v-row>
+        <!-- Structured Expanded Row -->
+        <template #expanded-row="{ columns, item }">
+          <tr>
+            <td :colspan="columns.length" class="pa-0">
+              <div class="expanded-detail-box pa-4 ma-2 rounded-lg">
+                <!-- Top Summary Row -->
+                <div class="d-flex align-start justify-space-between mb-3 pb-2 border-bottom">
+                  <div class="d-flex align-start">
+                    <v-avatar color="primary" variant="tonal" size="32" class="flex-shrink-0 mt-n1 ml-2">
+                      <v-icon color="primary" size="18">mdi-book-open-page-variant-outline</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="expanded-title mb-0 line-height-tight">{{ item.title }}</h3>
+                      <span class="text-caption text-medium-emphasis">{{ item.unit }}</span>
+                    </div>
+                  </div>
+                  <div class="d-flex align-center gap-2">
+                    <v-chip v-if="item.capacity" color="info" variant="tonal" size="small">
+                      ظرفیت: {{ toFarsiNumber(item.capacity) }} نفر
+                    </v-chip>
+                    <v-chip color="primary" variant="flat" size="small" class="font-weight-bold">
+                      {{ toFarsiNumber(item.vahed) }} واحد
+                    </v-chip>
+                  </div>
                 </div>
+
+                <!-- Structured 4-Column Specification Grid -->
+                <v-row class="specs-grid" dense>
+                  <v-col cols="12" sm="6" md="3" class="py-1">
+                    <div class="spec-card pa-2 rounded">
+                      <div class="spec-label">
+                        <v-icon size="14" class="ml-1" color="primary">mdi-account-tie-outline</v-icon>
+                        استاد:
+                      </div>
+                      <div class="spec-val font-weight-medium">{{ item.teacher }}</div>
+                    </div>
+                  </v-col>
+
+                  <v-col cols="12" sm="6" md="3" class="py-1">
+                    <div class="spec-card pa-2 rounded">
+                      <div class="spec-label">
+                        <v-icon size="14" class="ml-1" color="secondary">mdi-account-group-outline</v-icon>
+                        گروه / جنسیت:
+                      </div>
+                      <div class="spec-val">گروه {{ toFarsiNumber(item.group) }} ({{ item.gender || "مختلط" }})</div>
+                    </div>
+                  </v-col>
+
+                  <v-col cols="12" sm="6" md="3" class="py-1">
+                    <div class="spec-card pa-2 rounded">
+                      <div class="spec-label">
+                        <v-icon size="14" class="ml-1" color="error">mdi-calendar-alert</v-icon>
+                        امتحان نهایی:
+                      </div>
+                      <div class="spec-val text-error font-weight-medium">
+                        {{ item.final_date || "نامشخص" }}
+                        <span v-if="item.final_time">(<span dir="ltr">{{ toFarsiNumber(item.final_time) }}</span>)</span>
+                      </div>
+                    </div>
+                  </v-col>
+
+                  <v-col cols="12" sm="6" md="3" class="py-1">
+                    <div class="spec-card pa-2 rounded">
+                      <div class="spec-label">
+                        <v-icon size="14" class="ml-1" color="info">mdi-clock-outline</v-icon>
+                        ساعت در هفته:
+                      </div>
+                      <div class="spec-val">{{ toFarsiNumber(item.time_in_week) || "—" }} ساعت</div>
+                    </div>
+                  </v-col>
+                </v-row>
               </div>
             </td>
-          </template>
-        </v-data-table>
-      </v-layout>
-    </div>
+          </tr>
+        </template>
+      </v-data-table>
+    </v-card>
 
-    <div class="text-center pt-2">
-      <v-pagination v-model="page" :length="pageCount"></v-pagination>
+    <!-- Table Pagination -->
+    <div v-if="pageCount > 1" class="d-flex justify-center pt-4 pb-8">
+      <v-pagination
+        v-model="page"
+        :length="pageCount"
+        color="primary"
+        density="comfortable"
+        rounded="circle"
+        :total-visible="mobileDevice ? 4 : 7"
+      ></v-pagination>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: "CourseDataTable",
-  props: {
-    results: {
-      type: Array,
-      required: true,
-    },
-    value: {
-      type: Array,
-      default: () => [],
-    },
-    headers: {
-      type: Array,
-      default: () => [
-        { text: "درس", value: "title" },
-        { text: "استاد", value: "teacher" },
-        { text: "گروه", value: "group" },
-        { text: "زمان و مکان کلاس", value: "time_room" },
-      ],
-    },
-    itemsPerPage: {
-      type: Number,
-      default: 10,
-    },
-    mobileDevice: {
-      type: Boolean,
-      default: false,
-    },
+<script setup>
+import { ref, computed } from "vue";
+import { toFarsiNumber } from "@sess/core";
+
+const props = defineProps({
+  results: {
+    type: Array,
+    required: true,
   },
-  data() {
-    return {
-      expanded: [],
-      page: 1,
-      pageCount: 0,
-    };
+  modelValue: {
+    type: Array,
+    default: () => [],
   },
+  headers: {
+    type: Array,
+    default: () => [
+      { title: "درس", key: "title", sortable: true },
+      { title: "استاد", key: "teacher", sortable: true },
+      { title: "گروه", key: "group", sortable: true, width: "100px" },
+      { title: "زمان و مکان کلاس", key: "time_room", sortable: false },
+    ],
+  },
+  itemsPerPage: {
+    type: Number,
+    default: 10,
+  },
+  mobileDevice: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const emit = defineEmits(["update:modelValue"]);
+
+const expanded = ref([]);
+const page = ref(1);
+
+const formatSlotTime = (h, m) => {
+  const hStr = toFarsiNumber(String(h).padStart(2, "0"));
+  const mStr = toFarsiNumber(String(m || 0).padStart(2, "0"));
+  return `${hStr}:${mStr}`;
 };
+
+// Two-way synchronization between v-data-table IDs and full course objects
+const selectedIds = computed({
+  get() {
+    return (props.modelValue || [])
+      .map((item) => (item && typeof item === "object" ? item.id : item))
+      .filter(Boolean);
+  },
+  set(newIds) {
+    const courseMap = new Map();
+    (props.results || []).forEach((c) => {
+      if (c && c.id) courseMap.set(c.id, c);
+    });
+    (props.modelValue || []).forEach((c) => {
+      if (c && c.id) courseMap.set(c.id, c);
+    });
+
+    const newSelectedObjects = newIds
+      .map((id) => courseMap.get(id))
+      .filter(Boolean);
+
+    emit("update:modelValue", newSelectedObjects);
+  },
+});
+
+const pageCount = computed(() => {
+  if (!props.results || props.results.length === 0) return 0;
+  return Math.ceil(props.results.length / props.itemsPerPage);
+});
 </script>
 
 <style scoped>
-#app-back {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  flex-direction: row;
+.app-table-card {
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  background-color: rgb(var(--v-theme-surface));
+  box-shadow: var(--shadow-sm) !important;
+  overflow: hidden;
 }
 
-.mobile-expanded {
-  font-size: small;
+:deep(.v-data-table__th) {
+  background-color: rgb(var(--v-theme-surface-bright)) !important;
+  color: rgba(var(--v-theme-on-surface), 0.85) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
+  white-space: nowrap;
 }
 
-.screen-expanded {
-  font-size: medium;
+:deep(.v-data-table__td) {
+  font-size: 0.875rem !important;
+  color: rgba(var(--v-theme-on-surface), 0.92) !important;
+  vertical-align: middle !important;
 }
 
-.title-font-weight {
-  font-weight: bold;
+:deep(.v-data-table__tr:hover:not(.v-data-table__expanded__content)) {
+  background-color: rgba(var(--v-theme-primary), 0.06) !important;
+}
+
+.course-title-cell {
+  color: rgb(var(--v-theme-primary));
+}
+
+.slot-pill {
+  background-color: rgb(var(--v-theme-background));
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+}
+
+.slot-day-chip {
+  font-size: 0.6875rem !important;
+}
+
+.expanded-detail-box {
+  background-color: rgb(var(--v-theme-surface-light));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.border-bottom {
+  border-bottom: 1px dashed rgba(var(--v-theme-on-surface), 0.15);
+}
+
+.expanded-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: rgba(var(--v-theme-on-surface), 0.9);
+}
+
+.line-height-tight {
+  line-height: 1.3 !important;
+}
+
+.spec-card {
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+}
+
+.spec-label {
+  font-size: 0.75rem;
+  color: rgba(var(--v-theme-on-surface), 0.65);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.spec-val {
+  font-size: 0.8125rem;
+  color: rgba(var(--v-theme-on-surface), 0.9);
 }
 </style>

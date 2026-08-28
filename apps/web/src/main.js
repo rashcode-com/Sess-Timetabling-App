@@ -1,15 +1,15 @@
-import Vue from 'vue';
+import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import pinia, { PiniaVuePlugin } from './store';
+import pinia from './store';
 import vuetify from './plugins/vuetify';
+import './assets/css/font.css';
+import './assets/css/theme.css';
 
-Vue.config.productionTip = false;
-Vue.use(PiniaVuePlugin);
+const app = createApp(App);
 
-new Vue({
-  router,
-  pinia,
-  vuetify,
-  render: (h) => h(App),
-}).$mount('#app');
+app.use(pinia);
+app.use(router);
+app.use(vuetify);
+
+app.mount('#app');

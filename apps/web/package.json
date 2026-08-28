@@ -17,21 +17,24 @@
     "@features/*": "./src/features/*"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
     "@sess/core": "workspace:*",
     "pinia": "^2.3.1",
     "pinia-plugin-persistedstate": "^3.2.3",
-    "vue": "^2.7.16",
-    "vue-router": "^3.6.5",
-    "vuetify": "^2.7.2"
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
+    "vuetify": "^3.7.15"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",
     "@babel/eslint-parser": "^7.25.0",
-    "@vitejs/plugin-vue2": "^2.3.3",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/compiler-sfc": "^3.5.13",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.20.0",
     "sass-embedded": "^1.80.0",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "vite-plugin-vuetify": "^2.0.4"
   },
   "eslintConfig": {
     "root": true,
@@ -41,7 +44,7 @@
       "es2021": true
     },
     "extends": [
-      "plugin:vue/essential",
+      "plugin:vue/vue3-essential",
       "eslint:recommended"
     ],
     "parserOptions": {
@@ -54,8 +57,17 @@
       "ecmaVersion": 2021,
       "sourceType": "module"
     },
+    "globals": {
+      "__APP_VERSION__": "readonly"
+    },
     "rules": {
       "vue/multi-word-component-names": "off",
+      "vue/valid-v-slot": [
+        "error",
+        {
+          "allowModifiers": true
+        }
+      ],
       "no-restricted-imports": [
         "error",
         {

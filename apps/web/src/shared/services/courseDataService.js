@@ -43,6 +43,7 @@ export function normalizeCourse(rawCourse, courseId) {
     course.seperated_time_and_place = course.seperated_time_and_place.map(
       (slot) => ({
         ...slot,
+        day: normalizeDayName(slot.day),
         place: slot.place ? toFarsiNumber(slot.place) : "",
       })
     );
@@ -51,6 +52,18 @@ export function normalizeCourse(rawCourse, courseId) {
   }
 
   return course;
+}
+
+export function normalizeDayName(rawDay) {
+  const d = (rawDay || "").replace(/[^\u0600-\u06FF]/g, "").trim();
+  if (d.includes("یک")) return "یک‌شنبه";
+  if (d.includes("سه")) return "سه‌شنبه";
+  if (d.includes("دو")) return "دوشنبه";
+  if (d.includes("چهار")) return "چهارشنبه";
+  if (d.includes("پنج")) return "پنج‌شنبه";
+  if (d.includes("جمعه")) return "جمعه";
+  if (d.includes("شنبه")) return "شنبه";
+  return d;
 }
 
 /**

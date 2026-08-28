@@ -1,10 +1,10 @@
-import { createPinia, PiniaVuePlugin } from "pinia";
+import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
-export { pinia, PiniaVuePlugin };
+export { pinia };
 export * from "./courseStore";
 export * from "./timetableStore";
 export default pinia;

@@ -23,20 +23,22 @@ export function placeSearchHelper(places: string[], course: Course): boolean {
  * Formats a raw SESS teacher name string (delimited by '*') into a human-readable name.
  */
 export function teacherNameDivider(raw: string): string {
+  if (!raw) return '';
   const parts = raw.split('*');
-  let result: string[] = [];
+  const result: string[] = [];
   for (let i = 0; i < parts.length; i += 3) {
-    if (parts[i] !== undefined && parts[i + 1] !== undefined) {
-      result.push([parts[i + 1], parts[i]].join(' '));
+    const lastName = (parts[i] || '').trim();
+    const firstName = (parts[i + 1] || '').trim();
+    if (firstName && lastName) {
+      result.push(`${firstName} ${lastName}`);
+    } else if (lastName) {
+      result.push(lastName);
+    } else if (firstName) {
+      result.push(firstName);
     }
   }
 
-  if (result.length > 1) {
-    let joined = result.join(' | ');
-    return joined.substring(0, joined.length - 3);
-  } else {
-    return result[0] || raw;
-  }
+  return result.length > 0 ? result.join(' | ') : raw;
 }
 
 /**

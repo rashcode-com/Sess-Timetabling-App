@@ -1,5 +1,14 @@
-@font-face {
-    font-family: "IRANSans";
-    src: local("IRANSans"),
-      url("../fonts/IRANSans/IRANSans Regular/IRANSans Regular.ttf") format("truetype");
-  }
+/* ==========================================================================
+   SESS Timetabling App — 100% Vazirmatn Typography System
+   Standard & Farsi Digits (FD) across weights 300, 400, 500, 600, 700, 800
+   ========================================================================== */
+
+/* Official Vazirmatn Webfont Imports */
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-FD-font-face.css');
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+
+/* Master Font Family Variable */
+:root {
+  --font-family-base: "Vazirmatn FD", "Vazirmatn", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}

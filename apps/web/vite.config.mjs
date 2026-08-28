@@ -1,18 +1,28 @@
 import { defineConfig } from 'vite';
-import vue2 from '@vitejs/plugin-vue2';
+import vue from '@vitejs/plugin-vue';
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'));
 
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
-    vue2(),
+    vue({
+      template: { transformAssetUrls },
+    }),
+    vuetify({
+      autoImport: true,
+    }),
   ],
   resolve: {
     alias: {
-      'vue': path.resolve(__dirname, 'node_modules/vue/dist/vue.runtime.esm.js'),
       '@': path.resolve(__dirname, 'src'),
       '@features': path.resolve(__dirname, 'src/features'),
       '@shared': path.resolve(__dirname, 'src/shared'),
