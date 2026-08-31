@@ -164,6 +164,36 @@ console.log("🧪 Running Pinia Stores Modernization Unit Tests...\n");
   assert.equal(timetableStore.totalConflictCount, 2);
   assert.equal(timetableStore.hasConflicts, true);
 
+  // Test non-clashing courses on different days with overlapping hours (e.g. Sunday vs Tuesday)
+  const sundayCourse = {
+    id: "301^1",
+    title: "ساختمان داده ها و الگوریتم ها",
+    vahed: "۳",
+    final_date_split: { y: 1405, m: 4, d: 8 },
+    final_time_split: { start_hour: 10, start_minute: 30, end_hour: 12, end_minute: 30 },
+    seperated_time_and_place: [
+      { day: "یک\u200cشنبه", startHour: 8, startMinute: 30, endHour: 10, endMinute: 30, place: "۲۰۴" },
+      { day: "سه\u200cشنبه", startHour: 10, startMinute: 30, endHour: 12, endMinute: 30, place: "۲۰۴" },
+    ],
+  };
+
+  const tuesdayCourse = {
+    id: "302^1",
+    title: "اصول سیستم های عامل",
+    vahed: "۳",
+    final_date_split: { y: 1405, m: 4, d: 20 },
+    final_time_split: { start_hour: 10, start_minute: 30, end_hour: 12, end_minute: 30 },
+    seperated_time_and_place: [
+      { day: "یک\u200cشنبه", startHour: 10, startMinute: 30, endHour: 12, endMinute: 30, place: "۲۰۱" },
+      { day: "دوشنبه", startHour: 8, startMinute: 30, endHour: 10, endMinute: 30, place: "۱۰۲" },
+    ],
+  };
+
+  timetableStore.setSelectedCourses([sundayCourse, tuesdayCourse]);
+  assert.equal(timetableStore.classTimeConflicts.length, 0, "Sunday & Tuesday courses should NOT conflict");
+  assert.equal(timetableStore.finalExamConflicts.length, 0, "Different exam dates should NOT conflict");
+  assert.equal(timetableStore.hasConflicts, false);
+
   console.log("  ✅ useTimetableStore: Reactive clash detection (class & exam) passed");
 }
 

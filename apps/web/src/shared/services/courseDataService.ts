@@ -4,6 +4,7 @@ import {
   teacherSearch,
   placeSearchHelper,
   isTimeInBetween,
+  normalizeDayName,
 } from "@sess/core";
 import type {
   Course,
@@ -61,20 +62,8 @@ export function normalizeCourse(rawCourse: any, courseId: string): Course {
   return course;
 }
 
-/**
- * Normalizes Persian day strings to standard representation.
- */
-export function normalizeDayName(rawDay?: string): string {
-  const d = (rawDay || "").replace(/[^\u0600-\u06FF]/g, "").trim();
-  if (d.includes("یک")) return "یک‌شنبه";
-  if (d.includes("سه")) return "سه‌شنبه";
-  if (d.includes("دو")) return "دوشنبه";
-  if (d.includes("چهار")) return "چهارشنبه";
-  if (d.includes("پنج")) return "پنج‌شنبه";
-  if (d.includes("جمعه")) return "جمعه";
-  if (d.includes("شنبه")) return "شنبه";
-  return d;
-}
+// Re-export normalizeDayName for backwards compatibility across apps/web
+export { normalizeDayName };
 
 /**
  * Processes a raw dataset into a structured, indexed, and deduplicated data model.

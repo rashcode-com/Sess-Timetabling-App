@@ -1,16 +1,5 @@
 import type { Course } from "../schemas/index.js";
-
-const PERSIAN_DAYS = [
-  "یکشنبه",
-  "دوشنبه",
-  "سهشنبه",
-  "چهارشنبه",
-  "پنجشنبه",
-  "جمعه",
-  "شنبه",
-] as const;
-
-type PersianDay = (typeof PERSIAN_DAYS)[number];
+import { normalizeDayName } from "./normalizers.js";
 
 /**
  * Checks whether two courses have overlapping weekly class time slots.
@@ -21,10 +10,10 @@ export function checkClassTimeInterference(course1: Course, course2: Course): bo
 
   for (const slot1 of c1Time) {
     for (const slot2 of c2Time) {
-      const day1 = slot1.day.replace(/\s/g, "") as PersianDay;
-      const day2 = slot2.day.replace(/\s/g, "") as PersianDay;
+      const day1 = normalizeDayName(slot1.day);
+      const day2 = normalizeDayName(slot2.day);
 
-      if (PERSIAN_DAYS.indexOf(day1) !== PERSIAN_DAYS.indexOf(day2)) {
+      if (!day1 || !day2 || day1 !== day2) {
         continue;
       }
 
