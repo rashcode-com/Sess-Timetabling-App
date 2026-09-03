@@ -17,6 +17,9 @@
     "deploy:cf": "turbo run build && pnpm --filter @sess/api run deploy",
     "kv:seed": "pnpm --filter @sess/api kv:seed",
     "e2e:baseline": "pnpm --filter @sess/e2e test:baseline",
+    "docs:dev": "pnpm --filter @sess/docs dev",
+    "docs:build": "pnpm --filter @sess/docs build",
+    "docs:preview": "pnpm --filter @sess/docs preview",
     "start": "node server.js"
   },
   "devDependencies": {

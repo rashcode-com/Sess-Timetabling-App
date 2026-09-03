@@ -62,7 +62,7 @@ export function findWorkspaceRoot(fromDir?: string): string | null {
  * 3. Module/CWD Fallback: ./dist, apps/web/dist relative to cwd
  */
 export function resolveWebDistPath(): string | null {
-  // Layer 1: Environment Variable (12-Factor App & Docker/Tauri injection)
+  // Layer 1: Environment Variable (12-Factor App & Docker container injection)
   const envPath = process.env.WEB_DIST_PATH || process.env.STATIC_DIR;
   if (envPath) {
     const resolvedEnv = path.resolve(envPath);

@@ -1,0 +1,342 @@
+/* ==========================================================================
+   SESS Timetabling App — VitePress Documentation Theme
+   RTL Typography (Vazirmatn FD) & Materio Modern Aesthetics
+   ========================================================================== */
+
+:root {
+  --vp-font-family-base: "Vazirmatn FD", "Vazirmatn", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --vp-font-family-mono: "Fira Code", monospace, "Vazirmatn FD";
+
+  /* Material Design 3 Brand Violet Palette */
+  --vp-c-brand-1: #8c57ff;
+  --vp-c-brand-2: #7e4ee6;
+  --vp-c-brand-3: #6b39d1;
+  --vp-c-brand-soft: rgba(140, 87, 255, 0.14);
+
+  --vp-c-indigo-1: #8c57ff;
+}
+
+.dark {
+  --vp-c-brand-1: #9e6eff;
+  --vp-c-brand-2: #8c57ff;
+  --vp-c-brand-3: #b085ff;
+  --vp-c-brand-soft: rgba(158, 110, 255, 0.18);
+  --vp-c-bg: #1e1e24;
+  --vp-c-bg-soft: #282732;
+  --vp-c-bg-alt: #16161a;
+}
+
+/* ==========================================================================
+   Complete RTL Layout Overrides for VitePress Default Theme
+   ========================================================================== */
+
+html[dir="rtl"],
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="ltr"],
+[dir="ltr"] {
+  direction: ltr;
+  text-align: left;
+  --vp-font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Inter, Arial, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   1. TOP NAVIGATION BAR (.VPNavBar)
+   Modern 2026 RTL Standard Layout:
+   [Right Sidebar Header: Title/Logo] | [Nav Links] ... [Search Input] [Theme Switch & Github]
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 960px) {
+  /* Move Navbar Title above the right sidebar */
+  [dir="rtl"] .VPNavBar.has-sidebar .title {
+    left: auto !important;
+    right: 0 !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    border-left: 1px solid var(--vp-c-divider) !important;
+    border-right: none !important;
+  }
+
+  /* Offset navbar content to leave room for right-side sidebar title */
+  [dir="rtl"] .VPNavBar.has-sidebar .content {
+    padding-right: var(--vp-sidebar-width) !important;
+    padding-left: 32px !important;
+  }
+
+  [dir="rtl"] .VPNavBar.has-sidebar .divider {
+    padding-right: var(--vp-sidebar-width) !important;
+    padding-left: 0 !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  [dir="rtl"] .VPNavBar.has-sidebar .title {
+    padding-right: max(16px, calc((100% - (var(--vp-layout-max-width) - 64px)) / 2)) !important;
+    padding-left: 16px !important;
+    width: calc((100% - (var(--vp-layout-max-width) - 64px)) / 2 + var(--vp-sidebar-width) - 32px) !important;
+  }
+
+  [dir="rtl"] .VPNavBar.has-sidebar .content {
+    padding-right: calc((100vw - var(--vp-layout-max-width)) / 2 + var(--vp-sidebar-width)) !important;
+    padding-left: calc((100vw - var(--vp-layout-max-width)) / 2 + 32px) !important;
+  }
+
+  [dir="rtl"] .VPNavBar.has-sidebar .divider {
+    padding-right: calc((100vw - var(--vp-layout-max-width)) / 2 + var(--vp-sidebar-width)) !important;
+    padding-left: 0 !important;
+  }
+}
+
+/* Center and Balance Title inside the right header box */
+[dir="rtl"] .VPNavBarTitle {
+  width: 100%;
+}
+
+[dir="rtl"] .VPNavBarTitle a.title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  width: 100% !important;
+  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+  letter-spacing: 0.2px;
+}
+
+/* Hide any residual or broken logo img */
+[dir="rtl"] .VPNavBarTitle .logo {
+  display: none !important;
+}
+
+/*
+   Header items flow & order (Standard 2026 Layout):
+   Nav Links on the right (adjacent to sidebar),
+   Search box in the center-left,
+   Theme toggle and social icons on the far left.
+*/
+[dir="rtl"] .VPNavBar .content-body {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  direction: rtl !important;
+  column-gap: 16px !important;
+}
+
+[dir="rtl"] .VPNavBar .content-body .menu {
+  order: 1 !important;
+  display: flex;
+}
+
+[dir="rtl"] .VPNavBar .content-body .search {
+  order: 2 !important;
+  margin-right: auto !important;
+  margin-left: 12px !important;
+}
+
+[dir="rtl"] .VPNavBar .content-body .appearance,
+[dir="rtl"] .VPNavBar .content-body .social-links,
+[dir="rtl"] .VPNavBar .content-body .extra {
+  order: 3 !important;
+}
+
+/* Search box styling & RTL padding */
+[dir="rtl"] .DocSearch-Button {
+  direction: rtl !important;
+}
+
+[dir="rtl"] .DocSearch-Button .DocSearch-Button-Container {
+  flex-direction: row !important;
+}
+
+[dir="rtl"] .DocSearch-Button .DocSearch-Search-Icon {
+  margin-right: 0 !important;
+  margin-left: 8px !important;
+}
+
+[dir="rtl"] .DocSearch-Button .DocSearch-Button-Placeholder {
+  padding-left: 16px !important;
+  padding-right: 0 !important;
+  text-align: right !important;
+}
+
+/* --------------------------------------------------------------------------
+   2. SIDEBAR (.VPSidebar)
+   Must be pinned to the right edge of the screen
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 960px) {
+  [dir="rtl"] .VPSidebar {
+    right: 0 !important;
+    left: auto !important;
+    border-left: 1px solid var(--vp-c-divider) !important;
+    border-right: none !important;
+  }
+
+  [dir="rtl"] .VPContent.has-sidebar {
+    padding-right: var(--vp-sidebar-width) !important;
+    padding-left: 0 !important;
+  }
+
+  [dir="rtl"] .VPNav.has-sidebar .VPNavBar {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  [dir="rtl"] .VPFooter.has-sidebar {
+    padding-right: var(--vp-sidebar-width) !important;
+    padding-left: 0 !important;
+  }
+}
+
+/* Sidebar texts, groups and caret rotation */
+[dir="rtl"] .VPSidebarItem .text {
+  text-align: right;
+}
+
+[dir="rtl"] .VPSidebarItem .caret {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .VPSidebarItem.collapsed .caret {
+  transform: rotate(90deg);
+}
+
+/* --------------------------------------------------------------------------
+   3. IN-PAGE TABLE OF CONTENTS (Aside Outline: "در این صفحه")
+   With aside: 'left', it sits on the left side.
+   -------------------------------------------------------------------------- */
+
+[dir="rtl"] .VPDocAsideOutline .outline-title,
+[dir="rtl"] .VPDocAsideOutline .outline-link {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="rtl"] .VPDocAsideOutline .outline-marker {
+  left: auto !important;
+  right: -1px !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. DOCUMENT CONTENT & TYPOGRAPHY
+   -------------------------------------------------------------------------- */
+
+[dir="rtl"] .vp-doc h1,
+[dir="rtl"] .vp-doc h2,
+[dir="rtl"] .vp-doc h3,
+[dir="rtl"] .vp-doc h4,
+[dir="rtl"] .vp-doc h5,
+[dir="rtl"] .vp-doc h6,
+[dir="rtl"] .vp-doc p,
+[dir="rtl"] .vp-doc ul,
+[dir="rtl"] .vp-doc ol {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="rtl"] .vp-doc ul {
+  padding-right: 1.25rem;
+  padding-left: 0;
+}
+
+[dir="rtl"] .vp-doc ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+
+/* Header Anchor Links (the '#' icon on headers) */
+[dir="rtl"] .vp-doc .header-anchor {
+  float: right !important;
+  margin-left: 0 !important;
+  margin-right: -0.87em !important;
+  padding-left: 0 !important;
+  padding-right: 0.23em !important;
+}
+
+/* Custom Alert / Container Blocks */
+[dir="rtl"] .vp-doc blockquote,
+[dir="rtl"] .custom-block {
+  border-right-width: 4px !important;
+  border-left-width: 0 !important;
+  border-right-style: solid !important;
+  border-left-style: none !important;
+  border-radius: 0 8px 8px 0 !important;
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="rtl"] .custom-block .custom-block-title {
+  text-align: right;
+}
+
+/* Code blocks and inline snippets */
+div[class*="language-"],
+pre,
+code {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+:not(pre) > code {
+  font-family: var(--vp-font-family-mono);
+  direction: ltr;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* --- Document Tables (Full RTL) --- */
+[dir="rtl"] .vp-doc table {
+  direction: rtl !important;
+  text-align: right !important;
+  width: 100%;
+}
+
+[dir="rtl"] .vp-doc th,
+[dir="rtl"] .vp-doc td {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+/* --------------------------------------------------------------------------
+   6. HOMEPAGE & HERO SECTION
+   -------------------------------------------------------------------------- */
+
+[dir="rtl"] .VPHero .name,
+[dir="rtl"] .VPHero .text,
+[dir="rtl"] .VPHero .tagline {
+  text-align: center;
+}
+
+[dir="rtl"] .VPHero .actions {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  gap: 12px;
+}
+
+[dir="rtl"] .VPFeature {
+  border-radius: 12px !important;
+  text-align: right;
+  direction: rtl;
+  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+[dir="rtl"] .VPFeature:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px -10px rgba(140, 87, 255, 0.25);
+}
+
+[dir="rtl"] .VPFeature .icon {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+[dir="rtl"] .VPFeature .title,
+[dir="rtl"] .VPFeature .details {
+  text-align: right;
+}

@@ -3,6 +3,8 @@ node_modules
 dist/
 .turbo/
 .wrangler/
+.vitepress/dist/
+.vitepress/cache/
 .agents/
 AGENTS.md
 

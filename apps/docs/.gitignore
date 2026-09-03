@@ -1,0 +1,3 @@
+# VitePress cache and build artifacts
+.vitepress/dist
+.vitepress/cache
