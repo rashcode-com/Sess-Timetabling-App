@@ -16,6 +16,9 @@ export async function saveDatasetAsJson(
     throw new Error('[crawler] A valid semester identifier is required to save dataset.');
   }
 
+  // Format semester code if matching pattern (e.g. "14051" -> "1405-1")
+  const formattedSemester = semester.trim().replace(/^(\d{4})(\d)$/, '$1-$2');
+
   // Validate department courses structure
   SemesterDataSchema.parse(dataset);
 
@@ -34,19 +37,19 @@ export async function saveDatasetAsJson(
       if (existingJson && typeof existingJson === 'object' && 'semesters' in existingJson) {
         finalCatalog = {
           updated_at: new Date().toISOString(),
-          active_semester: semester,
+          active_semester: formattedSemester,
           semesters: {
             ...existingJson.semesters,
-            [semester]: dataset,
+            [formattedSemester]: dataset,
           },
         };
       } else {
         // Migrating existing flat dataset
         finalCatalog = {
           updated_at: new Date().toISOString(),
-          active_semester: semester,
+          active_semester: formattedSemester,
           semesters: {
-            [semester]: dataset,
+            [formattedSemester]: dataset,
           },
         };
       }
@@ -54,18 +57,18 @@ export async function saveDatasetAsJson(
 
       finalCatalog = {
         updated_at: new Date().toISOString(),
-        active_semester: semester,
+        active_semester: formattedSemester,
         semesters: {
-          [semester]: dataset,
+          [formattedSemester]: dataset,
         },
       };
     }
   } else {
     finalCatalog = {
       updated_at: new Date().toISOString(),
-      active_semester: semester,
+      active_semester: formattedSemester,
       semesters: {
-        [semester]: dataset,
+        [formattedSemester]: dataset,
       },
     };
   }
@@ -75,7 +78,7 @@ export async function saveDatasetAsJson(
 
   const jsonString = JSON.stringify(finalCatalog, null, 4);
   fs.writeFileSync(outputPath, jsonString, 'utf-8');
-  logger.success(`Dataset saved successfully to: ${outputPath} (Semester: ${semester}, Updated: ${finalCatalog.updated_at})`);
+  logger.success(`Dataset saved successfully to: ${outputPath} (Semester: ${formattedSemester}, Updated: ${finalCatalog.updated_at})`);
 
   return finalCatalog;
 }
@@ -108,11 +111,12 @@ export async function syncToApi(
     if (!semester) {
       throw new Error('[crawler] A valid semester identifier is required to sync flat dataset to API.');
     }
+    const formattedSemester = semester.trim().replace(/^(\d{4})(\d)$/, '$1-$2');
     payload = {
       updated_at: new Date().toISOString(),
-      active_semester: semester,
+      active_semester: formattedSemester,
       semesters: {
-        [semester]: dataset as SemesterData,
+        [formattedSemester]: dataset as SemesterData,
       },
     };
   }
