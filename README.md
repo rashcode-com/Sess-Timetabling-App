@@ -70,7 +70,7 @@ The monorepo enforces the **Core-First Architectural Principle**: business logic
 | **1. Portal Ingestion** | 🏛️ University SESS Portals | HTML schedule tables from Shiraz / Shahrekord | Remote HTTP Sessions |
 | **2. Extraction & Parsing** | 🕷️ `@sess/crawler` | Playwright engine ➔ Text normalization (`parser.ts`) | Playwright Chromium, CLI Wizard |
 | **3. Edge / Cloud Sync** | ⚡ `@sess/api` | `POST /api/sync` ➔ Cloudflare KV storage (`semester_data`) | Hono.js Edge API, Timing-Safe Auth |
-| **4. Local Storage** | 📁 `packages/data/` | Canonical dataset (`data.json`) distributed to web public (`public/data/`) | Static JSON Dataset |
+| **4. Local Storage** | 📁 `packages/data/` | Canonical dataset (`data.json`) served directly as SSOT | Static JSON Dataset |
 | **5. Client Scheduling** | 💻 `@sess/web` | Vue 3.5 SPA ➔ Saturday–Friday timetable grid & $O(1)$ search | Vue 3.5, Vuetify 3.7, Pinia 2 |
 | **6. Pure Core Engine** | 🧠 `@sess/core` | Universal Zod schemas & mathematical conflict calculators | Zero-dependency TypeScript |
 
@@ -78,7 +78,7 @@ The monorepo enforces the **Core-First Architectural Principle**: business logic
 1. **Extraction**: `@sess/crawler` scrapes Shiraz / Shahrekord portals with Playwright, normalizes Persian numerals, and validates against `@sess/core` Zod schemas.
 2. **Distribution**:
    - **Cloud Edge**: Crawler sends verified payload via authenticated `POST /api/sync` to `@sess/api`, caching it in Cloudflare KV.
-   - **Local Dataset**: Crawler saves `data.json` to canonical `@sess/data` package and syncs to client static assets (`apps/web/public/data/`) for offline execution.
+   - **Local Dataset**: Crawler saves `data.json` to canonical `@sess/data` package (SSOT), which `@sess/web` serves via native Vite dev streaming with live reload and emits directly to `dist/data/` in production builds.
 3. **Consumption & Interaction**: `@sess/web` serves students through an interactive Saturday–Friday weekly schedule, instant $O(1)$ indexed searches, and real-time conflict detection powered by `@sess/core`.
 
 ### Monorepo Workspaces Matrix

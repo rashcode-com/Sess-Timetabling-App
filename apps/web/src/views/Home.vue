@@ -190,7 +190,11 @@ import { toFarsiNumber } from "@sess/core";
 import { useCourseStore, useTimetableStore } from "@/store";
 import { AppHeader } from "@/shared";
 import { FilterDrawer } from "@/features/filters";
-import { CourseDataTable, CourseDetailDialog } from "@/features/courses";
+import {
+  CourseDataTable,
+  CourseDetailDialog,
+  type DataTableHeader,
+} from "@/features/courses";
 import {
   WeeklyCalendar,
   SelectedCoursesTab,
@@ -198,7 +202,6 @@ import {
   ClashSnackbar,
 } from "@/features/timetable";
 import type { Course, SearchEventPayload } from "@/types";
-import type { DataTableHeader } from "@/features/courses/components/CourseDataTable.vue";
 
 const { smAndDown: mobileDevice } = useDisplay();
 

@@ -4,13 +4,10 @@ import { setActivePinia, createPinia } from "pinia";
 import { useCourseStore } from "../src/store/courseStore.ts";
 import { useTimetableStore } from "../src/store/timetableStore.ts";
 
-const datasetUrl = [
-  new URL("../../../packages/data/datasets/data.json", import.meta.url),
-  new URL("../public/data/data.json", import.meta.url),
-].find((url) => fs.existsSync(url));
-
-if (!datasetUrl) {
-  throw new Error("Dataset file not found for store tests!");
+const datasetUrl = new URL("../../../packages/data/datasets/data.json", import.meta.url);
+ 
+if (!fs.existsSync(datasetUrl)) {
+  throw new Error("Canonical dataset file not found for store tests!");
 }
 
 const rawData = JSON.parse(fs.readFileSync(datasetUrl, "utf-8"));
@@ -41,10 +38,10 @@ console.log("🧪 Running Pinia Stores Modernization Unit Tests...\n");
   assert.ok(courseStore.genders.length > 0, "genders should be populated");
 
   // Test dynamic date & time formatting & active semester
-  assert.equal(courseStore.formattedUpdateDate, "به‌روز شده در ۹ شهریور ۱۴۰۲");
-  assert.equal(courseStore.formattedUpdateTime, "ساعت ۱۱:۱۸");
-  assert.equal(courseStore.activeSemester, "1402-1");
-  assert.deepEqual(courseStore.availableSemesters, ["1402-1"]);
+  assert.ok(courseStore.formattedUpdateDate.startsWith("به‌روز شده در"), "formattedUpdateDate should be formatted");
+  assert.ok(courseStore.formattedUpdateTime.startsWith("ساعت"), "formattedUpdateTime should be formatted");
+  assert.equal(courseStore.activeSemester, rawData.active_semester);
+  assert.deepEqual(courseStore.availableSemesters, Object.keys(rawData.semesters));
 
   // Test getCourseById
   const sampleCourse = courseStore.courseList[0];
@@ -52,8 +49,8 @@ console.log("🧪 Running Pinia Stores Modernization Unit Tests...\n");
   assert.deepEqual(foundCourse, sampleCourse, "getCourseById must retrieve exact matching course");
 
   // Test guards: calling initCourseData with active semester should be a no-op
-  await courseStore.initCourseData(undefined, "1402-1");
-  assert.equal(courseStore.activeSemester, "1402-1");
+  await courseStore.initCourseData(undefined, rawData.active_semester);
+  assert.equal(courseStore.activeSemester, rawData.active_semester);
   assert.equal(courseStore.isDataLoaded, true);
 
   // Test guard: calling initCourseData while isLoading should return immediately

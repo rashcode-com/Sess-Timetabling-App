@@ -227,7 +227,7 @@ interface Props {
 
 const {
   selectedList = [],
-  mobileDevice = false,
+  mobileDevice: _mobileDevice = false,
 } = defineProps<Props>();
 
 const calendarOpen = ref<boolean>(true);

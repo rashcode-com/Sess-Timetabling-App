@@ -24,7 +24,6 @@
     "docs:dev": "pnpm --filter @sess/docs dev",
     "docs:build": "pnpm --filter @sess/docs build",
     "docs:preview": "pnpm --filter @sess/docs preview",
-    "data:sync": "node scripts/sync-dataset.mjs",
     "start": "node server.js"
   },
   "devDependencies": {

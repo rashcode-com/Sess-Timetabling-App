@@ -157,20 +157,15 @@ export async function saveSemesterData(
       }
       fs.writeFileSync(targetPath, jsonStr, 'utf-8');
 
-      // Also sync to apps/web/public and apps/web/dist if in monorepo environment
+      // Also sync to apps/web/dist if in monorepo environment with built frontend
       const root = findWorkspaceRoot();
       if (root) {
-        const syncTargets = [
-          path.join(root, 'apps/web/public/data/data.json'),
-          path.join(root, 'apps/web/dist/data/data.json'),
-        ];
-        for (const syncTarget of syncTargets) {
-          if (syncTarget !== targetPath && fs.existsSync(path.dirname(syncTarget))) {
-            try {
-              fs.writeFileSync(syncTarget, jsonStr, 'utf-8');
-            } catch {
-              // Ignore non-critical sync errors
-            }
+        const distTarget = path.join(root, 'apps/web/dist/data/data.json');
+        if (distTarget !== targetPath && fs.existsSync(path.dirname(distTarget))) {
+          try {
+            fs.writeFileSync(distTarget, jsonStr, 'utf-8');
+          } catch {
+            // Ignore non-critical sync errors
           }
         }
       }

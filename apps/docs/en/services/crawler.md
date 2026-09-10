@@ -136,7 +136,7 @@ Every extracted row undergoes strict verification:
 After course extraction finishes:
 1. **UnifiedCatalog Packaging**: Courses are organized by semester ID (`--semester` flag or wizard selection) into the `UnifiedCatalog` format with an ISO 8601 `updated_at` timestamp.
 2. **Secure Cloud Gateway Push**: `syncToApi` sends the standardized payload alongside `X-Semester` routing headers to `/api/sync`.
-3. **Automated Frontend Mirroring**: Datasets saved to `packages/data/datasets/data.json` are automatically mirrored to `apps/web/public/data/data.json`.
+3. **Canonical SSOT Export**: Datasets are saved directly to `packages/data/datasets/data.json` and consumed natively by the frontend without file duplication.
 
 ---
 

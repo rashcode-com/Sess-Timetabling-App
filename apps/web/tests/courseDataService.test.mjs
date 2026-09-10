@@ -6,13 +6,10 @@ import {
   searchCourses,
 } from '../src/shared/services/courseDataService.ts';
 
-const datasetUrl = [
-  new URL('../../../packages/data/datasets/data.json', import.meta.url),
-  new URL('../public/data/data.json', import.meta.url),
-].find((url) => fs.existsSync(url));
+const datasetUrl = new URL('../../../packages/data/datasets/data.json', import.meta.url);
 
-if (!datasetUrl) {
-  throw new Error('Dataset file not found for courseDataService tests!');
+if (!fs.existsSync(datasetUrl)) {
+  throw new Error('Canonical dataset file not found for courseDataService tests!');
 }
 
 const rawData = JSON.parse(fs.readFileSync(datasetUrl, 'utf-8'));
@@ -90,10 +87,10 @@ console.log('🧪 Running CourseDataService ETL & Search Unit Tests...\n');
   assert.equal(filterOptions.places.length, uniquePlaces.size, 'Places list must contain NO duplicates');
 
   // Verify dynamic metadata & semesters
-  assert.equal(result.updatedAt, "2023-08-31T07:48:00.000Z", "updatedAt must match catalog timestamp");
-  assert.equal(result.activeSemester, "1402-1", "activeSemester must match");
-  assert.deepEqual(result.availableSemesters, ["1402-1"], "availableSemesters must be dynamically populated");
-  assert.deepEqual(filterOptions.semesters, ["1402-1"], "filterOptions.semesters must match available semesters");
+  assert.equal(result.updatedAt, rawData.updated_at, "updatedAt must match catalog timestamp");
+  assert.equal(result.activeSemester, rawData.active_semester, "activeSemester must match");
+  assert.deepEqual(result.availableSemesters, Object.keys(rawData.semesters), "availableSemesters must be dynamically populated");
+  assert.deepEqual(filterOptions.semesters, Object.keys(rawData.semesters), "filterOptions.semesters must match available semesters");
 
   // Verify legacy flat data fallback
   const legacyFlatSample = {

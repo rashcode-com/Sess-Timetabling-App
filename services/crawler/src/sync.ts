@@ -77,21 +77,6 @@ export async function saveDatasetAsJson(
   fs.writeFileSync(outputPath, jsonString, 'utf-8');
   logger.success(`Dataset saved successfully to: ${outputPath} (Semester: ${semester}, Updated: ${finalCatalog.updated_at})`);
 
-  // Auto-sync to apps/web/public/data/data.json if in monorepo environment
-  try {
-    const webPublicPath = path.resolve(dir, '../../../apps/web/public/data/data.json');
-    if (fs.existsSync(path.resolve(dir, '../../../apps/web'))) {
-      const webPublicDir = path.dirname(webPublicPath);
-      if (!fs.existsSync(webPublicDir)) {
-        fs.mkdirSync(webPublicDir, { recursive: true });
-      }
-      fs.writeFileSync(webPublicPath, jsonString, 'utf-8');
-      logger.info(`Dataset automatically synced to web public asset: ${webPublicPath}`);
-    }
-  } catch {
-    // Non-critical in isolated environments
-  }
-
   return finalCatalog;
 }
 

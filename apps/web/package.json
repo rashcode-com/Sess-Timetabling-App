@@ -4,9 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "node ../../scripts/sync-dataset.mjs",
-    "prebuild": "node ../../scripts/sync-dataset.mjs",
-    "sync:data": "node ../../scripts/sync-dataset.mjs",
     "dev": "vite",
     "serve": "vite",
     "build": "vue-tsc --noEmit && vite build",
@@ -31,9 +28,9 @@
     "vuetify": "^3.7.15"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.0",
-    "@babel/eslint-parser": "^7.25.0",
     "@types/node": "^26.4.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/compiler-sfc": "^3.5.13",
     "eslint": "^8.57.0",
@@ -56,20 +53,27 @@
       "plugin:vue/vue3-essential",
       "eslint:recommended"
     ],
+    "parser": "vue-eslint-parser",
     "parserOptions": {
-      "parser": "@babel/eslint-parser",
-      "requireConfigFile": false,
-      "babelOptions": {
-        "babelrc": false,
-        "configFile": false
-      },
+      "parser": "@typescript-eslint/parser",
       "ecmaVersion": 2021,
       "sourceType": "module"
     },
+    "plugins": [
+      "@typescript-eslint"
+    ],
     "globals": {
       "__APP_VERSION__": "readonly"
     },
     "rules": {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_"
+        }
+      ],
       "vue/multi-word-component-names": "off",
       "vue/valid-v-slot": [
         "error",
