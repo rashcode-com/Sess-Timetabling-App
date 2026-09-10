@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 
 // ---------------------------------------------------------------------------
 // TimeSlot — یک بازه زمانی در هفته برای یک درس
@@ -59,7 +59,7 @@ export const CourseSchema = z.object({
 export type Course = z.infer<typeof CourseSchema>;
 
 // ---------------------------------------------------------------------------
-// SemesterData — ساختار کلی data.json
+// SemesterData / SemesterCourses — ساختار دپارتمان‌ها و دروس یک نیمسال
 // کلید اول: نام بخش/دپارتمان
 // کلید دوم: شناسه درس (مثلاً "290331041^1")
 // ---------------------------------------------------------------------------
@@ -71,3 +71,26 @@ export const SemesterDataSchema = z.record(
   )
 );
 export type SemesterData = z.infer<typeof SemesterDataSchema>;
+export const SemesterCoursesSchema = SemesterDataSchema;
+export type SemesterCourses = SemesterData;
+
+// ---------------------------------------------------------------------------
+// UnifiedCatalog — ساختار کامل و مدرن کاتالوگ چندنیمساله
+// شامل تایم‌استمپ به‌روزرسانی، نیمسال فعال، و دیتای چند نیمسال
+// ---------------------------------------------------------------------------
+export const UnifiedCatalogSchema = z.object({
+  updated_at: z.string(), // ISO 8601 string (e.g. "2023-08-31T07:48:00.000Z")
+  active_semester: z.string(), // e.g. "1402-1"
+  semesters: z.record(z.string(), SemesterDataSchema), // semesterId -> departments -> courses
+});
+export type UnifiedCatalog = z.infer<typeof UnifiedCatalogSchema>;
+
+// ---------------------------------------------------------------------------
+// CatalogDataset — اعتبارسنجی منعطف (سازگاری به عقب با هر دو ساختار جدید و فلت)
+// ---------------------------------------------------------------------------
+export const CatalogDatasetSchema = z.union([
+  UnifiedCatalogSchema,
+  SemesterDataSchema,
+]);
+export type CatalogDataset = z.infer<typeof CatalogDatasetSchema>;
+

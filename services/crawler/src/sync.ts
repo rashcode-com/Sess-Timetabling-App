@@ -1,16 +1,22 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { SemesterData, SemesterDataSchema } from '@sess/core';
+import { SemesterData, SemesterDataSchema, UnifiedCatalog, UnifiedCatalogSchema } from '@sess/core';
 import { logger } from './logger.js';
 
 /**
- * Validates and exports dataset into formatted JSON with 4-space indentation.
+ * Validates and exports dataset into formatted JSON with 4-space indentation,
+ * wrapping the scraped department data under the specified semester in UnifiedCatalog.
  */
 export async function saveDatasetAsJson(
   dataset: SemesterData,
-  outputPath: string
-): Promise<void> {
-  // Validate structure
+  outputPath: string,
+  semester: string
+): Promise<UnifiedCatalog> {
+  if (!semester) {
+    throw new Error('[crawler] A valid semester identifier is required to save dataset.');
+  }
+
+  // Validate department courses structure
   SemesterDataSchema.parse(dataset);
 
   const dir = path.dirname(outputPath);
@@ -18,9 +24,58 @@ export async function saveDatasetAsJson(
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  const jsonString = JSON.stringify(dataset, null, 4);
+  let finalCatalog: UnifiedCatalog;
+
+  if (fs.existsSync(outputPath)) {
+    try {
+      const existingRaw = fs.readFileSync(outputPath, 'utf-8');
+      const existingJson = JSON.parse(existingRaw);
+
+      if (existingJson && typeof existingJson === 'object' && 'semesters' in existingJson) {
+        finalCatalog = {
+          updated_at: new Date().toISOString(),
+          active_semester: semester,
+          semesters: {
+            ...existingJson.semesters,
+            [semester]: dataset,
+          },
+        };
+      } else {
+        // Migrating existing flat dataset
+        finalCatalog = {
+          updated_at: new Date().toISOString(),
+          active_semester: semester,
+          semesters: {
+            [semester]: dataset,
+          },
+        };
+      }
+    } catch {
+
+      finalCatalog = {
+        updated_at: new Date().toISOString(),
+        active_semester: semester,
+        semesters: {
+          [semester]: dataset,
+        },
+      };
+    }
+  } else {
+    finalCatalog = {
+      updated_at: new Date().toISOString(),
+      active_semester: semester,
+      semesters: {
+        [semester]: dataset,
+      },
+    };
+  }
+
+  // Validate resulting catalog structure
+  UnifiedCatalogSchema.parse(finalCatalog);
+
+  const jsonString = JSON.stringify(finalCatalog, null, 4);
   fs.writeFileSync(outputPath, jsonString, 'utf-8');
-  logger.success(`Dataset saved successfully to: ${outputPath}`);
+  logger.success(`Dataset saved successfully to: ${outputPath} (Semester: ${semester}, Updated: ${finalCatalog.updated_at})`);
 
   // Auto-sync to apps/web/public/data/data.json if in monorepo environment
   try {
@@ -36,15 +91,18 @@ export async function saveDatasetAsJson(
   } catch {
     // Non-critical in isolated environments
   }
+
+  return finalCatalog;
 }
 
 /**
  * Syncs the dataset to @sess/api POST /api/sync endpoint.
  */
 export async function syncToApi(
-  dataset: SemesterData,
+  dataset: SemesterData | UnifiedCatalog,
   apiUrl: string,
-  syncToken?: string
+  syncToken?: string,
+  semester?: string
 ): Promise<boolean> {
   const endpoint = `${apiUrl.replace(/\/$/, '')}/api/sync`;
   logger.info(`Syncing dataset to API gateway at: ${endpoint}...`);
@@ -57,11 +115,33 @@ export async function syncToApi(
     headers['X-Sync-Token'] = syncToken;
   }
 
+  let payload: UnifiedCatalog;
+
+  if ('semesters' in dataset && 'active_semester' in dataset) {
+    payload = dataset as UnifiedCatalog;
+  } else {
+    if (!semester) {
+      throw new Error('[crawler] A valid semester identifier is required to sync flat dataset to API.');
+    }
+    payload = {
+      updated_at: new Date().toISOString(),
+      active_semester: semester,
+      semesters: {
+        [semester]: dataset as SemesterData,
+      },
+    };
+  }
+
+
+
+  // Ensure X-Semester header is present for explicit API routing
+  headers['X-Semester'] = payload.active_semester;
+
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
       headers,
-      body: JSON.stringify(dataset),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {

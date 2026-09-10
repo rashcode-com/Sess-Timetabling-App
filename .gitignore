@@ -40,3 +40,7 @@ playwright-report/
 blob-report/
 .playwright/
 services/e2e/snapshots/
+
+# Generated public static datasets (synced from packages/data/datasets/data.json)
+apps/web/public/data/
+

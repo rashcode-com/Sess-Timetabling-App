@@ -67,17 +67,20 @@ export { normalizeDayName };
 
 /**
  * Processes a raw dataset into a structured, indexed, and deduplicated data model.
- * @param rawData - The raw JSON dataset (departments -> courses).
+ * Automatically detects whether rawData is a UnifiedCatalog or a legacy flat dataset.
+ *
+ * @param rawData - The raw JSON dataset (UnifiedCatalog or flat departments -> courses).
+ * @param targetSemester - Optional semester to select (defaults to active_semester).
  * @returns Processed dataset, course map, list, and deduplicated filter items.
  */
-export function processDataset(rawData: unknown): ProcessedDataset {
+export function processDataset(rawData: unknown, targetSemester?: string): ProcessedDataset {
   if (!rawData || typeof rawData !== "object") {
     return {
       dataset: {},
       courseList: [],
       courseMap: new Map<string, Course>(),
       filterOptions: {
-        semesters: ["1402-1"],
+        semesters: [],
         units: [],
         course: [],
         teachersName: [],
@@ -85,8 +88,32 @@ export function processDataset(rawData: unknown): ProcessedDataset {
         places: [],
         genders: [],
       },
+      updatedAt: null,
+      activeSemester: "",
+      availableSemesters: [],
+      rawCatalog: null,
     };
   }
+
+  const isUnified = "semesters" in rawData && typeof (rawData as any).semesters === "object";
+  const rawCatalog = isUnified ? (rawData as any) : null;
+
+  const availableSemesters: string[] = isUnified && rawCatalog.semesters
+    ? Object.keys(rawCatalog.semesters)
+    : ["default"];
+
+  const activeSemester: string = targetSemester
+    ? targetSemester
+    : isUnified && rawCatalog.active_semester
+    ? rawCatalog.active_semester
+    : availableSemesters[0] || "default";
+
+
+  const updatedAt: string | null = isUnified && rawCatalog.updated_at ? rawCatalog.updated_at : null;
+
+  const departmentsSource: Record<string, any> = isUnified && rawCatalog.semesters
+    ? rawCatalog.semesters[activeSemester] || {}
+    : (rawData as Record<string, any>);
 
   const dataset: Record<string, Record<string, Course>> = {};
   const courseList: Course[] = [];
@@ -98,7 +125,7 @@ export function processDataset(rawData: unknown): ProcessedDataset {
   const placeSet = new Set<string>();
   const genderSet = new Set<string>();
 
-  for (const [unitName, rawCourses] of Object.entries(rawData as Record<string, any>)) {
+  for (const [unitName, rawCourses] of Object.entries(departmentsSource)) {
     dataset[unitName] = {};
     unitSet.add(unitName);
 
@@ -140,7 +167,7 @@ export function processDataset(rawData: unknown): ProcessedDataset {
   const sortFa = (set: Set<string>): string[] => Array.from(set).sort(collator.compare);
 
   const filterOptions = {
-    semesters: ["1402-1"],
+    semesters: availableSemesters,
     units: sortFa(unitSet),
     course: sortFa(courseSet),
     teachersName: sortFa(teacherSet),
@@ -154,6 +181,10 @@ export function processDataset(rawData: unknown): ProcessedDataset {
     courseList,
     courseMap,
     filterOptions,
+    updatedAt,
+    activeSemester,
+    availableSemesters,
+    rawCatalog,
   };
 }
 

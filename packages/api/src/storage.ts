@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import type { AppEnv } from './types.js';
-import type { SemesterData } from '@sess/core';
+import type { SemesterData, UnifiedCatalog } from '@sess/core';
 import { resolveDataFilePath, findWorkspaceRoot } from './paths.js';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,18 +9,38 @@ const KV_KEY = 'semester_data';
 const ISOLATE_CACHE_TTL_MS = 60 * 1000; // 60s in-memory TTL to balance performance & KV freshness
 
 // In-memory isolate cache for Worker and Node runtimes
-let isolateCache: { data: SemesterData; timestamp: number } | null = null;
+let isolateCache: { catalog: UnifiedCatalog; timestamp: number } | null = null;
+
+function normalizeToCatalog(data: any): UnifiedCatalog {
+  if (data && typeof data === 'object' && 'semesters' in data) {
+    const available = Object.keys(data.semesters || {});
+    const active = data.active_semester || available[0] || 'default';
+    return {
+      updated_at: data.updated_at || new Date().toISOString(),
+      active_semester: active,
+      semesters: data.semesters || {},
+    };
+  }
+  return {
+    updated_at: new Date().toISOString(),
+    active_semester: 'default',
+    semesters: {
+      default: data as SemesterData,
+    },
+  };
+}
+
 
 /**
- * Universal getter for SemesterData.
+ * Universal getter for UnifiedCatalog.
  * Checks isolate in-memory cache first, then Cloudflare KV (with cacheTtl), then fallback file paths on Node.js.
  */
-export async function getSemesterData(c: Context<AppEnv>): Promise<SemesterData | null> {
+export async function getCatalogData(c: Context<AppEnv>): Promise<UnifiedCatalog | null> {
   const now = Date.now();
 
   // 1. Return in-memory isolate cached data if still fresh
   if (isolateCache && (now - isolateCache.timestamp < ISOLATE_CACHE_TTL_MS)) {
-    return isolateCache.data;
+    return isolateCache.catalog;
   }
 
   // 2. Try Cloudflare KV if bound
@@ -28,9 +48,10 @@ export async function getSemesterData(c: Context<AppEnv>): Promise<SemesterData 
     try {
       const dataStr = await c.env.DATA_KV.get(KV_KEY, { cacheTtl: 300 });
       if (dataStr) {
-        const parsed = JSON.parse(dataStr) as SemesterData;
-        isolateCache = { data: parsed, timestamp: now };
-        return parsed;
+        const parsed = JSON.parse(dataStr);
+        const catalog = normalizeToCatalog(parsed);
+        isolateCache = { catalog, timestamp: now };
+        return catalog;
       }
     } catch (err) {
       console.warn(JSON.stringify({
@@ -43,7 +64,7 @@ export async function getSemesterData(c: Context<AppEnv>): Promise<SemesterData 
 
   // 3. Fallback to existing isolate cache even if slightly stale when KV is empty or failed
   if (isolateCache) {
-    return isolateCache.data;
+    return isolateCache.catalog;
   }
 
   // 4. Node.js local filesystem fallback (using layered cascade path resolution)
@@ -52,9 +73,10 @@ export async function getSemesterData(c: Context<AppEnv>): Promise<SemesterData 
     if (fs.existsSync(filePath)) {
       try {
         const content = fs.readFileSync(filePath, 'utf-8');
-        const parsed = JSON.parse(content) as SemesterData;
-        isolateCache = { data: parsed, timestamp: now };
-        return parsed;
+        const parsed = JSON.parse(content);
+        const catalog = normalizeToCatalog(parsed);
+        isolateCache = { catalog, timestamp: now };
+        return catalog;
       } catch (err) {
         console.warn(JSON.stringify({
           level: 'warn',
@@ -69,12 +91,45 @@ export async function getSemesterData(c: Context<AppEnv>): Promise<SemesterData 
 }
 
 /**
- * Universal setter for SemesterData.
+ * Universal getter for SemesterData (for a specific semester or the active semester).
+ */
+export async function getSemesterData(c: Context<AppEnv>, targetSemester?: string): Promise<SemesterData | null> {
+  const catalog = await getCatalogData(c);
+  if (!catalog) return null;
+
+  const sem = targetSemester || catalog.active_semester;
+  return catalog.semesters[sem] || null;
+}
+
+/**
+ * Universal setter for SemesterData or UnifiedCatalog.
  * Writes to Cloudflare KV if bound, and updates in-memory cache / local file on Node.js.
  */
-export async function saveSemesterData(c: Context<AppEnv>, data: SemesterData): Promise<boolean> {
-  const jsonStr = JSON.stringify(data, null, 4);
-  isolateCache = { data, timestamp: Date.now() };
+export async function saveSemesterData(
+  c: Context<AppEnv>,
+  data: SemesterData | UnifiedCatalog,
+  semester?: string
+): Promise<boolean> {
+  let catalogToSave: UnifiedCatalog;
+
+  if ('semesters' in data && 'active_semester' in data) {
+    catalogToSave = data as UnifiedCatalog;
+  } else {
+    const existing = await getCatalogData(c);
+    const targetSemester = semester || existing?.active_semester || 'default';
+    catalogToSave = {
+      updated_at: new Date().toISOString(),
+      active_semester: targetSemester,
+      semesters: {
+        ...(existing ? existing.semesters : {}),
+        [targetSemester]: data as SemesterData,
+      },
+    };
+  }
+
+
+  const jsonStr = JSON.stringify(catalogToSave, null, 4);
+  isolateCache = { catalog: catalogToSave, timestamp: Date.now() };
 
   let savedToKv = false;
 
@@ -130,4 +185,5 @@ export async function saveSemesterData(c: Context<AppEnv>, data: SemesterData): 
 
   return savedToKv || isolateCache !== null;
 }
+
 

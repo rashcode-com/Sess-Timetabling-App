@@ -215,6 +215,8 @@ const {
   rawJson,
   isLoading,
   loadError,
+  formattedUpdateDate: updateTimeDateText,
+  formattedUpdateTime: updateTimeClockText,
 } = storeToRefs(courseStore);
 
 const {
@@ -239,9 +241,6 @@ const dataTableHeaders: DataTableHeader[] = [
   { title: "گروه", key: "group", sortable: true, width: "100px" },
   { title: "زمان و مکان کلاس", key: "time_room", sortable: false },
 ];
-
-const updateTimeDateText = "به روز شده در ۹ شهریور";
-const updateTimeClockText = "ساعت ۱۱:۱۸";
 
 const courseResults = computed<Course[]>(() => {
   if (results.value && results.value.length > 0 && results.value[0] !== -1) {
@@ -269,8 +268,12 @@ const removeFromSelected = (id: string): void => {
 };
 
 const search = ({ filters, timeRange }: SearchEventPayload): void => {
+  if (filters.semester && filters.semester !== courseStore.activeSemester) {
+    courseStore.switchSemester(filters.semester);
+  }
   timetableStore.executeSearch(rawJson.value, filters, timeRange);
 };
+
 </script>
 
 <style scoped>

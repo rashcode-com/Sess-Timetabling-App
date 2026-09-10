@@ -7,3 +7,5 @@ export * from './helpers/timeCalculator.js';
 export * from './helpers/timeAndPlace.js';
 export * from './helpers/normalizers.js';
 export * from './helpers/search.js';
+export * from './helpers/dateUtils.js';
+

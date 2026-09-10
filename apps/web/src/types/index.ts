@@ -1,6 +1,6 @@
-import type { Course, TimeSlot } from "@sess/core";
+import type { Course, TimeSlot, UnifiedCatalog, SemesterData } from "@sess/core";
 
-export type { Course, TimeSlot };
+export type { Course, TimeSlot, UnifiedCatalog, SemesterData };
 
 /**
  * Filter options populated dynamically from dataset ETL
@@ -43,7 +43,13 @@ export interface ProcessedDataset {
   courseList: Course[];
   courseMap: Map<string, Course>;
   filterOptions: FilterOptions;
+  updatedAt: string | null;
+  activeSemester: string;
+  availableSemesters: string[];
+  rawCatalog: UnifiedCatalog | null;
 }
+
+
 
 /**
  * Conflicting course pair [Course A, Course B]

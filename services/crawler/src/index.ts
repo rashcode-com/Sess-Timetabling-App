@@ -48,17 +48,17 @@ program
     try {
       const config = await promptMissingConfig(rawConfig);
 
-      const dataset = await runCrawler(config, {
+      const { semester, departments } = await runCrawler(config, {
         departmentIndex: options.department,
         dryRun: options.dryRun,
       });
 
       // Export to JSON
-      await saveDatasetAsJson(dataset, config.outputPath);
+      await saveDatasetAsJson(departments, config.outputPath, semester);
 
       // Optional sync to API
       if (options.sync) {
-        await syncToApi(dataset, config.apiUrl, config.syncToken);
+        await syncToApi(departments, config.apiUrl, config.syncToken, semester);
       }
 
       logger.success('🚀 Scraping and processing finished successfully!');

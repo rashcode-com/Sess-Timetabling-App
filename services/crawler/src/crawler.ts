@@ -78,7 +78,7 @@ export async function loginToSess(page: Page, config: CrawlerConfig, maxRetries 
 /**
  * Navigates to the semester schedule selection page.
  */
-export async function navigateToSchedulePage(page: Page, semesterValue?: string, maxRetries = 3): Promise<void> {
+export async function navigateToSchedulePage(page: Page, semesterValue?: string, maxRetries = 3): Promise<string> {
   const hasSemesterDropdown = (await page.locator('#edSemester').count()) > 0;
 
   if (!hasSemesterDropdown) {
@@ -119,6 +119,8 @@ export async function navigateToSchedulePage(page: Page, semesterValue?: string,
   const availableList = options.map((o) => `[${o.value}: ${o.text}]`).join(', ');
   logger.info(`Available semesters in portal: ${availableList}`);
 
+  let resolvedSemester = '';
+
   if (semesterValue) {
     const targetVal = String(semesterValue).trim();
     const matched = options.find((o) => o.value === targetVal || o.text.includes(targetVal));
@@ -130,7 +132,7 @@ export async function navigateToSchedulePage(page: Page, semesterValue?: string,
           await semesterDropdown.selectOption({ value: matched.value });
           logger.success(`✅ Selected semester: ${matched.value}`);
           await page.waitForTimeout(1500);
-          return;
+          return matched.value;
         } catch (err: any) {
           if (attempt === maxRetries) {
             throw new Error(`Failed to select semester ${matched.value}: ${err.message}`);
@@ -138,6 +140,7 @@ export async function navigateToSchedulePage(page: Page, semesterValue?: string,
           await page.waitForTimeout(1000);
         }
       }
+      resolvedSemester = matched.value;
     } else {
       const activeOption = options.find((o) => o.selected) || options[0];
       logger.warn(
@@ -146,12 +149,22 @@ export async function navigateToSchedulePage(page: Page, semesterValue?: string,
       if (activeOption) {
         await semesterDropdown.selectOption({ value: activeOption.value });
         logger.success(`✅ Active semester in use: ${activeOption.value}`);
+        resolvedSemester = activeOption.value;
+      } else {
+        resolvedSemester = String(semesterValue);
       }
     }
   } else {
     const activeOption = options.find((o) => o.selected) || options[0];
-    logger.info(`▶ Using current active semester: ${activeOption?.value} (${activeOption?.text})`);
+    if (!activeOption || !activeOption.value) {
+      throw new Error("Could not determine active semester from portal dropdown and no --semester CLI option was provided.");
+    }
+    logger.info(`▶ Using current active semester: ${activeOption.value} (${activeOption.text})`);
+    resolvedSemester = activeOption.value;
   }
+
+  return resolvedSemester;
+
 }
 
 /**
@@ -288,13 +301,18 @@ export async function scrapeSingleDepartment(
   return { departmentName, courses: departmentCourses };
 }
 
+export interface CrawlResult {
+  semester: string;
+  departments: SemesterData;
+}
+
 /**
- * Main Crawler Runner: launches browser, navigates, iterates over departments, and produces SemesterData.
+ * Main Crawler Runner: launches browser, navigates, iterates over departments, and produces CrawlResult.
  */
 export async function runCrawler(
   config: CrawlerConfig,
   options: { departmentIndex?: number; dryRun?: boolean } = {}
-): Promise<SemesterData> {
+): Promise<CrawlResult> {
   const browserName = config.browserChannel || 'Default Playwright Chromium';
   logger.info(`Launching browser: ${browserName} (headless: ${config.headless})`);
 
@@ -316,7 +334,8 @@ export async function runCrawler(
     await loginToSess(page, config);
 
     // 2. Navigate to Schedule Page
-    await navigateToSchedulePage(page, config.semesterValue);
+    const resolvedSemester = await navigateToSchedulePage(page, config.semesterValue);
+
 
     // 3. Inspect Departments
     const deptSelect = page.locator('#edDepartment');
@@ -400,8 +419,12 @@ export async function runCrawler(
     }
     logger.success(`🎉 Scraping complete! Scraped ${deptCount} departments with ${totalCourses} total courses.`);
 
-    return allDepartmentsData;
+    return {
+      semester: resolvedSemester,
+      departments: allDepartmentsData,
+    };
   } finally {
     await browser.close();
   }
 }
+

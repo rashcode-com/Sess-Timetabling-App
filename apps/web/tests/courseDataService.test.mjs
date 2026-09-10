@@ -89,8 +89,40 @@ console.log('🧪 Running CourseDataService ETL & Search Unit Tests...\n');
   const uniquePlaces = new Set(filterOptions.places);
   assert.equal(filterOptions.places.length, uniquePlaces.size, 'Places list must contain NO duplicates');
 
-  const uniqueGenders = new Set(filterOptions.genders);
-  assert.equal(filterOptions.genders.length, uniqueGenders.size, 'Genders list must contain NO duplicates');
+  // Verify dynamic metadata & semesters
+  assert.equal(result.updatedAt, "2023-08-31T07:48:00.000Z", "updatedAt must match catalog timestamp");
+  assert.equal(result.activeSemester, "1402-1", "activeSemester must match");
+  assert.deepEqual(result.availableSemesters, ["1402-1"], "availableSemesters must be dynamically populated");
+  assert.deepEqual(filterOptions.semesters, ["1402-1"], "filterOptions.semesters must match available semesters");
+
+  // Verify legacy flat data fallback
+  const legacyFlatSample = {
+    "بخش تستی": {
+      "123^1": {
+        title: "درس تستی",
+        vahed: "3",
+        group: "1",
+        teacher: "تست*تستی*بخش(100)*",
+        gender: "مختلط",
+        unit: "بخش تستی*",
+        time_in_week: "3",
+        time_room: "شنبه-08:00:10:00(101)",
+        midterm_date: "",
+        midterm_time: "",
+        capacity: "30",
+        final_time: "",
+        final_date: "",
+        final_time_split: { start_hour: 0, start_minute: 0, end_hour: 0, end_minute: 0 },
+        final_date_split: { y: 0, m: 0, d: 0 },
+        seperated_time_and_place: [],
+      },
+    },
+  };
+  const legacyResult = processDataset(legacyFlatSample);
+  assert.equal(legacyResult.courseList.length, 1, "Legacy flat format must be parsed without error");
+  assert.deepEqual(legacyResult.availableSemesters, ["default"], "Legacy flat format falls back to semantic 'default' semester");
+  assert.equal(legacyResult.activeSemester, "default", "Legacy flat format active semester is 'default'");
+
 
   console.log(`  ✅ processDataset ETL passed (${result.courseList.length} courses indexed in ${duration.toFixed(2)}ms)`);
   console.log(`     - Unique Units: ${filterOptions.units.length}`);

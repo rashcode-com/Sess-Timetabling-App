@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
-import { SemesterDataSchema } from '@sess/core';
+import { CatalogDatasetSchema } from '@sess/core';
 import type { AppEnv } from '../types.js';
 import { saveSemesterData } from '../storage.js';
 import { timingSafeEqual } from 'node:crypto';
@@ -21,7 +21,7 @@ async function timingSafeEqualStrings(a: string, b: string): Promise<boolean> {
 
 const syncRouter = new Hono<AppEnv>();
 
-syncRouter.post('/', zValidator('json', SemesterDataSchema), async (c) => {
+syncRouter.post('/', zValidator('json', CatalogDatasetSchema), async (c) => {
   // Enforce authentication: fail-closed if SYNC_TOKEN is missing or unauthorized
   const expectedToken = c.env?.SYNC_TOKEN || (typeof process !== 'undefined' ? process.env?.SYNC_TOKEN : undefined);
   if (!expectedToken) {
@@ -43,20 +43,46 @@ syncRouter.post('/', zValidator('json', SemesterDataSchema), async (c) => {
   }
 
   const payload = c.req.valid('json');
-  const success = await saveSemesterData(c, payload);
+
+  let semesterParam: string;
+  if ('semesters' in payload && payload.active_semester) {
+    semesterParam = payload.active_semester;
+  } else {
+    const fromQueryOrHeader = c.req.query('semester') || c.req.header('X-Semester');
+    if (!fromQueryOrHeader) {
+      return c.json({
+        error: 'Bad Request: Missing semester identifier. Please provide ?semester=<id>, X-Semester header, or a UnifiedCatalog payload with active_semester.'
+      }, 400);
+    }
+    semesterParam = fromQueryOrHeader;
+  }
+
+  const success = await saveSemesterData(c, payload, semesterParam);
+
 
   if (!success) {
     return c.json({ error: 'Failed to save dataset' }, 500);
   }
 
-  const departmentCount = Object.keys(payload).length;
+  let departmentCount = 0;
   let totalCourses = 0;
-  for (const deptKey of Object.keys(payload)) {
-    const deptObj = payload[deptKey];
-    if (deptObj) {
-      totalCourses += Object.keys(deptObj).length;
+
+  if ('semesters' in payload) {
+    const activeSemData = payload.semesters[payload.active_semester] || {};
+    departmentCount = Object.keys(activeSemData).length;
+    for (const deptKey of Object.keys(activeSemData)) {
+      totalCourses += Object.keys(activeSemData[deptKey] || {}).length;
+    }
+  } else {
+    departmentCount = Object.keys(payload).length;
+    for (const deptKey of Object.keys(payload)) {
+      const deptObj = payload[deptKey];
+      if (deptObj) {
+        totalCourses += Object.keys(deptObj).length;
+      }
     }
   }
+
 
   return c.json({
     success: true,

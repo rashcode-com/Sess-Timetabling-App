@@ -40,12 +40,30 @@ console.log("🧪 Running Pinia Stores Modernization Unit Tests...\n");
   assert.ok(courseStore.places.length > 0, "places should be populated");
   assert.ok(courseStore.genders.length > 0, "genders should be populated");
 
+  // Test dynamic date & time formatting & active semester
+  assert.equal(courseStore.formattedUpdateDate, "به‌روز شده در ۹ شهریور ۱۴۰۲");
+  assert.equal(courseStore.formattedUpdateTime, "ساعت ۱۱:۱۸");
+  assert.equal(courseStore.activeSemester, "1402-1");
+  assert.deepEqual(courseStore.availableSemesters, ["1402-1"]);
+
   // Test getCourseById
   const sampleCourse = courseStore.courseList[0];
   const foundCourse = courseStore.getCourseById(sampleCourse.id);
   assert.deepEqual(foundCourse, sampleCourse, "getCourseById must retrieve exact matching course");
 
+  // Test guards: calling initCourseData with active semester should be a no-op
+  await courseStore.initCourseData(undefined, "1402-1");
+  assert.equal(courseStore.activeSemester, "1402-1");
+  assert.equal(courseStore.isDataLoaded, true);
+
+  // Test guard: calling initCourseData while isLoading should return immediately
+  courseStore.isLoading = true;
+  await courseStore.initCourseData(undefined, "some-other-semester");
+  assert.equal(courseStore.isLoading, true, "Should retain isLoading state when early returning");
+  courseStore.isLoading = false;
+
   console.log(`  ✅ useCourseStore: initCourseData & getters passed (${courseStore.totalCourseCount} courses indexed)`);
+
 }
 
 // 2. Test useTimetableStore Course Selection & CRUD

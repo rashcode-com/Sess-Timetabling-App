@@ -7,6 +7,7 @@ import { arabicToPersian, teacherSearch, placeSearchHelper } from '@sess/core';
 import type { Course } from '@sess/core';
 
 const coursesQuerySchema = z.object({
+  semester: z.string().optional(),
   department: z.string().optional(),
   query: z.string().optional(),
   teacher: z.string().optional(),
@@ -17,8 +18,9 @@ const coursesQuerySchema = z.object({
 const coursesRouter = new Hono<AppEnv>();
 
 coursesRouter.get('/', zValidator('query', coursesQuerySchema), async (c) => {
-  const { department, query, teacher, day, limit } = c.req.valid('query');
-  const dataset = await getSemesterData(c);
+  const { semester, department, query, teacher, day, limit } = c.req.valid('query');
+  const dataset = await getSemesterData(c, semester);
+
 
   if (!dataset) {
     return c.json({ courses: [], error: 'Semester data not found' }, 404);

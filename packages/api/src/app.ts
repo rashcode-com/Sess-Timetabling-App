@@ -6,6 +6,7 @@ import healthRouter from './routes/health.js';
 import departmentsRouter from './routes/departments.js';
 import coursesRouter from './routes/courses.js';
 import syncRouter from './routes/sync.js';
+import semestersRouter from './routes/semesters.js';
 
 const app = new Hono<AppEnv>().basePath('/api');
 
@@ -38,8 +39,10 @@ const routes = app
   .route('/health', healthRouter)
   .route('/departments', departmentsRouter)
   .route('/courses', coursesRouter)
+  .route('/semesters', semestersRouter)
   .route('/sync', syncRouter);
 
 export default app;
 export type AppType = typeof routes;
+
 

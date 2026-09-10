@@ -28,11 +28,23 @@
           <v-icon size="20">{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
         </v-btn>
 
-        <v-chip color="primary" variant="flat" size="small" class="font-weight-medium">
+        <v-chip
+          v-if="updateTimeDateText"
+          color="primary"
+          variant="flat"
+          size="small"
+          class="font-weight-medium"
+        >
           <v-icon start size="16">mdi-calendar-sync</v-icon>
           {{ updateTimeDateText }}
         </v-chip>
-        <v-chip variant="tonal" size="small" color="secondary" class="mr-2">
+        <v-chip
+          v-if="updateTimeClockText"
+          variant="tonal"
+          size="small"
+          color="secondary"
+          class="mr-2"
+        >
           <v-icon start size="16">mdi-clock-outline</v-icon>
           {{ updateTimeClockText }}
         </v-chip>
@@ -65,10 +77,11 @@ interface Props {
 }
 
 const {
-  updateTimeDateText = "به روز شده در ۹ شهریور",
-  updateTimeClockText = "ساعت ۱۱:۱۸",
+  updateTimeDateText = "",
+  updateTimeClockText = "",
   version = `نسخه ${typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "0.1.5"}`,
 } = defineProps<Props>();
+
 
 defineEmits<{
   (e: "toggle-drawer"): void;
