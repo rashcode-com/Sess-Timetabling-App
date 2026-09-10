@@ -61,7 +61,7 @@ flowchart TD
 
     subgraph StorageLayer ["Data Persistence"]
         KV["Cloudflare KV Storage (semester_data)"]
-        JSON["Local File apps/web/src/data/data.json"]
+        JSON["Shared Data Package packages/data/datasets/data.json"]
     end
 
     subgraph APIGateway ["Edge Gateway (@sess/api)"]

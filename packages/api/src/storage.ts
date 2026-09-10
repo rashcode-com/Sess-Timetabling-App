@@ -1,7 +1,7 @@
 import type { Context } from 'hono';
 import type { AppEnv } from './types.js';
 import type { SemesterData } from '@sess/core';
-import { resolveDataFilePath } from './paths.js';
+import { resolveDataFilePath, findWorkspaceRoot } from './paths.js';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -101,6 +101,24 @@ export async function saveSemesterData(c: Context<AppEnv>, data: SemesterData): 
         fs.mkdirSync(dir, { recursive: true });
       }
       fs.writeFileSync(targetPath, jsonStr, 'utf-8');
+
+      // Also sync to apps/web/public and apps/web/dist if in monorepo environment
+      const root = findWorkspaceRoot();
+      if (root) {
+        const syncTargets = [
+          path.join(root, 'apps/web/public/data/data.json'),
+          path.join(root, 'apps/web/dist/data/data.json'),
+        ];
+        for (const syncTarget of syncTargets) {
+          if (syncTarget !== targetPath && fs.existsSync(path.dirname(syncTarget))) {
+            try {
+              fs.writeFileSync(syncTarget, jsonStr, 'utf-8');
+            } catch {
+              // Ignore non-critical sync errors
+            }
+          }
+        }
+      }
     } catch (err) {
       console.warn(JSON.stringify({
         level: 'warn',

@@ -6,9 +6,16 @@ import {
   searchCourses,
 } from '../src/shared/services/courseDataService.ts';
 
-const rawData = JSON.parse(
-  fs.readFileSync(new URL('../src/data/data.json', import.meta.url), 'utf-8')
-);
+const datasetUrl = [
+  new URL('../../../packages/data/datasets/data.json', import.meta.url),
+  new URL('../public/data/data.json', import.meta.url),
+].find((url) => fs.existsSync(url));
+
+if (!datasetUrl) {
+  throw new Error('Dataset file not found for courseDataService tests!');
+}
+
+const rawData = JSON.parse(fs.readFileSync(datasetUrl, 'utf-8'));
 
 console.log('🧪 Running CourseDataService ETL & Search Unit Tests...\n');
 

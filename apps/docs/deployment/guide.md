@@ -140,7 +140,7 @@ pnpm --filter @sess/api deploy
 
 ## ۴. روش سوم: استقرار کلاینت روی GitHub Pages (کاملاً رایگان)
 
-وب‌اپلیکیشن `@sess/web` به گونه‌ای مهندسی شده که داده‌های ترم تحصیلی را از فایل داخلی `src/data/data.json` بارگذاری کرده و بدون نیاز به بک‌اند سرور نیز به صورت کاملاً مستقل و آفلاین در مرورگر کاربر کار می‌کند. از این رو، می‌توانید فرانت‌اند را به صورت رایگان روی **GitHub Pages** میزبانی نمایید.
+وب‌اپلیکیشن `@sess/web` به گونه‌ای مهندسی شده که داده‌های ترم تحصیلی را از فایل استاتیک `public/data/data.json` بارگذاری کرده و بدون نیاز به بک‌اند سرور نیز به صورت کاملاً مستقل و آفلاین در مرورگر کاربر کار می‌کند. از این رو، می‌توانید فرانت‌اند را به صورت رایگان روی **GitHub Pages** میزبانی نمایید.
 
 ### مراحل گام‌به‌گام:
 
@@ -365,8 +365,8 @@ COPY --from=build /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=build /app/server.js ./server.js
 COPY --from=build /app/packages/api ./packages/api
 COPY --from=build /app/packages/core ./packages/core
+COPY --from=build /app/packages/data ./packages/data
 COPY --from=build /app/apps/web/dist ./apps/web/dist
-COPY --from=build /app/apps/web/src/data ./apps/web/src/data
 COPY --from=build /app/node_modules ./node_modules
 
 EXPOSE 3000

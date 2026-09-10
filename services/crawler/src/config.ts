@@ -19,7 +19,7 @@ export interface CrawlerConfig {
 }
 
 export function loadConfig(cliOverrides: Partial<CrawlerConfig> = {}): CrawlerConfig {
-  const defaultOutputPath = path.resolve(process.cwd(), '../../apps/web/src/data/data.json');
+  const defaultOutputPath = path.resolve(process.cwd(), '../../packages/data/datasets/data.json');
 
   const rawDepts = cliOverrides.departments || (process.env.DEPARTMENTS ? process.env.DEPARTMENTS.split(',').map((d) => d.trim()).filter(Boolean) : undefined);
 

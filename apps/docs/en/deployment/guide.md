@@ -140,7 +140,7 @@ pnpm --filter @sess/api deploy
 
 ## 4. Method 3: GitHub Pages Deployment (Free Static Client)
 
-The `@sess/web` client application is architected to load semester course catalogs from `apps/web/src/data/data.json`. It can operate entirely standalone in the browser with full search, calendar scheduling, and conflict detection capabilities without requiring a server backend. This makes it an ideal fit for **GitHub Pages**.
+The `@sess/web` client application is architected to load semester course catalogs from the static asset `public/data/data.json`. It can operate entirely standalone in the browser with full search, calendar scheduling, and conflict detection capabilities without requiring a server backend. This makes it an ideal fit for **GitHub Pages**.
 
 ### Step-by-Step Setup:
 
@@ -365,8 +365,8 @@ COPY --from=build /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=build /app/server.js ./server.js
 COPY --from=build /app/packages/api ./packages/api
 COPY --from=build /app/packages/core ./packages/core
+COPY --from=build /app/packages/data ./packages/data
 COPY --from=build /app/apps/web/dist ./apps/web/dist
-COPY --from=build /app/apps/web/src/data ./apps/web/src/data
 COPY --from=build /app/node_modules ./node_modules
 
 EXPOSE 3000

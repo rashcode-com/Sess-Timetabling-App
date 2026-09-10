@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { processDataset } from "../shared/services/courseDataService";
-import rawData from "../data/data.json";
 import type { Course, FilterOptions } from "../types";
 
 export interface CourseState {
@@ -9,6 +8,8 @@ export interface CourseState {
   courseMap: Map<string, Course>;
   filterOptions: FilterOptions;
   isDataLoaded: boolean;
+  isLoading: boolean;
+  loadError: string | null;
 }
 
 export const useCourseStore = defineStore("courses", {
@@ -26,6 +27,8 @@ export const useCourseStore = defineStore("courses", {
       genders: [],
     },
     isDataLoaded: false,
+    isLoading: false,
+    loadError: null,
   }),
 
   getters: {
@@ -42,17 +45,44 @@ export const useCourseStore = defineStore("courses", {
   },
 
   actions: {
-    initCourseData(customData?: unknown): void {
-      if (this.isDataLoaded && !customData) {
+    async initCourseData(customData?: unknown): Promise<void> {
+      if ((this.isDataLoaded || this.isLoading) && !customData) {
         return;
       }
-      const dataToProcess = customData || rawData;
-      const { dataset, filterOptions, courseList, courseMap } = processDataset(dataToProcess);
-      this.rawJson = dataset;
-      this.filterOptions = filterOptions;
-      this.courseList = courseList;
-      this.courseMap = courseMap;
-      this.isDataLoaded = true;
+      this.isLoading = true;
+      this.loadError = null;
+
+      try {
+        let dataToProcess = customData;
+
+        if (!dataToProcess) {
+          if (typeof window !== "undefined" && typeof fetch === "function") {
+            const baseUrl = import.meta.env.BASE_URL.endsWith("/")
+              ? import.meta.env.BASE_URL
+              : `${import.meta.env.BASE_URL}/`;
+            const response = await fetch(`${baseUrl}data/data.json`);
+            if (!response.ok) {
+              throw new Error(`خطا در بارگذاری اطلاعات دروس (کد وضعیت: ${response.status})`);
+            }
+            dataToProcess = await response.json();
+          } else {
+            throw new Error("داده اولیه جهت بارگذاری ارسال نشده است.");
+          }
+        }
+
+        const { dataset, filterOptions, courseList, courseMap } = processDataset(dataToProcess);
+        this.rawJson = dataset;
+        this.filterOptions = filterOptions;
+        this.courseList = courseList;
+        this.courseMap = courseMap;
+        this.isDataLoaded = true;
+      } catch (err: unknown) {
+        const errorMsg = err instanceof Error ? err.message : "خطای ناشناخته در دریافت داده‌ها";
+        this.loadError = errorMsg;
+        console.error("[CourseStore] Failed to initialize course data:", err);
+      } finally {
+        this.isLoading = false;
+      }
     },
   },
 });

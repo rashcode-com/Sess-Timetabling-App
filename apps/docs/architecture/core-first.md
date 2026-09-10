@@ -61,7 +61,7 @@ flowchart TD
 
     subgraph StorageLayer ["لایه ذخیره‌سازی داده"]
         KV["Cloudflare KV Storage (semester_data)"]
-        JSON["فایل محلی apps/web/src/data/data.json"]
+        JSON["پکیج اشتراکی داده packages/data/datasets/data.json"]
     end
 
     subgraph APIGateway ["گیت‌وی توزیع داده لبه (@sess/api)"]

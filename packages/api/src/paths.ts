@@ -102,8 +102,8 @@ export function resolveWebDistPath(): string | null {
  * 
  * Layered Cascade Strategy:
  * 1. Environment Variable: process.env.DATA_FILE_PATH
- * 2. Monorepo Root: <workspace-root>/apps/web/src/data/data.json
- * 3. Module/CWD Fallback: relative to cwd or module
+ * 2. Monorepo Canonical: <workspace-root>/packages/data/datasets/data.json
+ * 3. Module/CWD Fallbacks: relative to cwd or module
  */
 export function resolveDataFilePath(): string {
   // Layer 1: Environment Variable
@@ -112,17 +112,38 @@ export function resolveDataFilePath(): string {
     return path.resolve(envDataPath);
   }
 
-  // Layer 2: Monorepo Workspace Root
+  // Layer 2: Monorepo Workspace Root (Canonical: packages/data)
   const root = findWorkspaceRoot();
   if (root) {
-    return path.join(root, 'apps/web/src/data/data.json');
+    const canonicalPackagePath = path.join(root, 'packages/data/datasets/data.json');
+    if (fs.existsSync(canonicalPackagePath)) {
+      return canonicalPackagePath;
+    }
+    const publicWebPath = path.join(root, 'apps/web/public/data/data.json');
+    if (fs.existsSync(publicWebPath)) {
+      return publicWebPath;
+    }
+    const distWebPath = path.join(root, 'apps/web/dist/data/data.json');
+    if (fs.existsSync(distWebPath)) {
+      return distWebPath;
+    }
+    const legacyWebPath = path.join(root, 'apps/web/src/data/data.json');
+    if (fs.existsSync(legacyWebPath)) {
+      return legacyWebPath;
+    }
+    return canonicalPackagePath;
   }
 
   // Layer 3: Local CWD Fallbacks
   const candidateReads = [
-    path.resolve(process.cwd(), 'apps/web/src/data/data.json'),
+    path.resolve(process.cwd(), 'packages/data/datasets/data.json'),
+    path.resolve(process.cwd(), 'apps/web/public/data/data.json'),
+    path.resolve(process.cwd(), 'apps/web/dist/data/data.json'),
     path.resolve(process.cwd(), 'data/data.json'),
     path.resolve(process.cwd(), 'data.json'),
+    path.resolve(getCurrentDir(), '../../packages/data/datasets/data.json'),
+    path.resolve(getCurrentDir(), '../../apps/web/dist/data/data.json'),
+    path.resolve(getCurrentDir(), '../../apps/web/public/data/data.json'),
     path.resolve(getCurrentDir(), '../../apps/web/src/data/data.json')
   ];
 
@@ -134,3 +155,4 @@ export function resolveDataFilePath(): string {
 
   return candidateReads[0];
 }
+

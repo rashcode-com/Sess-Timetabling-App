@@ -25,7 +25,7 @@ flowchart TD
     end
 
     subgraph Outputs ["مقاصد خروجی داده‌ها"]
-        LocalFile["apps/web/src/data/data.json"]
+        LocalFile["packages/data/datasets/data.json"]
         CloudflareAPI["ارسال خودکار به POST /api/sync (Edge KV)"]
     end
 
@@ -103,8 +103,8 @@ pnpm --filter @sess/crawler dev -- -d 32 --headless
 # کراول کامل تمامی دانشکده‌های پورتال
 pnpm --filter @sess/crawler dev -- --all --headless
 
-# کراول و ذخیره مستقیم در فایل داده‌های فرانت‌اند
-pnpm --filter @sess/crawler dev -- --all --headless --output ./apps/web/src/data/data.json
+# اجرای خزنده برای استخراج کامل بدون مرورگر و ذخیره در پکیج داده
+pnpm --filter @sess/crawler dev -- --all --headless --output ./packages/data/datasets/data.json
 
 # اجرای حالت تستی و اعتبارسنجی (Dry Run)
 pnpm --filter @sess/crawler dev -- --dry-run

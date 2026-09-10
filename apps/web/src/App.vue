@@ -14,8 +14,8 @@ import { useCourseStore } from "@/store";
 
 const courseStore = useCourseStore();
 
-onBeforeMount(() => {
-  courseStore.initCourseData();
+onBeforeMount(async () => {
+  await courseStore.initCourseData();
 });
 </script>
 

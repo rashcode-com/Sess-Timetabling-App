@@ -11,6 +11,7 @@
       :places="places"
       :genders="genders"
       :selected-count="selectedList.length"
+      :loading="isLoading"
       @search="search"
     >
       <template #selected-courses>
@@ -103,7 +104,53 @@
             </p>
           </v-card>
 
-          <!-- 3. Initial Empty State (Only displayed when no courses are selected and no search is executed) -->
+          <!-- 3. Loading State -->
+          <v-card
+            v-else-if="isLoading"
+            class="pa-10 text-center mx-1"
+            rounded="lg"
+            elevation="0"
+          >
+            <v-progress-circular
+              indeterminate
+              color="primary"
+              size="48"
+              width="4"
+              class="mb-4"
+            />
+            <h3 class="text-h6 font-weight-bold mb-1">در حال دریافت و آماده‌سازی اطلاعات دروس...</h3>
+            <p class="text-body-2 text-medium-emphasis mb-0">
+              لطفاً چند لحظه شکیبا باشید
+            </p>
+          </v-card>
+
+          <!-- 4. Error State -->
+          <v-card
+            v-else-if="loadError"
+            class="pa-8 text-center mx-1"
+            rounded="lg"
+            elevation="1"
+          >
+            <v-avatar color="error" variant="tonal" size="56" class="mb-3">
+              <v-icon color="error" size="32">mdi-alert-circle-outline</v-icon>
+            </v-avatar>
+            <h3 class="text-h6 font-weight-bold mb-2 text-error">خطا در بارگذاری اطلاعات دروس</h3>
+            <p class="text-body-2 text-medium-emphasis mb-4">
+              {{ loadError }}
+            </p>
+            <v-btn
+              color="primary"
+              variant="flat"
+              rounded="sm"
+              class="font-weight-medium"
+              @click="courseStore.initCourseData()"
+            >
+              <v-icon start size="18">mdi-refresh</v-icon>
+              تلاش مجدد
+            </v-btn>
+          </v-card>
+
+          <!-- 5. Initial Empty State (Only displayed when no courses are selected and no search is executed) -->
           <v-card
             v-else-if="(!selectedList || selectedList.length === 0) && results.length === 0"
             class="pa-10 text-center mx-1 empty-state-card"
@@ -166,6 +213,8 @@ const {
   places,
   genders,
   rawJson,
+  isLoading,
+  loadError,
 } = storeToRefs(courseStore);
 
 const {

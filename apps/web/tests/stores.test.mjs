@@ -4,9 +4,16 @@ import { setActivePinia, createPinia } from "pinia";
 import { useCourseStore } from "../src/store/courseStore.ts";
 import { useTimetableStore } from "../src/store/timetableStore.ts";
 
-const rawData = JSON.parse(
-  fs.readFileSync(new URL("../src/data/data.json", import.meta.url), "utf-8")
-);
+const datasetUrl = [
+  new URL("../../../packages/data/datasets/data.json", import.meta.url),
+  new URL("../public/data/data.json", import.meta.url),
+].find((url) => fs.existsSync(url));
+
+if (!datasetUrl) {
+  throw new Error("Dataset file not found for store tests!");
+}
+
+const rawData = JSON.parse(fs.readFileSync(datasetUrl, "utf-8"));
 
 console.log("🧪 Running Pinia Stores Modernization Unit Tests...\n");
 

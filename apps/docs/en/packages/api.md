@@ -177,12 +177,12 @@ flowchart TD
 
 1. **In-Memory Isolate Cache**: 60-second TTL cache in Worker/Node memory minimizing KV read operations.
 2. **Cloudflare KV Integration**: Persists dataset under `semester_data` key with 5-minute edge cache TTL.
-3. **Local File Fallback**: Seamlessly reads/writes to `apps/web/src/data/data.json` during local development or offline execution.
+3. **Local File Fallback**: Seamlessly reads/writes to `packages/data/datasets/data.json` during local development or offline execution.
 
 ### Layered Cascade Path Resolver (`paths.ts`)
 To resolve filesystem paths across varied runtime targets (monorepo dev, standalone runners, or Docker containers), `paths.ts` uses a deterministic tiered cascade:
 * `resolveWebDistPath`: Checks `WEB_DIST_PATH` env var first, then workspace root markers (`pnpm-workspace.yaml`), falling back to `apps/web/dist` relative to the current working directory.
-* `resolveDataFilePath`: Evaluates `DATA_FILE_PATH` env var first, cascading to `apps/web/src/data/data.json`.
+* `resolveDataFilePath`: Evaluates `DATA_FILE_PATH` env var first, cascading to canonical `@sess/data` package `packages/data/datasets/data.json`.
 
 ---
 
@@ -194,7 +194,7 @@ Configure `.dev.vars` for Cloudflare Wrangler or `.env` for standalone Node.js i
 | :--- | :---: | :--- | :--- |
 | `SYNC_TOKEN` | Yes (Prod) | Bearer authentication secret for `POST /api/sync` | `"your_strong_secret_token"` |
 | `WEB_DIST_PATH` | No | Direct path override to compiled SPA bundle (`apps/web/dist`) | `"/app/apps/web/dist"` |
-| `DATA_FILE_PATH` | No | Direct path override to local dataset (`data.json`) | `"/app/apps/web/src/data/data.json"` |
+| `DATA_FILE_PATH` | No | Direct path override to local dataset (`data.json`) | `"/app/packages/data/datasets/data.json"` |
 | `PORT` | No | HTTP port for self-hosted Node.js server (Default: 3000) | `3000` |
 
 ---

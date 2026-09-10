@@ -13,12 +13,13 @@
     "build": "tsup",
     "types": "wrangler types src/worker-configuration.d.ts",
     "deploy": "wrangler deploy",
-    "kv:seed": "wrangler kv key put --binding=DATA_KV semester_data --path=../../apps/web/src/data/data.json"
+    "kv:seed": "wrangler kv key put --binding=DATA_KV semester_data --path=../../packages/data/datasets/data.json"
   },
   "dependencies": {
     "@hono/node-server": "^1.11.0",
     "@hono/zod-validator": "^0.2.2",
     "@sess/core": "workspace:*",
+    "@sess/data": "workspace:*",
     "hono": "^4.4.0",
     "zod": "^3.22.0"
   },

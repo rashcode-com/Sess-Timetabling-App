@@ -53,8 +53,6 @@ apps/web/src/
 ├── assets/
 │   ├── font.css
 │   └── theme.css
-├── data/
-│   └── data.json
 ├── features/
 │   ├── courses/
 │   │   ├── components/

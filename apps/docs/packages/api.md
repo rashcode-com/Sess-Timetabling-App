@@ -188,7 +188,7 @@ flowchart TD
 ### حل‌کننده آبشاری مسیرها (`paths.ts`)
 جهت تعیین مسیرهای دیسک در شرایط مختلف استقرار (Monorepo، داکر یا سرور مجزا)، ماژول `paths.ts` از الگوریتم آبشاری چندسطحی بهره می‌برد:
 * `resolveWebDistPath`: ابتدا مقدار متغیر محیطی `WEB_DIST_PATH` را چک کرده، سپس نشانگرهای ریشه مونو‌ریپو (`pnpm-workspace.yaml`) را بررسی نموده و در نهایت به پوشه `apps/web/dist` نسبت به دایرکتوری جاری اشاره می‌کند.
-* `resolveDataFilePath`: با اولویت متغیر `DATA_FILE_PATH` یا مسیر آبشاری به فایل `apps/web/src/data/data.json`.
+* `resolveDataFilePath`: با اولویت متغیر `DATA_FILE_PATH` یا مسیر آبشاری به فایل کانونیکال پکیج داده `packages/data/datasets/data.json`.
 
 ---
 
@@ -200,7 +200,7 @@ flowchart TD
 | :--- | :---: | :--- | :--- |
 | `SYNC_TOKEN` | بله (پروداکشن) | کلید امنیتی احراز هویت برای اندپوینت `POST /api/sync` | `"your_strong_secret_token"` |
 | `WEB_DIST_PATH` | خیر | مسیر مستقیم دایرکتوری فایل‌های کامپایل‌شده وب (`apps/web/dist`) | `"/app/apps/web/dist"` |
-| `DATA_FILE_PATH` | خیر | مسیر مستقیم فایل کاتالوگ دروس محلی (`data.json`) | `"/app/apps/web/src/data/data.json"` |
+| `DATA_FILE_PATH` | خیر | مسیر مستقیم فایل کاتالوگ دروس محلی (`data.json`) | `"/app/packages/data/datasets/data.json"` |
 | `PORT` | خیر | پورت شنود سرور اختصاصی Node.js (پیش‌فرض: ۳۰۰۰) | `3000` |
 
 ---

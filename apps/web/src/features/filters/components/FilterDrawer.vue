@@ -243,6 +243,8 @@
         block
         size="large"
         class="btn-app-primary mt-2"
+        :loading="loading"
+        :disabled="loading"
         @click="handleSearch"
       >
         <v-icon start size="20">mdi-magnify</v-icon>
@@ -278,6 +280,7 @@ interface Props {
   genders?: string[];
   selectedCount?: number;
   temporary?: boolean;
+  loading?: boolean;
 }
 
 const {
@@ -290,6 +293,7 @@ const {
   genders = [],
   selectedCount = 0,
   temporary = false,
+  loading = false,
 } = defineProps<Props>();
 
 const emit = defineEmits<{

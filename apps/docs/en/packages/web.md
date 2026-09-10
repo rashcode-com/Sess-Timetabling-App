@@ -51,7 +51,6 @@ graph TD
 ```text
 apps/web/src/
 ├── assets/                  # CSS tokens (font.css, theme.css)
-├── data/                    # Course catalog dataset (data.json)
 ├── features/
 │   ├── courses/             # CourseDataTable.vue, CourseDetailDialog.vue
 │   ├── filters/             # FilterDrawer.vue

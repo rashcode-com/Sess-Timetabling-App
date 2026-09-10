@@ -25,7 +25,7 @@ flowchart TD
     end
 
     subgraph Outputs ["Output Destinations"]
-        LocalFile["apps/web/src/data/data.json"]
+        LocalFile["packages/data/datasets/data.json"]
         CloudflareAPI["Direct Push to POST /api/sync (Edge KV)"]
     end
 
@@ -98,8 +98,8 @@ pnpm --filter @sess/crawler dev -- -d 32 --headless
 # Full scrape of all departments
 pnpm --filter @sess/crawler dev -- --all --headless
 
-# Full scrape exported directly to frontend data file
-pnpm --filter @sess/crawler dev -- --all --headless --output ./apps/web/src/data/data.json
+# Scrape everything headless and output directly into @sess/data package
+pnpm --filter @sess/crawler dev -- --all --headless --output ./packages/data/datasets/data.json
 
 # Dry-run mode for selector validation
 pnpm --filter @sess/crawler dev -- --dry-run

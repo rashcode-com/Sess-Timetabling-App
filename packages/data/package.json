@@ -1,0 +1,27 @@
+{
+  "name": "@sess/data",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Canonical dataset and data management package for Sess Timetabling App",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./datasets/*": "./datasets/*"
+  },
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sess/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.0",
+    "typescript": "^5.7.3"
+  }
+}
