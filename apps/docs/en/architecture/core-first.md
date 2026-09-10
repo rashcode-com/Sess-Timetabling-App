@@ -54,9 +54,9 @@ flowchart TD
     end
 
     subgraph CoreLayer ["Zero-Dependency Core (@sess/core)"]
-        SCHEMAS["Domain Schemas (TimeSlot, Course, SemesterData)"]
+        SCHEMAS["Domain Schemas (TimeSlot, Course, SemesterData, UnifiedCatalog)"]
         ENGINES["Conflict Detection Engines (timeInterference)"]
-        HELPERS["Search & Numeral Conversion Utilities"]
+        HELPERS["Search, Numeral & Persian Date Utilities"]
     end
 
     subgraph StorageLayer ["Data Persistence"]

@@ -253,10 +253,11 @@ All endpoints are served under the `/api` prefix:
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/health` | Returns runtime environment, version, and server timestamp | No |
-| `GET` | `/api/departments` | Returns list of all academic departments present in dataset | No |
-| `GET` | `/api/courses` | Search & filter courses by `department`, `query`, `teacher`, `day`, `limit` | No |
-| `GET` | `/api/courses/:id` | Fetch single course specification by composite identifier | No |
-| `POST` | `/api/sync` | Push complete scraped semester dataset (`SemesterDataSchema`) | Bearer / `X-Sync-Token` |
+| `GET` | `/api/semesters` | Returns available semesters, active semester, and dataset update timestamp | No |
+| `GET` | `/api/departments` | Returns list of academic departments (supports optional `?semester=`) | No |
+| `GET` | `/api/courses` | Search & filter courses by `semester`, `department`, `query`, `teacher`, `day`, `limit` | No |
+| `GET` | `/api/courses/:id` | Fetch single course specification (supports optional `?semester=`) | No |
+| `POST` | `/api/sync` | Push scraped catalog (`UnifiedCatalogSchema` / `SemesterDataSchema`) | Bearer / `X-Sync-Token` |
 
 ### Sample Requests & Responses
 

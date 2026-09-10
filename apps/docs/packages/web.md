@@ -106,24 +106,39 @@ apps/web/src/
 مدیریت استیت برنامه به دو استور تخصصی تفکیک شده است:
 
 ### الف) `useCourseStore` (کاتالوگ دروس)
-* دریافت و نگهداری کاتالوگ کل دروس ترم تحصیلی.
+* دریافت غیرهمگام کاتالوگ دروس و متادیتا از دارایی استاتیک `${BASE_URL}data/data.json` بدون نیاز به باندل در JS.
 * ایجاد ساختار `Map<string, Course>` برای دستیابی `O(1)` به جزئیات دروس از روی شناسه یکتا.
 * استخراج خودکار و بدون تکرار لیست اساتید، دانشکده‌ها، دروس و مکان‌ها با مرتب‌سازی الفبایی فارسی (`Intl.Collator`).
+* **پشتیبانی از چندترم و تعویض درجا**: مدیریت `activeSemester` و `availableSemesters` با اکشن `switchSemester(targetSemester)` برای جابجایی بدون درنگ و بدون واکشی شبکه.
+* **محاسبه پویای تاریخ و ساعت به‌روزرسانی**: گترهای `formattedUpdateDate` و `formattedUpdateTime` بر پایه متادیتای `updated_at` با تقویم رسمی شمسی Intl.
+* **گاردهای هوشمند پایداری و همزمانی**: محافظت در برابر Race Condition در حین دانلود (`isLoading`) و جلوگیری از تکرار نرمال‌سازی ۲٬۰۰۰ رکورد در صورت تطابق ترم جاری.
 
 ```typescript
 import { defineStore } from 'pinia';
-import { processDataset, searchCourses } from '@/shared';
+import { processDataset } from '@/shared';
 
 export const useCourseStore = defineStore('course', {
   state: () => ({
-    dataset: {},
-    courseMap: new Map(),
+    activeSemester: '',
+    availableSemesters: [] as string[],
+    updatedAt: null as string | null,
+    courseList: [] as Course[],
+    courseMap: new Map<string, Course>(),
     filterOptions: { ... },
-    isInitialized: false,
+    isDataLoaded: false,
+    isLoading: false,
+    loadError: null as string | null,
   }),
+  getters: {
+    formattedUpdateDate: (state) => formatPersianDate(state.updatedAt, { prefix: "به‌روز شده در" }),
+    formattedUpdateTime: (state) => `ساعت ${formatPersianTime(state.updatedAt)}`,
+  },
   actions: {
-    async initCourseData() {
-      // نرمال‌سازی و بارگذاری اولیه داده‌ها
+    async initCourseData(customData?, targetSemester?) {
+      // گارد Race Condition و پردازش هوشمند
+    },
+    switchSemester(targetSemester: string) {
+      // تعویض سریع ترم در حافظه بدون واکشی شبکه
     }
   }
 });

@@ -113,6 +113,26 @@ export const SemesterDataSchema = z.record(
 export type SemesterData = z.infer<typeof SemesterDataSchema>;
 ```
 
+### 5. Multi-Semester Unified Catalog (`UnifiedCatalog` & `CatalogDataset`)
+The standard multi-semester catalog format equipped with metadata and ISO update timestamps:
+
+```typescript
+export const UnifiedCatalogSchema = z.object({
+  updated_at: z.string().optional(),          // ISO 8601 crawler extraction timestamp
+  active_semester: z.string(),                // Default active semester identifier (e.g. "1402-1")
+  semesters: z.record(z.string(), SemesterDataSchema), // Nested semester dictionary
+});
+
+export type UnifiedCatalog = z.infer<typeof UnifiedCatalogSchema>;
+
+// Backward-compatible union accepting both multi-semester and flat legacy formats
+export const CatalogDatasetSchema = z.union([
+  UnifiedCatalogSchema,
+  SemesterDataSchema,
+]);
+export type CatalogDataset = z.infer<typeof CatalogDatasetSchema>;
+```
+
 ---
 
 ## 3. Conflict Detection Engines
@@ -166,6 +186,9 @@ const hasExamClash = checkFinalTimeInterference(courseA, courseB);
 | `isTimeInBetween(start, end, slots)` | `string, string, TimeSlot[]` | `boolean` | Checks if weekly slots fall within a selected time window |
 | `timeAndPlaceDivider(str)` | `string` | `string[][]` | Deconstructs combined time/location strings into `[time, place]` pairs |
 | `timeAndPlaceCorrector(str)` | `string` | `string` | Appends newlines after closing parentheses for clean display |
+| `formatPersianDate(iso, opts)` | `string \| Date, PersianDateOptions` | `string` | Formats ISO timestamp to Persian date using ECMAScript Intl (e.g. "۹ شهریور ۱۴۰۲") |
+| `formatPersianTime(iso, tz)` | `string \| Date, string` | `string` | Formats ISO timestamp into 24-hour Persian clock format (e.g. "۱۱:۱۸") |
+| `getCurrentPersianYear(date)` | `Date?` | `number` | Returns current Solar Hijri calendar year using Intl APIs |
 
 ---
 

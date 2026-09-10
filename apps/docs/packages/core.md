@@ -113,6 +113,26 @@ export const SemesterDataSchema = z.record(
 export type SemesterData = z.infer<typeof SemesterDataSchema>;
 ```
 
+### ۵. کاتالوگ یکپارچه چندترم (`UnifiedCatalog` و `CatalogDataset`)
+ساختار استاندارد ذخیره‌سازی چندترم همراه با متادیتا و تایم‌استمپ آخرین به‌روزرسانی:
+
+```typescript
+export const UnifiedCatalogSchema = z.object({
+  updated_at: z.string().optional(),          // تاریخ و زمان استخراج داده‌ها (ISO 8601)
+  active_semester: z.string(),                // شناسه ترم فعال سامانه (مثلاً "1402-1")
+  semesters: z.record(z.string(), SemesterDataSchema), // دیکشنری ترم‌ها
+});
+
+export type UnifiedCatalog = z.infer<typeof UnifiedCatalogSchema>;
+
+// پذیرش هر دو فرمت چندترم و داده تخت سنتی (سازگاری به عقب)
+export const CatalogDatasetSchema = z.union([
+  UnifiedCatalogSchema,
+  SemesterDataSchema,
+]);
+export type CatalogDataset = z.infer<typeof CatalogDatasetSchema>;
+```
+
 ---
 
 ## ۳. موتور تشخیص تداخل‌های زمانی (Conflict Detection Engines)
@@ -171,6 +191,9 @@ const hasExamClash = checkFinalTimeInterference(courseA, courseB);
 | `isTimeInBetween(start, end, slots)` | `string, string, TimeSlot[]` | `boolean` | بررسی قرارگیری کامل ساعات کلاس در بازه فیلتر زمانی کاربر |
 | `timeAndPlaceDivider(str)` | `string` | `string[][]` | تقطیع رشته ترکیبی زمان و مکان کلاس‌ها به جفت‌های تفکیک‌شده |
 | `timeAndPlaceCorrector(str)` | `string` | `string` | افزودن شکست خط (Newline) پس از پرانتزهای بسته جهت خوانایی بهتر |
+| `formatPersianDate(iso, opts)` | `string \| Date, PersianDateOptions` | `string` | تبدیل تایم‌استمپ ISO به تاریخ شمسی با Intl استاندارد (مانند «۹ شهریور ۱۴۰۲») |
+| `formatPersianTime(iso, tz)` | `string \| Date, string` | `string` | تبدیل تایم‌استمپ به ساعت ۲۴ ساعته فارسی با تایم‌زون (مانند «۱۱:۱۸») |
+| `getCurrentPersianYear(date)` | `Date?` | `number` | دریافت عدد سال جاری شمسی با محاسبات تقویم رسمی Intl |
 
 ---
 

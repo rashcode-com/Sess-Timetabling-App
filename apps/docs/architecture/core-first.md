@@ -54,9 +54,9 @@ flowchart TD
     end
 
     subgraph CoreLayer ["هسته منطق و مدل‌های پایه (@sess/core)"]
-        SCHEMAS["تعاریف اسکیما و تایپ‌های دامنه (TimeSlot, Course, SemesterData)"]
+        SCHEMAS["تعاریف اسکیما و تایپ‌های دامنه (TimeSlot, Course, SemesterData, UnifiedCatalog)"]
         ENGINES["موتورهای تداخل زمانی (timeInterference)"]
-        HELPERS["توابع کمکی جستجو و تبدیل ارقام"]
+        HELPERS["توابع کمکی جستجو و فرمت تاریخ/زمان فارسی"]
     end
 
     subgraph StorageLayer ["لایه ذخیره‌سازی داده"]

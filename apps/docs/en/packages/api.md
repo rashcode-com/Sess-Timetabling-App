@@ -61,8 +61,27 @@ Provides gateway status, active runtime engine, and timestamp.
 
 ---
 
-### 2. Department Catalog (`GET /api/departments`)
+### 2. Available Semesters (`GET /api/semesters`)
+Lists all academic semesters present in the catalog, the active semester, and dataset update timestamp.
+
+* **Response Example:**
+```json
+{
+  "active_semester": "1402-1",
+  "semesters": [
+    "1402-1"
+  ],
+  "updated_at": "2023-08-31T07:48:00.000Z"
+}
+```
+
+---
+
+### 3. Department Catalog (`GET /api/departments`)
 Lists all academic departments present in the semester catalog.
+
+* **Query Parameters:**
+  * `semester` *(string, optional)*: Semester identifier (default: active semester).
 
 * **Response Example:**
 ```json
@@ -78,8 +97,9 @@ Lists all academic departments present in the semester catalog.
 
 ---
 
-### 3. Search & Filter Courses (`GET /api/courses`)
+### 4. Search & Filter Courses (`GET /api/courses`)
 Fetches courses with multi-dimensional filtering via Query Parameters:
+* `semester` *(string, optional)*: Target semester (default: active semester).
 * `department` *(string, optional)*: Filter by offering department name.
 * `query` *(string, optional)*: Filter by course title or composite ID.
 * `teacher` *(string, optional)*: Filter by instructor name.
@@ -128,15 +148,19 @@ GET /api/courses?department=کامپیوتر&teacher=احمدی&limit=10 HTTP/1.
 
 ---
 
-### 4. Fetch Course by ID (`GET /api/courses/:id`)
+### 5. Fetch Course by ID (`GET /api/courses/:id`)
 Fetches single course specification by its composite key.
+
+* **Query Parameters:**
+  * `semester` *(string, optional)*: Target semester (default: active semester).
 
 ---
 
-### 5. Dataset Synchronization (`POST /api/sync`)
+### 6. Dataset Synchronization (`POST /api/sync`)
 Protected endpoint receiving scraped catalog datasets from `@sess/crawler`.
-* **Authentication**: Requires header `Authorization: Bearer <TOKEN>` or `X-Sync-Token: <TOKEN>`.
-* **Payload Validation**: Validated against `SemesterDataSchema` via `@sess/core`.
+* **Authentication**: Requires header `Authorization: Bearer <TOKEN>` or `X-Sync-Token: <TOKEN>` (timing-safe verification).
+* **Payload Validation**: Supports `UnifiedCatalogSchema` (multi-semester with metadata) and `SemesterDataSchema` (flat single semester).
+* **Header Support**: When syncing flat datasets, pass `X-Semester: <id>` or `?semester=<id>`.
 
 * **Success Response:**
 ```json

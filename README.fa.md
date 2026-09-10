@@ -253,10 +253,11 @@ graph TD
 | متد | اندپوینت | شرح عملکرد | احراز هویت |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/health` | بررسی وضعیت سلامت سرور، نوع ران‌تایم جاری و نسخه | نیازی ندارد |
-| `GET` | `/api/departments` | بازگرداندن فهرست تمام دانشکده‌های موجود در کاتالوگ | نیازی ندارد |
-| `GET` | `/api/courses` | فیلتر و جستجوی دروس بر اساس `department`، `query`، `teacher`، `day` و `limit` | نیازی ندارد |
-| `GET` | `/api/courses/:id` | دریافت مشخصات کامل یک درس با شناسه ترکیبی | نیازی ندارد |
-| `POST` | `/api/sync` | ارسال کل کاتالوگ استخراج‌شده ترم (`SemesterDataSchema`) | توکن Bearer یا `X-Sync-Token` |
+| `GET` | `/api/semesters` | فهرست نیم‌سال‌های موجود، ترم فعال و زمان آخرین به‌روزرسانی | نیازی ندارد |
+| `GET` | `/api/departments` | فهرست تمام دانشکده‌ها (پشتیبانی از پارامتر اختیاری `?semester=`) | نیازی ندارد |
+| `GET` | `/api/courses` | فیلتر و جستجوی دروس بر اساس `semester`، `department`، `query`، `teacher`، `day` و `limit` | نیازی ندارد |
+| `GET` | `/api/courses/:id` | دریافت مشخصات یک درس (پشتیبانی از پارامتر اختیاری `?semester=`) | نیازی ندارد |
+| `POST` | `/api/sync` | ارسال کاتالوگ استخراج‌شده (`UnifiedCatalogSchema` یا `SemesterDataSchema`) | توکن Bearer یا `X-Sync-Token` |
 
 ### نمونه درخواست‌ها و پاسخ‌ها
 

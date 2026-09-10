@@ -84,9 +84,12 @@ apps/web/src/
 State management is split into two specialized domain stores:
 
 ### A) `useCourseStore` (Course Catalog & Indexes)
-* Loads and holds the complete semester catalog dataset.
+* Loads catalog dataset and metadata asynchronously from unbundled static asset `${BASE_URL}data/data.json`.
 * Builds a fast `Map<string, Course>` index providing $O(1)$ lookups by composite ID.
 * Dynamically extracts deduplicated teacher names, departments, courses, and classrooms sorted alphabetically with Persian collation (`Intl.Collator('fa')`).
+* **Multi-Semester & Instant Switching**: Manages `activeSemester` and `availableSemesters` with `switchSemester(targetSemester)` action for instant zero-fetch semester changes.
+* **Dynamic Timestamps**: `formattedUpdateDate` and `formattedUpdateTime` getters dynamically compute Persian date/time using official ECMAScript Intl APIs.
+* **Concurrency & Cache Guards**: Built-in `isLoading` guard prevents concurrent fetch race conditions, and prevents redundant normalization of 2,000+ records when re-opening with the active semester.
 
 ```typescript
 import { defineStore } from 'pinia';
@@ -94,15 +97,26 @@ import { processDataset } from '@/shared';
 
 export const useCourseStore = defineStore('courses', {
   state: () => ({
-    rawJson: null,
-    courseList: [],
-    courseMap: new Map(),
+    activeSemester: '',
+    availableSemesters: [] as string[],
+    updatedAt: null as string | null,
+    courseList: [] as Course[],
+    courseMap: new Map<string, Course>(),
     filterOptions: { ... },
     isDataLoaded: false,
+    isLoading: false,
+    loadError: null as string | null,
   }),
+  getters: {
+    formattedUpdateDate: (state) => formatPersianDate(state.updatedAt, { prefix: "به‌روز شده در" }),
+    formattedUpdateTime: (state) => `ساعت ${formatPersianTime(state.updatedAt)}`,
+  },
   actions: {
-    initCourseData(customData?: unknown) {
-      // Normalization and indexing
+    async initCourseData(customData?: unknown, targetSemester?: string) {
+      // Smart race-condition & caching guards
+    },
+    switchSemester(targetSemester: string) {
+      // In-memory instant semester switch
     }
   }
 });
