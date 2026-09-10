@@ -85,6 +85,7 @@
               :headers="dataTableHeaders"
               :items-per-page="itemsPerPage"
               :mobile-device="mobileDevice"
+              @show-detail="setDialogContent"
             />
           </div>
 

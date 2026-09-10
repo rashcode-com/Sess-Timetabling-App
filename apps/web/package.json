@@ -1,6 +1,6 @@
 {
   "name": "@sess/web",
-  "version": "0.1.5",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,11 +11,6 @@
     "lint": "eslint src --ext .js,.ts,.vue",
     "type-check": "vue-tsc --noEmit",
     "test": "tsx tests/courseDataService.test.mjs && tsx tests/stores.test.mjs"
-  },
-  "imports": {
-    "@/*": "./src/*",
-    "@shared": "./src/shared/index.ts",
-    "@features/*": "./src/features/*"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

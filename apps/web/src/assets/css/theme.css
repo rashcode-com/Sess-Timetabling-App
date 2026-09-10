@@ -373,3 +373,42 @@ body {
   color: #B085FF !important;
 }
 
+/* ==========================================================================
+   Mobile Course Cards — RTL Alignment & Color Design Tokens
+   ========================================================================== */
+.mobile-course-card {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+.mobile-course-card .course-title-block,
+.mobile-course-card .course-card-title {
+  display: block !important;
+  width: 100% !important;
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+.mobile-course-card .course-card-title {
+  color: rgb(var(--v-theme-primary)) !important;
+}
+
+.mobile-course-card .course-chips-row {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.mobile-course-card .instructor-row {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  width: 100% !important;
+  text-align: right !important;
+}
+
+.mobile-course-card .mobile-slot-pill {
+  background-color: rgb(var(--v-theme-background)) !important;
+}
+
