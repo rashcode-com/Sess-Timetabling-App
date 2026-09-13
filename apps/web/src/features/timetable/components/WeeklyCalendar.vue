@@ -1,5 +1,8 @@
 <template>
-  <div v-if="selectedList && selectedList.length" class="weekly-calendar-wrapper mb-6">
+  <div
+    v-if="selectedList && selectedList.length"
+    class="weekly-calendar-wrapper mb-6"
+  >
     <!-- Toggle Header Banner -->
     <v-card
       class="calendar-toggle-banner pa-3 d-flex align-center justify-space-between cursor-pointer"
@@ -12,19 +15,29 @@
           <v-icon color="primary" size="20">mdi-calendar-clock</v-icon>
         </v-avatar>
         <div>
-          <span class="font-weight-bold text-subtitle-1">برنامه هفتگی کلاسی</span>
-          <v-chip color="primary" variant="tonal" size="x-small" class="font-weight-bold mr-2">
+          <span class="font-weight-bold text-subtitle-1"
+            >برنامه هفتگی کلاسی</span
+          >
+          <v-chip
+            color="primary"
+            variant="tonal"
+            size="x-small"
+            class="font-weight-bold mr-2"
+          >
             {{ toFarsiNumber(selectedList.length) }} درس انتخاب شده
           </v-chip>
         </div>
       </div>
 
       <div class="d-flex align-center">
-        <span class="text-body-2 text-primary font-weight-medium ml-2">
-          {{ calendarOpen ? 'بستن تقویم' : 'نمایش تقویم' }}
+        <span
+          class="text-primary text-no-wrap text-caption font-weight-medium ml-2"
+        >
+          {{ calendarOpen ? "بستن تقویم" : "نمایش تقویم" }}
         </span>
         <v-icon
           color="primary"
+          size="24px"
           class="toggle-chevron"
           :class="{ 'rotate-180': calendarOpen }"
         >
