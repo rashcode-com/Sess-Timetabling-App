@@ -12,6 +12,7 @@ import type {
   ProcessedDataset,
   SearchFilters,
   TimeRangeFilter,
+  DependentFilterOptions,
 } from "../../types";
 
 /**
@@ -53,7 +54,7 @@ export function normalizeCourse(rawCourse: any, courseId: string): Course {
         ...slot,
         day: normalizeDayName(slot.day),
         place: slot.place ? toFarsiNumber(slot.place) : "",
-      })
+      }),
     );
   } else {
     course.seperated_time_and_place = [];
@@ -73,7 +74,10 @@ export { normalizeDayName };
  * @param targetSemester - Optional semester to select (defaults to active_semester).
  * @returns Processed dataset, course map, list, and deduplicated filter items.
  */
-export function processDataset(rawData: unknown, targetSemester?: string): ProcessedDataset {
+export function processDataset(
+  rawData: unknown,
+  targetSemester?: string,
+): ProcessedDataset {
   if (!rawData || typeof rawData !== "object") {
     return {
       dataset: {},
@@ -95,25 +99,28 @@ export function processDataset(rawData: unknown, targetSemester?: string): Proce
     };
   }
 
-  const isUnified = "semesters" in rawData && typeof (rawData as any).semesters === "object";
+  const isUnified =
+    "semesters" in rawData && typeof (rawData as any).semesters === "object";
   const rawCatalog = isUnified ? (rawData as any) : null;
 
-  const availableSemesters: string[] = isUnified && rawCatalog.semesters
-    ? Object.keys(rawCatalog.semesters)
-    : ["default"];
+  const availableSemesters: string[] =
+    isUnified && rawCatalog.semesters
+      ? Object.keys(rawCatalog.semesters)
+      : ["default"];
 
   const activeSemester: string = targetSemester
     ? targetSemester
     : isUnified && rawCatalog.active_semester
-    ? rawCatalog.active_semester
-    : availableSemesters[0] || "default";
+      ? rawCatalog.active_semester
+      : availableSemesters[0] || "default";
 
+  const updatedAt: string | null =
+    isUnified && rawCatalog.updated_at ? rawCatalog.updated_at : null;
 
-  const updatedAt: string | null = isUnified && rawCatalog.updated_at ? rawCatalog.updated_at : null;
-
-  const departmentsSource: Record<string, any> = isUnified && rawCatalog.semesters
-    ? rawCatalog.semesters[activeSemester] || {}
-    : (rawData as Record<string, any>);
+  const departmentsSource: Record<string, any> =
+    isUnified && rawCatalog.semesters
+      ? rawCatalog.semesters[activeSemester] || {}
+      : (rawData as Record<string, any>);
 
   const dataset: Record<string, Record<string, Course>> = {};
   const courseList: Course[] = [];
@@ -130,7 +137,9 @@ export function processDataset(rawData: unknown, targetSemester?: string): Proce
     unitSet.add(unitName);
 
     if (rawCourses && typeof rawCourses === "object") {
-      for (const [courseKey, rawCourse] of Object.entries(rawCourses as Record<string, any>)) {
+      for (const [courseKey, rawCourse] of Object.entries(
+        rawCourses as Record<string, any>,
+      )) {
         const normalized = normalizeCourse(rawCourse, courseKey);
 
         dataset[unitName][courseKey] = normalized;
@@ -164,7 +173,8 @@ export function processDataset(rawData: unknown, targetSemester?: string): Proce
   }
 
   const collator = new Intl.Collator("fa");
-  const sortFa = (set: Set<string>): string[] => Array.from(set).sort(collator.compare);
+  const sortFa = (set: Set<string>): string[] =>
+    Array.from(set).sort(collator.compare);
 
   const filterOptions = {
     semesters: availableSemesters,
@@ -198,7 +208,7 @@ export function processDataset(rawData: unknown, targetSemester?: string): Proce
 export function searchCourses(
   dataset?: Record<string, Record<string, Course>> | null,
   filters: SearchFilters = {},
-  timeRange: TimeRangeFilter = {}
+  timeRange: TimeRangeFilter = {},
 ): Course[] | [-1] {
   if (!dataset) return [-1];
 
@@ -226,7 +236,10 @@ export function searchCourses(
         }
 
         // 2. Teacher name filter
-        if (teacherName.length !== 0 && !teacherSearch(item.teacher, teacherName)) {
+        if (
+          teacherName.length !== 0 &&
+          !teacherSearch(item.teacher, teacherName)
+        ) {
           continue;
         }
 
@@ -242,7 +255,9 @@ export function searchCourses(
 
         // 5. Time range filter
         if (timeStart.length !== 0 || timeEnd.length !== 0) {
-          if (!isTimeInBetween(timeStart, timeEnd, item.seperated_time_and_place)) {
+          if (
+            !isTimeInBetween(timeStart, timeEnd, item.seperated_time_and_place)
+          ) {
             continue;
           }
         }
@@ -259,11 +274,104 @@ export function searchCourses(
   return results;
 }
 
+/**
+ * For each filter dimension, recomputes which values are still reachable
+ * given the CURRENT selections in the OTHER dimensions. This is what makes
+ * filters affect each other: pick "ریاضی" under درس, and نام استاد only
+ * lists teachers who actually teach it.
+ *
+ * Each dimension excludes its OWN current selection when matching, so an
+ * already-picked value never disappears from its own list.
+ */
+export function getDependentFilterOptions(
+  dataset: Record<string, Record<string, Course>> | null,
+  currentFilters: SearchFilters = {},
+): DependentFilterOptions {
+  if (!dataset) {
+    return { units: [], course: [], teachersName: [], places: [], genders: [] };
+  }
+
+  const {
+    unit = [],
+    course = [],
+    teacherName = [],
+    gender = [],
+    place = [],
+  } = currentFilters;
+
+  const matches = (
+    item: Course,
+    unitName: string,
+    skip: keyof SearchFilters,
+  ): boolean => {
+    if (skip !== "unit" && unit.length && !unit.includes(unitName))
+      return false;
+    if (skip !== "course" && course.length && !course.includes(item.title))
+      return false;
+    if (
+      skip !== "teacherName" &&
+      teacherName.length &&
+      !teacherSearch(item.teacher, teacherName)
+    )
+      return false;
+    if (skip !== "gender" && gender.length && !gender.includes(item.gender))
+      return false;
+    if (skip !== "place" && place.length && !placeSearchHelper(place, item))
+      return false;
+    return true;
+  };
+
+  const unitSet = new Set<string>();
+  const courseSet = new Set<string>();
+  const teacherSet = new Set<string>();
+  const placeSet = new Set<string>();
+  const genderSet = new Set<string>();
+
+  for (const [unitName, coursesInUnit] of Object.entries(dataset)) {
+    for (const item of Object.values(coursesInUnit)) {
+      if (matches(item, unitName, "unit")) unitSet.add(unitName);
+
+      if (matches(item, unitName, "course") && item.title) {
+        courseSet.add(item.title);
+      }
+
+      if (matches(item, unitName, "teacherName") && item.teacher) {
+        item.teacher.split(" | ").forEach((t: string) => {
+          const trimmed = t.trim();
+          if (trimmed) teacherSet.add(trimmed);
+        });
+      }
+
+      if (matches(item, unitName, "gender") && item.gender) {
+        genderSet.add(item.gender);
+      }
+
+      if (matches(item, unitName, "place")) {
+        for (const slot of item.seperated_time_and_place) {
+          if (slot.place) placeSet.add(slot.place);
+        }
+      }
+    }
+  }
+
+  const collator = new Intl.Collator("fa");
+  const sortFa = (set: Set<string>) => Array.from(set).sort(collator.compare);
+
+  return {
+    units: sortFa(unitSet),
+    course: sortFa(courseSet),
+    teachersName: sortFa(teacherSet),
+    places: sortFa(placeSet),
+    genders: sortFa(genderSet),
+  };
+}
+
 export const courseDataService = {
   normalizeCourse,
   normalizeDayName,
   processDataset,
   searchCourses,
+  getDependentFilterOptions,
 };
 
 export default courseDataService;

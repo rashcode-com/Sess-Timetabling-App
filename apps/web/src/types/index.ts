@@ -1,4 +1,9 @@
-import type { Course, TimeSlot, UnifiedCatalog, SemesterData } from "@sess/core";
+import type {
+  Course,
+  TimeSlot,
+  UnifiedCatalog,
+  SemesterData,
+} from "@sess/core";
 
 export type { Course, TimeSlot, UnifiedCatalog, SemesterData };
 
@@ -49,8 +54,6 @@ export interface ProcessedDataset {
   rawCatalog: UnifiedCatalog | null;
 }
 
-
-
 /**
  * Conflicting course pair [Course A, Course B]
  */
@@ -96,3 +99,11 @@ export interface SearchEventPayload {
     timeEnd: string;
   };
 }
+
+/**
+ * Filter options recomputed against the OTHER currently-selected filters
+ */
+export type DependentFilterOptions = Pick<
+  FilterOptions,
+  "units" | "course" | "teachersName" | "places" | "genders"
+>;

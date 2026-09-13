@@ -73,7 +73,7 @@
         ref="unitAutocomplete"
         label="بخش"
         v-model="localFilters.unit"
-        :items="units"
+        :items="dependentOptions.units"
         :menu-props="autocompleteMenuProps"
         multiple
         chips
@@ -90,7 +90,7 @@
         ref="courseAutocomplete"
         label="درس"
         v-model="localFilters.course"
-        :items="courses"
+        :items="dependentOptions.course"
         :menu-props="autocompleteMenuProps"
         multiple
         chips
@@ -107,7 +107,7 @@
         ref="teacherAutocomplete"
         label="نام استاد"
         v-model="localFilters.teacherName"
-        :items="teachers"
+        :items="dependentOptions.teachersName"
         :menu-props="autocompleteMenuProps"
         multiple
         chips
@@ -124,7 +124,7 @@
         ref="genderAutocomplete"
         label="جنسیت"
         v-model="localFilters.gender"
-        :items="genders"
+        :items="dependentOptions.genders"
         :menu-props="autocompleteMenuProps"
         multiple
         chips
@@ -141,7 +141,7 @@
         ref="placeAutocomplete"
         label="مکان برگزاری کلاس"
         v-model="localFilters.place"
-        :items="places"
+        :items="dependentOptions.places"
         :menu-props="autocompleteMenuProps"
         multiple
         chips
@@ -315,6 +315,21 @@ import {
 import { useDisplay } from "vuetify";
 import { toFarsiNumber } from "@sess/core";
 import type { SearchEventPayload } from "@/types";
+import { useCourseStore } from "@/store";
+
+// Recomputed on every filter change so each autocomplete's options
+// reflect what's actually still selectable given the others
+const courseStore = useCourseStore();
+
+const dependentOptions = computed(() =>
+  courseStore.getDependentOptions({
+    unit: localFilters.unit,
+    course: localFilters.course,
+    teacherName: localFilters.teacherName,
+    gender: localFilters.gender,
+    place: localFilters.place,
+  }),
+);
 
 const { xs } = useDisplay();
 const drawerWidth = computed<number>(() =>

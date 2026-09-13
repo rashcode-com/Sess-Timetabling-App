@@ -1,7 +1,13 @@
 import { defineStore } from "pinia";
 import { formatPersianDate, formatPersianTime } from "@sess/core";
 import { processDataset } from "../shared/services/courseDataService";
-import type { Course, FilterOptions, UnifiedCatalog } from "../types";
+import type {
+  Course,
+  FilterOptions,
+  SearchFilters,
+  UnifiedCatalog,
+} from "../types";
+import { getDependentFilterOptions } from "../shared/services/courseDataService";
 
 export interface CourseState {
   rawJson: Record<string, Record<string, Course>> | null;
@@ -43,6 +49,10 @@ export const useCourseStore = defineStore("courses", {
   }),
 
   getters: {
+    // Returns filter options narrowed by the caller's current selections,
+    // used by FilterDrawer to make filters affect each other
+    getDependentOptions: state => (currentFilters: SearchFilters) =>
+      getDependentFilterOptions(state.rawJson, currentFilters),
     semesters: (state): string[] => state.filterOptions.semesters,
     units: (state): string[] => state.filterOptions.units,
     courses: (state): string[] => state.filterOptions.course,
@@ -51,11 +61,17 @@ export const useCourseStore = defineStore("courses", {
     genders: (state): string[] => state.filterOptions.genders,
     filtersItems: (state): FilterOptions => state.filterOptions,
     getFilterItems: (state): FilterOptions => state.filterOptions,
-    getCourseById: (state) => (id: string): Course | undefined => state.courseMap.get(id),
+    getCourseById:
+      state =>
+      (id: string): Course | undefined =>
+        state.courseMap.get(id),
     totalCourseCount: (state): number => state.courseList.length,
     formattedUpdateDate: (state): string => {
       if (!state.updatedAt) return "";
-      return formatPersianDate(state.updatedAt, { includeYear: true, prefix: "به‌روز شده در" });
+      return formatPersianDate(state.updatedAt, {
+        includeYear: true,
+        prefix: "به‌روز شده در",
+      });
     },
     formattedUpdateTime: (state): string => {
       if (!state.updatedAt) return "";
@@ -65,17 +81,29 @@ export const useCourseStore = defineStore("courses", {
   },
 
   actions: {
-    async initCourseData(customData?: unknown, targetSemester?: string): Promise<void> {
+    async initCourseData(
+      customData?: unknown,
+      targetSemester?: string,
+    ): Promise<void> {
       // 1. Prevent race condition during concurrent background fetch
       if (this.isLoading) return;
 
       // 2. Prevent redundant processing if dataset is already loaded for the active semester
-      if (this.isDataLoaded && !customData && (!targetSemester || targetSemester === this.activeSemester)) {
+      if (
+        this.isDataLoaded &&
+        !customData &&
+        (!targetSemester || targetSemester === this.activeSemester)
+      ) {
         return;
       }
 
       // 3. Fast in-memory switch if dataset is already present in state
-      if (this.isDataLoaded && !customData && targetSemester && this.rawRawData) {
+      if (
+        this.isDataLoaded &&
+        !customData &&
+        targetSemester &&
+        this.rawRawData
+      ) {
         this.switchSemester(targetSemester);
         return;
       }
@@ -93,7 +121,9 @@ export const useCourseStore = defineStore("courses", {
               : `${import.meta.env.BASE_URL}/`;
             const response = await fetch(`${baseUrl}data/data.json`);
             if (!response.ok) {
-              throw new Error(`خطا در بارگذاری اطلاعات دروس (کد وضعیت: ${response.status})`);
+              throw new Error(
+                `خطا در بارگذاری اطلاعات دروس (کد وضعیت: ${response.status})`,
+              );
             }
             dataToProcess = await response.json();
           } else {
@@ -123,7 +153,10 @@ export const useCourseStore = defineStore("courses", {
         this.rawCatalog = rawCatalog || null;
         this.isDataLoaded = true;
       } catch (err: unknown) {
-        const errorMsg = err instanceof Error ? err.message : "خطای ناشناخته در دریافت داده‌ها";
+        const errorMsg =
+          err instanceof Error
+            ? err.message
+            : "خطای ناشناخته در دریافت داده‌ها";
         this.loadError = errorMsg;
         console.error("[CourseStore] Failed to initialize course data:", err);
       } finally {
