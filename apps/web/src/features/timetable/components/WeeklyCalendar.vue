@@ -702,16 +702,35 @@ onBeforeUnmount(() => {
   z-index: 15;
   outline-offset: 1px;
 }
+.calendar-event-card {
+  container-type: inline-size;
+  overflow: hidden;
+}
 
 .event-title {
-  display: block;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: inline-block;
+
   font-size: 0.75rem;
   font-weight: 600;
+  line-height: 1.4;
   text-align: center;
+
+  white-space: normal;
+}
+
+/* ========================================
+   Narrow-width card → vertical text 
+   ======================================== */
+
+@container (max-width: 55px) {
+  .event-title {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    max-width: 100%;
+    max-height: none;
+    white-space: normal;
+    line-height: 1.2;
+  }
 }
 
 .event-meta,
