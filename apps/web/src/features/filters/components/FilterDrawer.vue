@@ -40,7 +40,7 @@
     </template>
 
     <!-- Clear all active filters -->
-    <div class="d-flex justify-end mt-2">
+    <div class="d-flex justify-end mt-2" style="min-height: 28px">
       <v-btn
         v-if="showClearFilters"
         variant="text"
@@ -50,7 +50,6 @@
         @click="handleClearFilters"
       >
         <v-icon start size="18">mdi-filter-remove-outline</v-icon>
-
         پاک کردن فیلترها
       </v-btn>
     </div>
@@ -68,10 +67,10 @@
         color="primary"
         hide-details="auto"
         class="mb-3 custom-form-field"
-        clearable
       ></v-autocomplete>
 
       <v-autocomplete
+        ref="unitAutocomplete"
         label="بخش"
         v-model="localFilters.unit"
         :items="units"
@@ -88,6 +87,7 @@
       ></v-autocomplete>
 
       <v-autocomplete
+        ref="courseAutocomplete"
         label="درس"
         v-model="localFilters.course"
         :items="courses"
@@ -104,6 +104,7 @@
       ></v-autocomplete>
 
       <v-autocomplete
+        ref="teacherAutocomplete"
         label="نام استاد"
         v-model="localFilters.teacherName"
         :items="teachers"
@@ -120,6 +121,7 @@
       ></v-autocomplete>
 
       <v-autocomplete
+        ref="genderAutocomplete"
         label="جنسیت"
         v-model="localFilters.gender"
         :items="genders"
@@ -136,6 +138,7 @@
       ></v-autocomplete>
 
       <v-autocomplete
+        ref="placeAutocomplete"
         label="مکان برگزاری کلاس"
         v-model="localFilters.place"
         :items="places"
@@ -292,6 +295,7 @@ import { ref, reactive, watch, computed } from "vue";
 import { useDisplay } from "vuetify";
 import { toFarsiNumber } from "@sess/core";
 import type { SearchEventPayload } from "@/types";
+import { nextTick } from "vue";
 
 const { xs } = useDisplay();
 const drawerWidth = computed<number>(() =>
@@ -373,6 +377,39 @@ const localFilters = reactive<LocalFiltersState>({
   teacherName: [],
   place: [],
   gender: [],
+});
+
+// Scroll the autocomplete field to the bottom after each new selection,
+// keeping the latest selected item visible to the user.
+const unitAutocomplete = ref(null);
+const courseAutocomplete = ref(null);
+const teacherAutocomplete = ref(null);
+const genderAutocomplete = ref(null);
+const placeAutocomplete = ref(null);
+
+const scrollAutocompleteToBottom = async autocomplete => {
+  await nextTick();
+
+  const input = autocomplete.value?.$el?.querySelector(".v-field__input");
+
+  if (input) {
+    input.scrollTop = input.scrollHeight;
+  }
+};
+
+const autocompleteWatchers = [
+  ["unit", unitAutocomplete],
+  ["course", courseAutocomplete],
+  ["teacherName", teacherAutocomplete],
+  ["gender", genderAutocomplete],
+  ["place", placeAutocomplete],
+];
+
+autocompleteWatchers.forEach(([key, autocomplete]) => {
+  watch(
+    () => localFilters[key].length,
+    () => scrollAutocompleteToBottom(autocomplete),
+  );
 });
 
 // Watching filtering changes
@@ -486,6 +523,8 @@ const handleClearFilters = (): void => {
 
   localTimeStart.value = "";
   localTimeEnd.value = "";
+  rawTimeStart.value = "";
+  rawTimeEnd.value = "";
 
   startMenu.value = false;
   endMenu.value = false;
@@ -566,10 +605,27 @@ const handleSearch = (): void => {
 
 .time-picker-card {
   max-width: 320px;
+  overflow: hidden !important;
   background-color: rgb(var(--v-theme-surface));
 }
 
 .cursor-pointer :deep(input) {
   cursor: pointer !important;
+}
+
+.custom-form-field :deep(.v-field__input) {
+  max-height: 64px;
+  overflow-y: auto;
+
+  /* hide scrollbar — Firefox */
+  scrollbar-width: none;
+
+  /* hide scrollbar — IE/Edge */
+  -ms-overflow-style: none;
+}
+
+/* hide scrollbar — Chrome, Safari, Edge */
+.custom-form-field :deep(.v-field__input)::-webkit-scrollbar {
+  display: none;
 }
 </style>
