@@ -52,16 +52,22 @@
         <v-card class="calendar-grid-card pa-3" rounded="lg" elevation="0">
           <!-- Scrollable Grid Container -->
           <div class="calendar-scroll-box">
-            <div class="calendar-matrix" :style="{ height: (MATRIX_HEIGHT + 40) + 'px' }">
+            <div
+              class="calendar-matrix"
+              :style="{ height: MATRIX_HEIGHT + 40 + 'px' }"
+            >
               <!-- Time Column (Right edge in RTL) -->
               <div class="time-column">
                 <div class="day-header-cell empty-header">ساعت</div>
-                <div class="time-labels-track" :style="{ height: MATRIX_HEIGHT + 'px' }">
+                <div
+                  class="time-labels-track"
+                  :style="{ height: MATRIX_HEIGHT + 'px' }"
+                >
                   <div
                     v-for="(label, idx) in timeLabels"
                     :key="label"
                     class="time-slot-label"
-                    :style="{ top: (idx * HOUR_HEIGHT + 4) + 'px' }"
+                    :style="{ top: idx * HOUR_HEIGHT + 4 + 'px' }"
                   >
                     <span>{{ label }}</span>
                   </div>
@@ -69,32 +75,32 @@
               </div>
 
               <!-- Days Columns (Saturday to Friday) -->
-              <div
-                v-for="day in iranianDays"
-                :key="day.id"
-                class="day-column"
-              >
+              <div v-for="day in iranianDays" :key="day.id" class="day-column">
                 <!-- Day Header -->
                 <div class="day-header-cell">
                   <span class="font-weight-bold">{{ day.name }}</span>
                 </div>
 
                 <!-- Day Slots Content & Side-by-Side Placed Events -->
-                <div class="day-content-track" :style="{ height: MATRIX_HEIGHT + 'px' }">
+                <div
+                  class="day-content-track"
+                  :style="{ height: MATRIX_HEIGHT + 'px' }"
+                >
                   <!-- Horizontal Hour Divider Lines -->
                   <div
                     v-for="h in HOURS_COUNT"
                     :key="h"
                     class="hour-divider-line"
-                    :style="{ top: ((h - 1) * HOUR_HEIGHT) + 'px' }"
+                    :style="{ top: (h - 1) * HOUR_HEIGHT + 'px' }"
                   ></div>
 
-                  <!-- Course Event Blocks with Floating Tooltip & Multi-line Titles -->
+                  <!-- Course Event Blocks with Colour-Coded Identity & Detail Card -->
                   <template
                     v-for="event in getEventsForDay(day.id)"
                     :key="event.id"
                   >
                     <v-tooltip
+                      :disabled="!supportsHover"
                       location="top"
                       :open-delay="120"
                       content-class="calendar-tooltip-card"
@@ -103,40 +109,45 @@
                         <div
                           v-bind="tooltipProps"
                           class="calendar-event-card"
-                          :style="getEventStyle(event)"
+                          :style="[
+                            getEventStyle(event),
+                            { '--event-color': event.rawColor || '#B085FF' },
+                          ]"
+                          tabindex="0"
+                          role="button"
                           @click="openEventModal(event)"
+                          @keydown.enter="openEventModal(event)"
                         >
-                          <div class="event-title font-weight-bold">
-                            {{ event.name }}
-                          </div>
-                          <div class="event-meta text-truncate">
-                            {{ event.teacher }}
-                          </div>
-                          <div v-if="event.room" class="event-room text-truncate">
-                            {{ event.room }}
-                          </div>
-                        </div>
-                      </template>
-                      <div class="calendar-tooltip-body text-right">
-                        <div class="d-flex align-center gap-1 mb-1">
-                          <span
-                            class="tooltip-badge-dot ml-1"
-                            :style="{ backgroundColor: event.rawColor || '#B085FF' }"
-                          ></span>
-                          <span class="font-weight-bold text-subtitle-2 text-white">
+                          <span class="event-title">
                             {{ event.name }}
                           </span>
                         </div>
-                        <div class="tooltip-detail-row text-caption mb-1">
-                          <v-icon size="13" class="ml-1 opacity-80">mdi-account-tie-outline</v-icon>
-                          <span>{{ event.teacher }} (گروه {{ toFarsiNumber(event.group) }})</span>
+                      </template>
+
+                      <div class="tooltip-header">
+                        <span
+                          class="tooltip-color-dot"
+                          :style="{
+                            backgroundColor: event.rawColor || '#B085FF',
+                          }"
+                        ></span>
+                        <span class="tooltip-title">{{ event.name }}</span>
+                      </div>
+
+                      <div class="tooltip-body text-right">
+                        <div class="tooltip-row">
+                          <v-icon size="14">mdi-account-tie-outline</v-icon>
+                          <span
+                            >{{ event.teacher }} (گروه
+                            {{ toFarsiNumber(event.group) }})</span
+                          >
                         </div>
-                        <div class="tooltip-detail-row tooltip-time text-caption font-weight-medium mb-1">
-                          <v-icon size="13" class="ml-1 text-primary">mdi-clock-outline</v-icon>
+                        <div class="tooltip-row tooltip-row--accent">
+                          <v-icon size="14">mdi-clock-outline</v-icon>
                           <span>{{ event.timeText }}</span>
                         </div>
-                        <div v-if="event.room" class="tooltip-detail-row text-caption">
-                          <v-icon size="13" class="ml-1 opacity-70">mdi-map-marker-outline</v-icon>
+                        <div v-if="event.room" class="tooltip-row">
+                          <v-icon size="14">mdi-map-marker-outline</v-icon>
                           <span>{{ event.room }}</span>
                         </div>
                       </div>
@@ -158,12 +169,21 @@
           :style="{ backgroundColor: selectedEvent.rawColor || '#8C57FF' }"
         >
           <div class="d-flex align-center gap-2">
-            <v-icon color="white" size="20" class="ml-2">mdi-book-outline</v-icon>
-            <span class="font-weight-bold text-subtitle-1">{{ selectedEvent.name }}</span>
+            <v-icon color="white" size="20" class="ml-2"
+              >mdi-book-outline</v-icon
+            >
+            <span class="font-weight-bold text-subtitle-1">{{
+              selectedEvent.name
+            }}</span>
           </div>
-          <v-btn icon variant="text" size="small" color="white"
+          <v-btn
+            icon
+            variant="text"
+            size="small"
+            color="white"
             @click="selectedOpen = false"
-            aria-label="بستن جزئیات درس">
+            aria-label="بستن جزئیات درس"
+          >
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
@@ -172,39 +192,71 @@
           <v-list density="compact" class="pa-0">
             <v-list-item class="px-0 py-1">
               <template #prepend>
-                <span class="font-weight-bold text-caption text-medium-emphasis ml-2">استاد:</span>
+                <span
+                  class="font-weight-bold text-caption text-medium-emphasis ml-2"
+                  >استاد:</span
+                >
               </template>
-              <span class="text-body-2 font-weight-medium">{{ selectedEvent.teacher }}</span>
+              <span class="text-body-2 font-weight-medium">{{
+                selectedEvent.teacher
+              }}</span>
             </v-list-item>
 
             <v-list-item class="px-0 py-1">
               <template #prepend>
-                <span class="font-weight-bold text-caption text-medium-emphasis ml-2">شماره گروه:</span>
+                <span
+                  class="font-weight-bold text-caption text-medium-emphasis ml-2"
+                  >شماره گروه:</span
+                >
               </template>
-              <span class="text-body-2">گروه {{ toFarsiNumber(selectedEvent.group || "") }}</span>
+              <span class="text-body-2"
+                >گروه {{ toFarsiNumber(selectedEvent.group || "") }}</span
+              >
             </v-list-item>
 
             <v-list-item v-if="selectedEvent.room" class="px-0 py-1">
               <template #prepend>
-                <span class="font-weight-bold text-caption text-medium-emphasis ml-2">مکان کلاس:</span>
+                <span
+                  class="font-weight-bold text-caption text-medium-emphasis ml-2"
+                  >مکان کلاس:</span
+                >
               </template>
               <span class="text-body-2">{{ selectedEvent.room }}</span>
             </v-list-item>
 
             <v-list-item class="px-0 py-1">
               <template #prepend>
-                <span class="font-weight-bold text-caption text-medium-emphasis ml-2">زمان کلاس:</span>
+                <span
+                  class="font-weight-bold text-caption text-medium-emphasis ml-2"
+                  >زمان کلاس:</span
+                >
               </template>
-              <span class="text-body-2 font-weight-medium text-primary">{{ selectedEvent.timeText }}</span>
+              <span class="text-body-2 font-weight-medium text-primary">{{
+                selectedEvent.timeText
+              }}</span>
             </v-list-item>
 
             <v-list-item v-if="selectedEvent.final_date" class="px-0 py-1">
               <template #prepend>
-                <span class="font-weight-bold text-caption text-medium-emphasis ml-2">امتحان نهایی:</span>
+                <span
+                  class="font-weight-bold text-caption text-medium-emphasis ml-2"
+                  >امتحان نهایی:</span
+                >
               </template>
-              <v-chip color="error" variant="tonal" size="x-small" class="font-weight-bold">
+              <v-chip
+                color="error"
+                variant="tonal"
+                size="x-small"
+                class="font-weight-bold"
+              >
                 <span>{{ selectedEvent.final_date }}</span>
-                <span v-if="selectedEvent.final_time" class="mr-1">(ساعت <span dir="ltr">{{ toFarsiNumber(selectedEvent.final_time || "") }}</span>)</span>
+                <span v-if="selectedEvent.final_time" class="mr-1"
+                  >(ساعت
+                  <span dir="ltr">{{
+                    toFarsiNumber(selectedEvent.final_time || "")
+                  }}</span
+                  >)</span
+                >
               </v-chip>
             </v-list-item>
           </v-list>
@@ -228,7 +280,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { toFarsiNumber } from "@sess/core";
 import { normalizeDayName } from "@shared";
 import type { Course, CalendarEvent, TimeSlot } from "@/types";
@@ -238,10 +290,8 @@ interface Props {
   mobileDevice?: boolean;
 }
 
-const {
-  selectedList = [],
-  mobileDevice: _mobileDevice = false,
-} = defineProps<Props>();
+const { selectedList = [], mobileDevice: _mobileDevice = false } =
+  defineProps<Props>();
 
 const calendarOpen = ref<boolean>(true);
 const selectedOpen = ref<boolean>(false);
@@ -269,13 +319,34 @@ const HOUR_HEIGHT = 48; // Explicit pixel height per hour
 const MATRIX_HEIGHT = HOURS_COUNT * HOUR_HEIGHT; // 624px
 
 const timeLabels: string[] = [
-  "۰۷:۰۰", "۰۸:۰۰", "۰۹:۰۰", "۱۰:۰۰", "۱۱:۰۰", "۱۲:۰۰",
-  "۱۳:۰۰", "۱۴:۰۰", "۱۵:۰۰", "۱۶:۰۰", "۱۷:۰۰", "۱۸:۰۰", "۱۹:۰۰", "۲۰:۰۰"
+  "۰۷:۰۰",
+  "۰۸:۰۰",
+  "۰۹:۰۰",
+  "۱۰:۰۰",
+  "۱۱:۰۰",
+  "۱۲:۰۰",
+  "۱۳:۰۰",
+  "۱۴:۰۰",
+  "۱۵:۰۰",
+  "۱۶:۰۰",
+  "۱۷:۰۰",
+  "۱۸:۰۰",
+  "۱۹:۰۰",
+  "۲۰:۰۰",
 ];
 
 const paletteColors: string[] = [
-  "#8C57FF", "#16B1FF", "#56CA00", "#FFB400", "#FF4C51",
-  "#00ADB5", "#F08A5D", "#B83B5E", "#6A2C70", "#3282B8", "#17B978"
+  "#8C57FF",
+  "#16B1FF",
+  "#56CA00",
+  "#FFB400",
+  "#FF4C51",
+  "#00ADB5",
+  "#F08A5D",
+  "#B83B5E",
+  "#6A2C70",
+  "#3282B8",
+  "#17B978",
 ];
 
 const toggleCalendar = (): void => {
@@ -291,12 +362,12 @@ const formatTimePersian = (h: number, m?: number): string => {
 // Bug 1 & 4 Fix: Accurate Connected-Component Clustering & Symmetrical Interval Partitioning
 const dayEventsMap = computed<Map<string, CalendarEvent[]>>(() => {
   const map = new Map<string, CalendarEvent[]>();
-  iranianDays.forEach((d) => map.set(d.id, []));
+  iranianDays.forEach(d => map.set(d.id, []));
 
   // Deduplicate courses from props.selectedList
   const courses: Course[] = [];
   const seenCourseIds = new Set<string>();
-  (selectedList || []).forEach((c) => {
+  (selectedList || []).forEach(c => {
     if (c && c.id && !seenCourseIds.has(c.id)) {
       seenCourseIds.add(c.id);
       courses.push(c);
@@ -307,7 +378,12 @@ const dayEventsMap = computed<Map<string, CalendarEvent[]>>(() => {
 
   for (let i = 0; i < courses.length; i++) {
     const course = courses[i];
-    if (!course || typeof course !== "object" || !course.seperated_time_and_place) continue;
+    if (
+      !course ||
+      typeof course !== "object" ||
+      !course.seperated_time_and_place
+    )
+      continue;
 
     const baseColor = paletteColors[i % paletteColors.length];
 
@@ -321,7 +397,8 @@ const dayEventsMap = computed<Map<string, CalendarEvent[]>>(() => {
       if (seenSlots.has(slotKey)) continue;
       seenSlots.add(slotKey);
 
-      const startMin = (slot.startHour - START_HOUR) * 60 + (slot.startMinute || 0);
+      const startMin =
+        (slot.startHour - START_HOUR) * 60 + (slot.startMinute || 0);
       const endMin = (slot.endHour - START_HOUR) * 60 + (slot.endMinute || 0);
       const durationMin = Math.max(endMin - startMin, 40);
 
@@ -344,12 +421,14 @@ const dayEventsMap = computed<Map<string, CalendarEvent[]>>(() => {
   }
 
   // Process sub-column splitting per day
-  iranianDays.forEach((d) => {
-    const dayEvents = rawList.filter((e) => e.day === d.id);
+  iranianDays.forEach(d => {
+    const dayEvents = rawList.filter(e => e.day === d.id);
     if (!dayEvents.length) return;
 
     // Sort by start time, then duration descending
-    dayEvents.sort((a, b) => a.startMin - b.startMin || b.durationMin - a.durationMin);
+    dayEvents.sort(
+      (a, b) => a.startMin - b.startMin || b.durationMin - a.durationMin,
+    );
 
     // Two events overlap if and only if they strictly overlap in time
     const overlaps = (a: CalendarEvent, b: CalendarEvent): boolean =>
@@ -357,10 +436,10 @@ const dayEventsMap = computed<Map<string, CalendarEvent[]>>(() => {
 
     // Find connected components (clusters) of mutually overlapping events
     const clusters: CalendarEvent[][] = [];
-    dayEvents.forEach((ev) => {
+    dayEvents.forEach(ev => {
       const matchingClusterIndices: number[] = [];
       clusters.forEach((cl, idx) => {
-        if (cl.some((c) => overlaps(ev, c))) {
+        if (cl.some(c => overlaps(ev, c))) {
           matchingClusterIndices.push(idx);
         }
       });
@@ -382,16 +461,18 @@ const dayEventsMap = computed<Map<string, CalendarEvent[]>>(() => {
     });
 
     // Layout each cluster independently:
-    clusters.forEach((cluster) => {
-      cluster.sort((a, b) => a.startMin - b.startMin || b.durationMin - a.durationMin);
+    clusters.forEach(cluster => {
+      cluster.sort(
+        (a, b) => a.startMin - b.startMin || b.durationMin - a.durationMin,
+      );
 
       // Pack into columns greedily
       const columns: CalendarEvent[][] = [];
-      cluster.forEach((ev) => {
+      cluster.forEach(ev => {
         let placed = false;
         for (let colIdx = 0; !placed; colIdx++) {
           const colEvents = columns[colIdx] || [];
-          const hasClash = colEvents.some((c) => overlaps(ev, c));
+          const hasClash = colEvents.some(c => overlaps(ev, c));
           if (!hasClash) {
             if (!columns[colIdx]) columns[colIdx] = [];
             columns[colIdx].push(ev);
@@ -402,7 +483,7 @@ const dayEventsMap = computed<Map<string, CalendarEvent[]>>(() => {
       });
 
       const totalCols = columns.length;
-      cluster.forEach((ev) => {
+      cluster.forEach(ev => {
         ev.totalCols = totalCols;
         ev.widthPercent = 100 / totalCols;
         ev.rightPercent = (ev.colIndex ?? 0) * ev.widthPercent;
@@ -437,6 +518,21 @@ const openEventModal = (event: CalendarEvent): void => {
   selectedEvent.value = event;
   selectedOpen.value = true;
 };
+
+const hoverQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+const supportsHover = ref(hoverQuery.matches);
+
+const updateHoverSupport = () => {
+  supportsHover.value = hoverQuery.matches;
+};
+
+onMounted(() => {
+  hoverQuery.addEventListener("change", updateHoverSupport);
+});
+
+onBeforeUnmount(() => {
+  hoverQuery.removeEventListener("change", updateHoverSupport);
+});
 </script>
 
 <style scoped>
@@ -549,57 +645,117 @@ const openEventModal = (event: CalendarEvent): void => {
   border-bottom: 1px dashed rgba(var(--v-theme-on-surface), 0.08);
 }
 
-/* Fix Bug 1 & Bug 4: Sub-column and Event Card Styling with Multi-Line Text */
-.calendar-event-card {
-  position: absolute;
-  border-radius: 6px;
-  padding: 4px 6px;
-  overflow: hidden;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(var(--v-theme-on-surface), 0.1);
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.12);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 2;
-  box-sizing: border-box;
-}
-
-.calendar-event-card:hover {
-  transform: translateY(-1px) scale(1.03);
-  box-shadow: 0 4px 14px rgba(var(--v-theme-on-surface), 0.25);
-  z-index: 15;
-}
-
-.event-title {
-  font-size: 0.72rem;
-  font-weight: 700;
-  line-height: 1.25;
-  color: rgba(var(--v-theme-on-surface), 0.98);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-}
-
-.event-meta {
-  font-size: 0.65rem;
-  color: rgba(var(--v-theme-on-surface), 0.82);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 1px;
-}
-
-.event-room {
-  font-size: 0.6rem;
-  color: rgba(var(--v-theme-on-surface), 0.72);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .event-dialog-card {
   box-shadow: var(--shadow-lg);
   border: 1px solid rgba(var(--v-theme-on-surface), 0.1);
+}
+
+/* Event block in the grid — flat, colour-coded, no shadow noise */
+.calendar-event-card {
+  --event-color: #b085ff;
+  border-radius: 6px;
+  background-color: color-mix(
+    in srgb,
+    var(--event-color) 14%,
+    rgb(var(--v-theme-surface))
+  );
+  border-inline-start: 3px solid var(--event-color);
+  cursor: pointer;
+  overflow: hidden;
+  padding: 4px 6px;
+  transition: background-color 0.15s ease;
+}
+
+.calendar-event-card:hover,
+.calendar-event-card:focus-visible {
+  background-color: color-mix(
+    in srgb,
+    var(--event-color) 24%,
+    rgb(var(--v-theme-surface))
+  );
+  transform: translateY(-1px) scale(1.03);
+  z-index: 15;
+  outline-offset: 1px;
+}
+
+.event-meta,
+.event-room {
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  color: rgba(var(--v-theme-on-surface), 0.64);
+}
+
+/* Tooltip — floating detail card, dark surface for contrast against the grid */
+.calendar-tooltip-card {
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  background-color: #1b1b21 !important;
+  max-width: 240px;
+}
+
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tooltip-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tooltip-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.tooltip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.tooltip-row--accent {
+  color: rgb(var(--v-theme-primary));
+  font-weight: 500;
+}
+
+.event-title {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.calendar-event-card {
+  --event-color: #b085ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 100%;
+  min-width: 0;
+  padding: 4px 8px;
+  cursor: pointer;
+  background-color: var(--event-color);
+  border-radius: 6px;
 }
 </style>
