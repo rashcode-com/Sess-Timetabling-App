@@ -16,7 +16,7 @@
           size="small"
           variant="tonal"
           color="primary"
-          class="ml-1 drawer-toggle-btn"
+          class="ml-1 drawer-toggle-btn rounded-xl"
           @click="$emit('toggle-drawer')"
           aria-label="باز/بستن منوی فیلترها"
         >
@@ -28,7 +28,7 @@
           size="small"
           variant="tonal"
           color="primary"
-          class="ml-2 theme-toggle-btn"
+          class="ml-2 theme-toggle-btn rounded-xl"
           @click="toggleTheme"
           :aria-label="isDark ? 'تغییر به حالت روشن' : 'تغییر به حالت تاریک'"
           :title="isDark ? 'حالت روشن' : 'حالت تاریک'"
@@ -38,34 +38,31 @@
           }}</v-icon>
         </v-btn>
 
-        <v-chip
-          v-if="updateTimeDateText"
-          color="primary"
-          variant="flat"
-          size="small"
-          class="font-weight-medium"
-        >
-          <v-icon start size="16">mdi-calendar-sync</v-icon>
-          {{ updateTimeDateText }}
-        </v-chip>
-        <v-chip
-          v-if="updateTimeClockText"
-          variant="tonal"
-          size="small"
-          color="secondary"
-          class="mr-2"
-        >
-          <v-icon start size="16">mdi-clock-outline</v-icon>
-          {{ updateTimeClockText }}
-        </v-chip>
+        <div class="update-info">
+          <div
+            v-if="updateTimeDateText"
+            class="update-info-item update-info-date"
+          >
+            <v-icon size="17">mdi-calendar-sync</v-icon>
+
+            <span>{{ updateTimeDateText }}</span>
+          </div>
+
+          <div
+            v-if="updateTimeClockText"
+            class="update-info-item update-info-time"
+          >
+            <v-icon size="17">mdi-clock-outline</v-icon>
+
+            <span dir="ltr">{{ updateTimeClockText }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- Center: Title & Academic Portal -->
       <div class="header-section header-center text-center">
-        <h1 class="header-main-title">برنامه کلاسی هفتگی</h1>
-        <span class="header-sub-badge"
-          >دانشگاه شهرکرد — سامانه مدیریت آموزش (SESS)</span
-        >
+        <h1 class="header-main-title mb-1">سامانه برنامه‌ریزی و انتخاب دروس</h1>
+        <span class="header-sub-badge"> دانشگاه شهرکرد — SESS </span>
       </div>
 
       <!-- Left (in RTL): Version Pill -->
@@ -115,20 +112,19 @@
           size="small"
           variant="tonal"
           color="primary"
-          class="drawer-toggle-btn"
+          class="drawer-toggle-btn rounded-xl"
           @click="$emit('toggle-drawer')"
           aria-label="منوی فیلترها"
         >
           <v-icon size="20">mdi-filter-variant</v-icon>
         </v-btn>
 
-        <div class="text-center px-2 flex-grow-1">
-          <h1 class="header-main-title-mobile text-truncate">
-            برنامه کلاسی هفتگی
+        <div class="mobile-header-title text-center px-2 flex-grow-1">
+          <h1 class="header-main-title-mobile">
+            سامانه برنامه‌ریزی و انتخاب دروس
           </h1>
-          <span class="header-sub-badge-mobile text-truncate"
-            >دانشگاه شهرکرد — سامانه آموزش (SESS)</span
-          >
+
+          <span class="header-sub-badge-mobile"> دانشگاه شهرکرد — SESS </span>
         </div>
 
         <v-btn
@@ -136,7 +132,7 @@
           size="small"
           variant="tonal"
           color="primary"
-          class="theme-toggle-btn"
+          class="theme-toggle-btn rounded-xl"
           @click="toggleTheme"
           :aria-label="isDark ? 'تغییر به حالت روشن' : 'تغییر به حالت تاریک'"
         >
@@ -342,5 +338,62 @@ const toggleTheme = (): void => {
 
 .github-pill:hover .github-icon {
   transform: scale(1.1);
+}
+.update-info {
+  display: flex;
+  gap: 8px;
+}
+
+.update-info-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  min-height: 30px;
+  padding: 5px 10px;
+
+  border-radius: 8px;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.update-info-date {
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.1);
+}
+
+.update-info-time {
+  color: rgb(var(--v-theme-secondary));
+  background: rgba(var(--v-theme-secondary), 0.1);
+}
+.mobile-header-title {
+  min-width: 0;
+}
+
+.header-main-title-mobile {
+  margin: 0;
+
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.5;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.header-sub-badge-mobile {
+  display: inline-block;
+  max-width: 100%;
+  margin-top: 2px;
+
+  font-size: 0.68rem;
+  line-height: 1.4;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
