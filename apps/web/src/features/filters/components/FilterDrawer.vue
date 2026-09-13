@@ -291,11 +291,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from "vue";
+import { nextTick, ref, reactive, watch, computed, type Ref } from "vue";
 import { useDisplay } from "vuetify";
 import { toFarsiNumber } from "@sess/core";
 import type { SearchEventPayload } from "@/types";
-import { nextTick } from "vue";
 
 const { xs } = useDisplay();
 const drawerWidth = computed<number>(() =>
@@ -397,7 +396,9 @@ const scrollAutocompleteToBottom = async autocomplete => {
   }
 };
 
-const autocompleteWatchers = [
+type MultiSelectKey = "unit" | "course" | "teacherName" | "gender" | "place";
+
+const autocompleteWatchers: [MultiSelectKey, Ref<any>][] = [
   ["unit", unitAutocomplete],
   ["course", courseAutocomplete],
   ["teacherName", teacherAutocomplete],
