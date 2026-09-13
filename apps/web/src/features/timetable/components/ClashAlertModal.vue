@@ -6,9 +6,13 @@
   >
     <v-card class="clash-modal-card" rounded="lg">
       <!-- Header Banner -->
-      <v-card-title class="clash-header pa-4 text-white d-flex align-center justify-space-between">
+      <v-card-title
+        class="clash-header pa-4 text-white d-flex align-center justify-space-between"
+      >
         <div class="d-flex align-center gap-2">
-          <v-icon color="white" size="24" class="ml-2">mdi-alert-octagon</v-icon>
+          <v-icon color="white" size="24" class="ml-2"
+            >mdi-alert-octagon</v-icon
+          >
           <h2 class="text-h6 font-weight-bold mb-0">گزارش تداخل دروس</h2>
         </div>
         <v-btn
@@ -25,15 +29,22 @@
 
       <v-card-text class="pa-4">
         <!-- 1. Class Time Conflicts -->
-        <div v-if="classTimeConflicts && classTimeConflicts.length !== 0" class="mb-4">
+        <div
+          v-if="classTimeConflicts && classTimeConflicts.length !== 0"
+          class="mb-4"
+        >
           <div class="d-flex align-center mb-3">
-            <v-icon color="error" size="20" class="ml-1">mdi-clock-alert-outline</v-icon>
+            <v-icon color="error" size="20" class="ml-1"
+              >mdi-clock-alert-outline</v-icon
+            >
             <h3 class="section-title text-error mb-0">تداخل ساعت کلاسی</h3>
           </div>
 
           <v-card
             v-for="(pair, index) in classTimeConflicts"
-            :key="'class-' + (pair[0].id || index) + '-' + (pair[1].id || index)"
+            :key="
+              'class-' + (pair[0].id || index) + '-' + (pair[1].id || index)
+            "
             class="clash-pair-card mb-3 pa-3"
             variant="outlined"
           >
@@ -47,12 +58,15 @@
                 <!-- Exact Conflicting Session in Red Chip -->
                 <div class="d-flex flex-column align-center gap-1 mb-2">
                   <v-chip
-                    v-for="(slotText, sIdx) in getConflictAnalysis(pair[0], pair[1]).clashing1"
+                    v-for="(slotText, sIdx) in getConflictAnalysis(
+                      pair[0],
+                      pair[1],
+                    ).clashing1"
                     :key="'c1-clash-' + sIdx"
                     color="error"
                     variant="flat"
                     size="small"
-                    class="font-weight-bold text-wrap py-1"
+                    class="font-weight-bold text-wrap py-5"
                   >
                     <v-icon start size="14">mdi-clock-alert-outline</v-icon>
                     زمان متداخل: {{ slotText }}
@@ -64,12 +78,16 @@
                   v-if="getConflictAnalysis(pair[0], pair[1]).other1.length"
                   class="other-sessions text-caption mb-2 text-medium-emphasis"
                 >
-                  <span class="font-weight-medium text-high-emphasis">سایر کلاس‌ها: </span>
-                  <span>{{ getConflictAnalysis(pair[0], pair[1]).other1.join(" • ") }}</span>
+                  <span class="font-weight-medium text-high-emphasis"
+                    >سایر کلاس‌ها:
+                  </span>
+                  <span>{{
+                    getConflictAnalysis(pair[0], pair[1]).other1.join(" • ")
+                  }}</span>
                 </div>
 
                 <div class="text-caption text-medium-emphasis">
-                  استاد: {{ pair[0].teacher }}
+                  استاد: {{ pair[0].teacher || "تعیین نشده" }}
                 </div>
               </v-col>
 
@@ -82,12 +100,15 @@
                 <!-- Exact Conflicting Session in Red Chip -->
                 <div class="d-flex flex-column align-center gap-1 mb-2">
                   <v-chip
-                    v-for="(slotText, sIdx) in getConflictAnalysis(pair[0], pair[1]).clashing2"
+                    v-for="(slotText, sIdx) in getConflictAnalysis(
+                      pair[0],
+                      pair[1],
+                    ).clashing2"
                     :key="'c2-clash-' + sIdx"
                     color="error"
                     variant="flat"
                     size="small"
-                    class="font-weight-bold text-wrap py-1"
+                    class="font-weight-bold text-wrap py-5"
                   >
                     <v-icon start size="14">mdi-clock-alert-outline</v-icon>
                     زمان متداخل: {{ slotText }}
@@ -99,12 +120,16 @@
                   v-if="getConflictAnalysis(pair[0], pair[1]).other2.length"
                   class="other-sessions text-caption mb-2 text-medium-emphasis"
                 >
-                  <span class="font-weight-medium text-high-emphasis">سایر کلاس‌ها: </span>
-                  <span>{{ getConflictAnalysis(pair[0], pair[1]).other2.join(" • ") }}</span>
+                  <span class="font-weight-medium text-high-emphasis"
+                    >سایر کلاس‌ها:
+                  </span>
+                  <span>{{
+                    getConflictAnalysis(pair[0], pair[1]).other2.join(" • ")
+                  }}</span>
                 </div>
 
                 <div class="text-caption text-medium-emphasis">
-                  استاد: {{ pair[1].teacher }}
+                  استاد: {{ pair[1].teacher || "تعیین نشده" }}
                 </div>
               </v-col>
             </v-row>
@@ -114,13 +139,19 @@
         <!-- 2. Final Exam Conflicts -->
         <div v-if="finalExamConflicts && finalExamConflicts.length !== 0">
           <div class="d-flex align-center mb-3">
-            <v-icon color="error" size="20" class="ml-1">mdi-calendar-alert</v-icon>
-            <h3 class="section-title text-error mb-0">تداخل ساعت امتحان نهایی</h3>
+            <v-icon color="error" size="20" class="ml-1"
+              >mdi-calendar-alert</v-icon
+            >
+            <h3 class="section-title text-error mb-0">
+              تداخل ساعت امتحان نهایی
+            </h3>
           </div>
 
           <v-card
             v-for="(pair, index) in finalExamConflicts"
-            :key="'final-' + (pair[0].id || index) + '-' + (pair[1].id || index)"
+            :key="
+              'final-' + (pair[0].id || index) + '-' + (pair[1].id || index)
+            "
             class="clash-pair-card mb-3 pa-3"
             variant="outlined"
           >
@@ -130,12 +161,18 @@
                 <div class="course-name font-weight-bold text-primary mb-1">
                   {{ pair[0].title }}
                 </div>
-                <v-chip color="error" variant="flat" size="small" class="mb-1 font-weight-bold">
+                <v-chip
+                  color="error"
+                  variant="flat"
+                  size="small"
+                  class="mb-1 font-weight-bold"
+                >
                   <span>{{ pair[0].final_date }} — ساعت </span>
                   <span dir="ltr">{{ toFarsiNumber(pair[0].final_time) }}</span>
                 </v-chip>
                 <div class="text-caption text-medium-emphasis">
-                  استاد: {{ pair[0].teacher }}
+                  استاد:
+                  {{ pair[0].teacher || "تعیین نشده" }}
                 </div>
               </v-col>
 
@@ -144,12 +181,17 @@
                 <div class="course-name font-weight-bold text-primary mb-1">
                   {{ pair[1].title }}
                 </div>
-                <v-chip color="error" variant="flat" size="small" class="mb-1 font-weight-bold">
+                <v-chip
+                  color="error"
+                  variant="flat"
+                  size="small"
+                  class="mb-1 font-weight-bold"
+                >
                   <span>{{ pair[1].final_date }} — ساعت </span>
                   <span dir="ltr">{{ toFarsiNumber(pair[1].final_time) }}</span>
                 </v-chip>
                 <div class="text-caption text-medium-emphasis">
-                  استاد: {{ pair[1].teacher }}
+                  استاد: {{ pair[1].teacher || "تعیین نشده" }}
                 </div>
               </v-col>
             </v-row>
@@ -211,7 +253,10 @@ interface ConflictAnalysis {
   other2: string[];
 }
 
-const getConflictAnalysis = (course1: Course, course2: Course): ConflictAnalysis => {
+const getConflictAnalysis = (
+  course1: Course,
+  course2: Course,
+): ConflictAnalysis => {
   const slots1: TimeSlot[] = course1.seperated_time_and_place || [];
   const slots2: TimeSlot[] = course2.seperated_time_and_place || [];
 
