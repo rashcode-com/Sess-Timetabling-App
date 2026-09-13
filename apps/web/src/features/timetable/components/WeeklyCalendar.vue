@@ -519,6 +519,8 @@ const openEventModal = (event: CalendarEvent): void => {
   selectedOpen.value = true;
 };
 
+// Detect whether the current device supports hover interactions
+// and update the state when the device's hover capability changes.
 const hoverQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
 const supportsHover = ref(hoverQuery.matches);
 
@@ -540,6 +542,10 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
+/* =========================
+   Calendar Toggle
+   ========================= */
+
 .calendar-toggle-banner {
   background: rgb(var(--v-theme-surface));
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
@@ -559,6 +565,10 @@ onBeforeUnmount(() => {
   transform: rotate(180deg);
 }
 
+/* =========================
+   Calendar Grid Container
+   ========================= */
+
 .calendar-grid-card {
   background-color: rgb(var(--v-theme-surface));
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
@@ -577,6 +587,10 @@ onBeforeUnmount(() => {
   position: relative;
 }
 
+/* =========================
+   Time Column
+   ========================= */
+
 .time-column {
   width: 58px;
   flex-shrink: 0;
@@ -588,6 +602,21 @@ onBeforeUnmount(() => {
 .time-labels-track {
   position: relative;
 }
+
+.time-slot-label {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  color: rgba(var(--v-theme-on-surface), 0.65);
+}
+
+/* =========================
+   Day Columns & Headers
+   ========================= */
 
 .day-column {
   flex: 1;
@@ -622,16 +651,9 @@ onBeforeUnmount(() => {
   color: rgba(var(--v-theme-on-surface), 0.6);
 }
 
-.time-slot-label {
-  position: absolute;
-  right: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.6875rem;
-  color: rgba(var(--v-theme-on-surface), 0.65);
-}
+/* =========================
+   Calendar Content & Grid Lines
+   ========================= */
 
 .day-content-track {
   position: relative;
@@ -645,24 +667,27 @@ onBeforeUnmount(() => {
   border-bottom: 1px dashed rgba(var(--v-theme-on-surface), 0.08);
 }
 
-.event-dialog-card {
-  box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.1);
-}
+/* =========================
+   Calendar Events
+   ========================= */
 
-/* Event block in the grid — flat, colour-coded, no shadow noise */
+/* Event block: flat, color-coded, and optimized for the grid. */
+
 .calendar-event-card {
   --event-color: #b085ff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 100%;
+  min-width: 0;
+  padding: 4px 8px;
   border-radius: 6px;
-  background-color: color-mix(
-    in srgb,
-    var(--event-color) 14%,
-    rgb(var(--v-theme-surface))
-  );
+  background-color: var(--event-color);
   border-inline-start: 3px solid var(--event-color);
   cursor: pointer;
   overflow: hidden;
-  padding: 4px 6px;
   transition: background-color 0.15s ease;
 }
 
@@ -678,6 +703,17 @@ onBeforeUnmount(() => {
   outline-offset: 1px;
 }
 
+.event-title {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
 .event-meta,
 .event-room {
   font-size: 0.6875rem;
@@ -685,7 +721,21 @@ onBeforeUnmount(() => {
   color: rgba(var(--v-theme-on-surface), 0.64);
 }
 
-/* Tooltip — floating detail card, dark surface for contrast against the grid */
+/* =========================
+   Event Dialog
+   ========================= */
+
+.event-dialog-card {
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.1);
+}
+
+/* =========================
+   Calendar Tooltip
+   ========================= */
+
+/* Floating detail card with a dark surface for better contrast. */
+
 .calendar-tooltip-card {
   padding: 10px 12px !important;
   border-radius: 10px !important;
@@ -732,30 +782,5 @@ onBeforeUnmount(() => {
 .tooltip-row--accent {
   color: rgb(var(--v-theme-primary));
   font-weight: 500;
-}
-
-.event-title {
-  display: block;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.calendar-event-card {
-  --event-color: #b085ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  width: 100%;
-  min-width: 0;
-  padding: 4px 8px;
-  cursor: pointer;
-  background-color: var(--event-color);
-  border-radius: 6px;
 }
 </style>
