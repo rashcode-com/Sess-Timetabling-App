@@ -168,19 +168,22 @@
           class="pa-4 text-white d-flex align-center justify-space-between"
           :style="{ backgroundColor: selectedEvent.rawColor || '#8C57FF' }"
         >
-          <div class="d-flex align-center gap-2">
-            <v-icon color="white" size="20" class="ml-2"
-              >mdi-book-outline</v-icon
-            >
-            <span class="font-weight-bold text-subtitle-1">{{
-              selectedEvent.name
-            }}</span>
+          <div class="event-dialog-title">
+            <v-icon color="white" size="20" class="ml-2">
+              mdi-book-outline
+            </v-icon>
+
+            <span class="event-dialog-title-text">
+              {{ selectedEvent.name }}
+            </span>
           </div>
+
           <v-btn
             icon
             variant="text"
             size="small"
             color="white"
+            class="event-dialog-close"
             @click="selectedOpen = false"
             aria-label="بستن جزئیات درس"
           >
@@ -801,5 +804,30 @@ onBeforeUnmount(() => {
 .tooltip-row--accent {
   color: rgb(var(--v-theme-primary));
   font-weight: 500;
+}
+
+.event-dialog-title {
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.event-dialog-title-text {
+  min-width: 0;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+
+  line-height: 1.5;
+}
+
+.event-dialog-close {
+  flex-shrink: 0;
+  margin-right: 8px;
 }
 </style>
