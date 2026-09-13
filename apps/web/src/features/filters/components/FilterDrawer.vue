@@ -42,7 +42,7 @@
     <!-- Clear all active filters -->
     <div class="d-flex justify-end mt-2" style="min-height: 28px">
       <v-btn
-        v-if="showClearFilters"
+        v-if="showClearFilters && activeTab === 'filter'"
         variant="text"
         size="small"
         color="error"
@@ -424,6 +424,7 @@ const teacherAutocomplete = ref<ComponentPublicInstance | null>(null);
 const genderAutocomplete = ref<ComponentPublicInstance | null>(null);
 const placeAutocomplete = ref<ComponentPublicInstance | null>(null);
 
+// Scroll the Autocomplete input to the bottom so the latest entry is visible to the user
 const scrollAutocompleteToBottom = async (autocomplete: AutocompleteRef) => {
   await nextTick();
 
