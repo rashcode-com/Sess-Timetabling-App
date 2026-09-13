@@ -29,7 +29,9 @@
   --table-inset-bg: rgb(var(--v-theme-surface-light));
 
   /* 100% Vazirmatn Typography Stack */
-  --font-family-base: "Vazirmatn FD", "Vazirmatn", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-base:
+    "Vazirmatn FD", "Vazirmatn", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
 
   /* Geometry & Radii */
   --radius-xs: 2px;
@@ -43,18 +45,39 @@
      2026 Multi-Layer Ambient Elevation System (Key Light + Soft Negative Spread)
      ========================================================================== */
   --shadow-xs: 0 1px 2px 0 rgba(var(--v-theme-on-surface), 0.04);
-  --shadow-sm: 0 1px 2px 0 rgba(var(--v-theme-on-surface), 0.05), 0 2px 6px -1px rgba(var(--v-theme-on-surface), 0.06);
-  --shadow-md: 0 1px 3px 0 rgba(var(--v-theme-on-surface), 0.05), 0 6px 18px -3px rgba(var(--v-theme-on-surface), 0.08);
-  --shadow-lg: 0 2px 5px 0 rgba(var(--v-theme-on-surface), 0.06), 0 12px 28px -4px rgba(var(--v-theme-on-surface), 0.12);
-  --shadow-xl: 0 4px 8px 0 rgba(var(--v-theme-on-surface), 0.06), 0 20px 40px -6px rgba(var(--v-theme-on-surface), 0.16);
+  --shadow-sm:
+    0 1px 2px 0 rgba(var(--v-theme-on-surface), 0.05),
+    0 2px 6px -1px rgba(var(--v-theme-on-surface), 0.06);
+  --shadow-md:
+    0 1px 3px 0 rgba(var(--v-theme-on-surface), 0.05),
+    0 6px 18px -3px rgba(var(--v-theme-on-surface), 0.08);
+  --shadow-lg:
+    0 2px 5px 0 rgba(var(--v-theme-on-surface), 0.06),
+    0 12px 28px -4px rgba(var(--v-theme-on-surface), 0.12);
+  --shadow-xl:
+    0 4px 8px 0 rgba(var(--v-theme-on-surface), 0.06),
+    0 20px 40px -6px rgba(var(--v-theme-on-surface), 0.16);
 
   --shadow-primary-glow: 0 4px 14px -2px rgba(var(--v-theme-primary), 0.45);
   --shadow-error-glow: 0 4px 14px -2px rgba(var(--v-theme-error), 0.45);
 
   /* Gradients */
-  --gradient-primary: linear-gradient(-72.47deg, rgb(140, 87, 255) 22.16%, rgba(140, 87, 255, 0.7) 76.47%);
-  --gradient-header-fade: linear-gradient(rgb(var(--v-theme-background)) 5%, rgba(var(--v-theme-background), 0.75) 45%, rgba(var(--v-theme-background), 0.2) 80%, rgba(0, 0, 0, 0));
-  --gradient-clash: linear-gradient(135deg, rgb(var(--v-theme-error)) 0%, rgb(var(--v-theme-error-darken-1)) 100%);
+  --gradient-primary: linear-gradient(
+    -72.47deg,
+    rgb(140, 87, 255) 22.16%,
+    rgba(140, 87, 255, 0.7) 76.47%
+  );
+  --gradient-header-fade: linear-gradient(
+    rgb(var(--v-theme-background)) 5%,
+    rgba(var(--v-theme-background), 0.75) 45%,
+    rgba(var(--v-theme-background), 0.2) 80%,
+    rgba(0, 0, 0, 0)
+  );
+  --gradient-clash: linear-gradient(
+    135deg,
+    rgb(var(--v-theme-error)) 0%,
+    rgb(var(--v-theme-error-darken-1)) 100%
+  );
 
   /* Animation & Physics */
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
@@ -116,8 +139,18 @@ input,
 button,
 select,
 textarea,
-h1, h2, h3, h4, h5, h6,
-p, span, label, div, td, th {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+label,
+div,
+td,
+th {
   font-family: var(--font-family-base) !important;
   font-feature-settings: "ss01" on !important;
   -webkit-font-feature-settings: "ss01" on !important;
@@ -188,9 +221,10 @@ body {
 .app-autocomplete-menu {
   box-shadow: var(--shadow-lg) !important;
   border: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
-  border-radius: var(--radius-md) !important;
+  border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
   background-color: rgb(var(--v-theme-surface)) !important;
   overflow: hidden !important;
+  width: 200px;
 }
 
 .v-autocomplete__content .v-list,
@@ -242,7 +276,9 @@ body {
 .app-autocomplete-menu .v-list-item-title {
   display: block !important;
   white-space: normal !important;
-  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  line-height: 1.5 !important;
   direction: rtl !important;
   text-align: right !important;
   font-size: 0.8125rem !important;
@@ -298,11 +334,21 @@ body {
 }
 
 /* Flex Gap Utilities */
-.gap-1 { gap: 4px !important; }
-.gap-2 { gap: 8px !important; }
-.gap-3 { gap: 12px !important; }
-.gap-4 { gap: 16px !important; }
-.gap-5 { gap: 20px !important; }
+.gap-1 {
+  gap: 4px !important;
+}
+.gap-2 {
+  gap: 8px !important;
+}
+.gap-3 {
+  gap: 12px !important;
+}
+.gap-4 {
+  gap: 16px !important;
+}
+.gap-5 {
+  gap: 20px !important;
+}
 
 /* ==========================================================================
    Master Contrast & Typography Hierarchy Utilities (WCAG AA Compliant)
@@ -339,8 +385,8 @@ body {
    Calendar Tooltip & Hover Card (Sleek Glassmorphic Dark Card)
    ========================================================================== */
 .calendar-tooltip-card {
-  background: #1C192B !important;
-  color: #FFFFFF !important;
+  background: #1c192b !important;
+  color: #ffffff !important;
   border: 1px solid rgba(176, 133, 255, 0.3) !important;
   box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.75) !important;
   border-radius: 10px !important;
@@ -352,7 +398,7 @@ body {
 }
 
 .calendar-tooltip-body {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .tooltip-badge-dot {
@@ -370,7 +416,7 @@ body {
 }
 
 .calendar-tooltip-body .tooltip-time {
-  color: #B085FF !important;
+  color: #b085ff !important;
 }
 
 /* ==========================================================================
@@ -411,4 +457,3 @@ body {
 .mobile-course-card .mobile-slot-pill {
   background-color: rgb(var(--v-theme-background)) !important;
 }
-
