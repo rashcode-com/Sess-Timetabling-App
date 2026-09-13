@@ -270,17 +270,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Left Side (in RTL): Info Trigger Button -->
-          <v-btn
-            icon="mdi-information-outline"
-            variant="tonal"
-            size="x-small"
-            color="primary"
-            class="flex-shrink-0 mr-1 mt-1"
-            aria-label="مشاهده مشخصات کامل"
-            @click="emit('show-detail', item)"
-          />
         </div>
 
         <!-- Instructor with Icon -->

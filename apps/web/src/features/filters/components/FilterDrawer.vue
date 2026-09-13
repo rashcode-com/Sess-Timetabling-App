@@ -276,7 +276,7 @@
         class="btn-app-primary mt-2"
         :loading="loading"
         :disabled="loading"
-        @click="handleSearch"
+        @click="handleSearchAndToggle"
       >
         <v-icon start size="20">mdi-magnify</v-icon>
         <span class="font-weight-bold">جستجو</span>
@@ -356,6 +356,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
   (e: "tab-change", tab: string): void;
   (e: "search", payload: SearchEventPayload): void;
+  (e: "toggle-drawer"): void;
 }>();
 
 // Controls the visibility of the clear filters button
@@ -592,6 +593,14 @@ const handleSearch = (): void => {
       timeEnd: toStandardTime(localTimeEnd.value),
     },
   });
+};
+
+const handleSearchAndToggle = () => {
+  handleSearch();
+
+  if (window.innerWidth < 1280) {
+    emit("toggle-drawer");
+  }
 };
 </script>
 
