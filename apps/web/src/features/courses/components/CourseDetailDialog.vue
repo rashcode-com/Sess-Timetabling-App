@@ -9,16 +9,17 @@
       <v-card-title
         class="dialog-header d-flex align-center justify-space-between pa-4"
       >
-        <div class="d-flex align-center">
+        <div class="d-flex align-center event-dialog-title">
           <v-avatar color="primary" variant="tonal" size="36" class="ml-2">
             <v-icon color="primary" size="20"
               >mdi-book-open-page-variant</v-icon
             >
           </v-avatar>
           <div>
-            <span class="font-weight-bold text-h6 dialog-title">{{
-              course.title
-            }}</span>
+            <span
+              class="event-dialog-title-text font-weight-bold text-h6 dialog-title"
+              >{{ course.title }}</span
+            >
             <v-chip
               color="primary"
               variant="flat"
@@ -53,7 +54,7 @@
           <div class="spec-row d-flex">
             <div class="spec-key">استاد درس</div>
             <div class="spec-val font-weight-medium">
-              {{ course.teacher || "—" }}
+              {{ course.teacher || "تعیین نشده" }}
             </div>
           </div>
 
@@ -69,21 +70,28 @@
 
           <div class="spec-row d-flex">
             <div class="spec-key">امتحان نهایی</div>
+
             <div class="spec-val">
               <v-chip
                 v-if="course.final_date"
                 color="error"
                 variant="tonal"
                 size="small"
-                class="font-weight-bold"
+                class="font-weight-bold final-exam-chip"
               >
-                <span>{{ course.final_date }}</span>
-                <span v-if="course.final_time" class="mr-1"
-                  >(ساعت
-                  <span dir="ltr">{{ toFarsiNumber(course.final_time) }}</span
-                  >)</span
-                >
+                <span class="final-exam-text">
+                  {{ course.final_date }}
+
+                  <span v-if="course.final_time" class="mr-1">
+                    (ساعت
+                    <span dir="ltr">
+                      {{ toFarsiNumber(course.final_time) }}
+                    </span>
+                    )
+                  </span>
+                </span>
               </v-chip>
+
               <span v-else class="text-medium-emphasis">نامشخص</span>
             </div>
           </div>
@@ -230,5 +238,39 @@ const formatSlotTime = (h: number, m?: number): string => {
   color: rgba(var(--v-theme-on-surface), 0.9);
   display: flex;
   align-items: center;
+}
+
+.event-dialog-title {
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.event-dialog-title-text {
+  min-width: 0;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+
+  line-height: 1.5;
+}
+
+.final-exam-chip {
+  max-width: 100%;
+  height: auto !important;
+  white-space: normal !important;
+}
+
+.final-exam-text {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  line-height: 1.6;
 }
 </style>
