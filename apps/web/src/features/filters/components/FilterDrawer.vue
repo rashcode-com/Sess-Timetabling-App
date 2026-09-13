@@ -287,6 +287,18 @@
     <div v-show="activeTab === 'selected'" class="px-2 pb-4 pt-4">
       <slot name="selected-courses"></slot>
     </div>
+    <div class="developer-credit-wrapper d-md-none">
+      <a
+        href="https://github.com/rashcode-com/Sess-Timetabling-App"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="developer-credit"
+      >
+        <span class="developer-credit-label"> Designed & Developed</span>
+
+        <span class="developer-credit-name">BY Reza Azad</span>
+      </a>
+    </div>
   </v-navigation-drawer>
 </template>
 
@@ -638,5 +650,46 @@ const handleSearch = (): void => {
 /* hide scrollbar — Chrome, Safari, Edge */
 .custom-form-field :deep(.v-field__input)::-webkit-scrollbar {
   display: none;
+}
+.developer-credit-wrapper {
+  margin-top: 30px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.developer-credit {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  opacity: 0.45;
+  text-decoration: none;
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.developer-credit:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.developer-credit-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(var(--v-theme-primary));
+}
+
+.developer-credit-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgb(var(--v-theme-secondary));
 }
 </style>
