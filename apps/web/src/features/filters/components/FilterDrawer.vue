@@ -291,7 +291,15 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, reactive, watch, computed, type Ref } from "vue";
+import {
+  nextTick,
+  ref,
+  reactive,
+  watch,
+  computed,
+  type Ref,
+  type ComponentPublicInstance,
+} from "vue";
 import { useDisplay } from "vuetify";
 import { toFarsiNumber } from "@sess/core";
 import type { SearchEventPayload } from "@/types";
@@ -380,13 +388,15 @@ const localFilters = reactive<LocalFiltersState>({
 
 // Scroll the autocomplete field to the bottom after each new selection,
 // keeping the latest selected item visible to the user.
-const unitAutocomplete = ref(null);
-const courseAutocomplete = ref(null);
-const teacherAutocomplete = ref(null);
-const genderAutocomplete = ref(null);
-const placeAutocomplete = ref(null);
+type AutocompleteRef = Ref<ComponentPublicInstance | null>;
 
-const scrollAutocompleteToBottom = async autocomplete => {
+const unitAutocomplete = ref<ComponentPublicInstance | null>(null);
+const courseAutocomplete = ref<ComponentPublicInstance | null>(null);
+const teacherAutocomplete = ref<ComponentPublicInstance | null>(null);
+const genderAutocomplete = ref<ComponentPublicInstance | null>(null);
+const placeAutocomplete = ref<ComponentPublicInstance | null>(null);
+
+const scrollAutocompleteToBottom = async (autocomplete: AutocompleteRef) => {
   await nextTick();
 
   const input = autocomplete.value?.$el?.querySelector(".v-field__input");
