@@ -39,6 +39,22 @@
       <v-divider></v-divider>
     </template>
 
+    <!-- Clear all active filters -->
+    <div class="d-flex justify-end mt-2">
+      <v-btn
+        v-if="showClearFilters"
+        variant="text"
+        size="small"
+        color="error"
+        :disabled="loading"
+        @click="handleClearFilters"
+      >
+        <v-icon start size="18">mdi-filter-remove-outline</v-icon>
+
+        پاک کردن فیلترها
+      </v-btn>
+    </div>
+
     <!-- 1. Filter Tab Content -->
     <div v-show="activeTab === 'filter'" class="px-3 pb-4 pt-4">
       <v-autocomplete
@@ -139,7 +155,11 @@
       <v-row no-gutters class="mb-3">
         <!-- Start Time -->
         <v-col cols="6" class="pl-1">
-          <v-menu v-model="startMenu" :close-on-content-click="false" location="bottom end">
+          <v-menu
+            v-model="startMenu"
+            :close-on-content-click="false"
+            location="bottom end"
+          >
             <template #activator="{ props }">
               <v-text-field
                 v-bind="props"
@@ -163,7 +183,9 @@
                 color="primary"
                 @update:model-value="onTimeStartSelected"
               ></v-time-picker>
-              <div class="quick-slots d-flex flex-wrap gap-1 mt-2 justify-center">
+              <div
+                class="quick-slots d-flex flex-wrap gap-1 mt-2 justify-center"
+              >
                 <v-chip
                   v-for="slot in ['۰۸:۰۰', '۱۰:۰۰', '۱۲:۰۰', '۱۴:۰۰', '۱۶:۰۰']"
                   :key="slot"
@@ -182,7 +204,11 @@
 
         <!-- End Time -->
         <v-col cols="6" class="pr-1">
-          <v-menu v-model="endMenu" :close-on-content-click="false" location="bottom end">
+          <v-menu
+            v-model="endMenu"
+            :close-on-content-click="false"
+            location="bottom end"
+          >
             <template #activator="{ props }">
               <v-text-field
                 v-bind="props"
@@ -206,7 +232,9 @@
                 color="primary"
                 @update:model-value="onTimeEndSelected"
               ></v-time-picker>
-              <div class="quick-slots d-flex flex-wrap gap-1 mt-2 justify-center">
+              <div
+                class="quick-slots d-flex flex-wrap gap-1 mt-2 justify-center"
+              >
                 <v-chip
                   v-for="slot in ['۱۰:۰۰', '۱۲:۰۰', '۱۴:۰۰', '۱۶:۰۰', '۱۸:۰۰']"
                   :key="slot"
@@ -267,7 +295,12 @@ import type { SearchEventPayload } from "@/types";
 
 const { xs } = useDisplay();
 const drawerWidth = computed<number>(() =>
-  xs.value ? Math.min(300, (typeof window !== "undefined" ? window.innerWidth : 350) - 16) : 350
+  xs.value
+    ? Math.min(
+        300,
+        (typeof window !== "undefined" ? window.innerWidth : 350) - 16,
+      )
+    : 350,
 );
 
 interface Props {
@@ -301,6 +334,9 @@ const emit = defineEmits<{
   (e: "tab-change", tab: string): void;
   (e: "search", payload: SearchEventPayload): void;
 }>();
+
+// Controls the visibility of the clear filters button
+const showClearFilters = ref<boolean>(false);
 
 // Single reactive source of truth for tabs
 const activeTab = ref<string>("filter");
@@ -339,29 +375,58 @@ const localFilters = reactive<LocalFiltersState>({
   gender: [],
 });
 
+// Watching filtering changes
+watch(
+  () => [
+    localFilters.unit.length,
+    localFilters.course.length,
+    localFilters.teacherName.length,
+    localFilters.place.length,
+    localFilters.gender.length,
+
+    localTimeStart.value.length,
+    localTimeEnd.value.length,
+  ],
+  () => {
+    if (
+      localFilters.unit.length ||
+      localFilters.course.length ||
+      localFilters.teacherName.length ||
+      localFilters.place.length ||
+      localFilters.gender.length ||
+      localTimeStart.value.length ||
+      localTimeEnd.value.length
+    ) {
+      showClearFilters.value = true;
+    } else {
+      showClearFilters.value = false;
+    }
+  },
+);
+
 watch(
   () => semesters,
-  (newSemesters) => {
+  newSemesters => {
     if (newSemesters && newSemesters.length && !localFilters.semester) {
       localFilters.semester = newSemesters[0];
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
   () => activeTab.value,
-  (newTab) => {
+  newTab => {
     emit("tab-change", newTab);
-  }
+  },
 );
 
 // Clear errors when fields are edited
 watch(
   () => localFilters.semester,
-  (val) => {
+  val => {
     if (val) semesterError.value = "";
-  }
+  },
 );
 
 watch(
@@ -378,14 +443,14 @@ watch(
     ) {
       filterSelectionError.value = "";
     }
-  }
+  },
 );
 
 // Time conversion helpers
 const toStandardTime = (str?: string): string => {
   if (!str) return "";
   const persianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
-  return str.replace(/[۰-۹]/g, (w) => String(persianDigits.indexOf(w)));
+  return str.replace(/[۰-۹]/g, w => String(persianDigits.indexOf(w)));
 };
 
 const onTimeStartSelected = (val: string | null): void => {
@@ -409,6 +474,20 @@ const setTimeStartDirect = (slot: string): void => {
 
 const setTimeEndDirect = (slot: string): void => {
   localTimeEnd.value = slot;
+  endMenu.value = false;
+};
+
+const handleClearFilters = (): void => {
+  localFilters.course = [];
+  localFilters.gender = [];
+  localFilters.place = [];
+  localFilters.teacherName = [];
+  localFilters.unit = [];
+
+  localTimeStart.value = "";
+  localTimeEnd.value = "";
+
+  startMenu.value = false;
   endMenu.value = false;
 };
 
