@@ -201,7 +201,7 @@
                 >
               </template>
               <span class="text-body-2 font-weight-medium">{{
-                selectedEvent.teacher
+                selectedEvent.teacher || "تعیین نشده"
               }}</span>
             </v-list-item>
 

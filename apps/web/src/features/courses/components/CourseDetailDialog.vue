@@ -6,14 +6,25 @@
   >
     <v-card v-if="course" class="course-detail-card" rounded="lg">
       <!-- Modal Header -->
-      <v-card-title class="dialog-header d-flex align-center justify-space-between pa-4">
+      <v-card-title
+        class="dialog-header d-flex align-center justify-space-between pa-4"
+      >
         <div class="d-flex align-center">
           <v-avatar color="primary" variant="tonal" size="36" class="ml-2">
-            <v-icon color="primary" size="20">mdi-book-open-page-variant</v-icon>
+            <v-icon color="primary" size="20"
+              >mdi-book-open-page-variant</v-icon
+            >
           </v-avatar>
           <div>
-            <span class="font-weight-bold text-h6 dialog-title">{{ course.title }}</span>
-            <v-chip color="primary" variant="flat" size="x-small" class="font-weight-bold mr-2">
+            <span class="font-weight-bold text-h6 dialog-title">{{
+              course.title
+            }}</span>
+            <v-chip
+              color="primary"
+              variant="flat"
+              size="x-small"
+              class="font-weight-bold mr-2"
+            >
               {{ course.vahed }} واحد
             </v-chip>
           </div>
@@ -41,7 +52,9 @@
 
           <div class="spec-row d-flex">
             <div class="spec-key">استاد درس</div>
-            <div class="spec-val font-weight-medium">{{ course.teacher || "—" }}</div>
+            <div class="spec-val font-weight-medium">
+              {{ course.teacher || "—" }}
+            </div>
           </div>
 
           <div class="spec-row d-flex">
@@ -65,7 +78,11 @@
                 class="font-weight-bold"
               >
                 <span>{{ course.final_date }}</span>
-                <span v-if="course.final_time" class="mr-1">(ساعت <span dir="ltr">{{ toFarsiNumber(course.final_time) }}</span>)</span>
+                <span v-if="course.final_time" class="mr-1"
+                  >(ساعت
+                  <span dir="ltr">{{ toFarsiNumber(course.final_time) }}</span
+                  >)</span
+                >
               </v-chip>
               <span v-else class="text-medium-emphasis">نامشخص</span>
             </div>
@@ -75,7 +92,10 @@
             <div class="spec-key">زمان و مکان کلاس</div>
             <div class="spec-val">
               <div
-                v-if="course.seperated_time_and_place && course.seperated_time_and_place.length"
+                v-if="
+                  course.seperated_time_and_place &&
+                  course.seperated_time_and_place.length
+                "
                 class="d-flex flex-column gap-1 py-1"
               >
                 <div
@@ -83,18 +103,29 @@
                   :key="idx"
                   class="d-flex align-center gap-1"
                 >
-                  <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-medium">
+                  <v-chip
+                    size="x-small"
+                    color="primary"
+                    variant="tonal"
+                    class="font-weight-medium"
+                  >
                     {{ slot.day }}
                   </v-chip>
                   <span dir="ltr" class="text-caption font-weight-medium">
-                    {{ formatSlotTime(slot.startHour, slot.startMinute) }} - {{ formatSlotTime(slot.endHour, slot.endMinute) }}
+                    {{ formatSlotTime(slot.startHour, slot.startMinute) }} -
+                    {{ formatSlotTime(slot.endHour, slot.endMinute) }}
                   </span>
-                  <span v-if="slot.place" class="text-caption text-medium-emphasis">
+                  <span
+                    v-if="slot.place"
+                    class="text-caption text-medium-emphasis"
+                  >
                     ({{ slot.place }})
                   </span>
                 </div>
               </div>
-              <span v-else class="text-medium-emphasis">{{ course.time_room || "—" }}</span>
+              <span v-else class="text-medium-emphasis">{{
+                course.time_room || "—"
+              }}</span>
             </div>
           </div>
 
@@ -137,10 +168,7 @@ interface Props {
   course?: Partial<Course> | null;
 }
 
-const {
-  modelValue = false,
-  course = null,
-} = defineProps<Props>();
+const { modelValue = false, course = null } = defineProps<Props>();
 
 defineEmits<{
   (e: "update:modelValue", value: boolean): void;
