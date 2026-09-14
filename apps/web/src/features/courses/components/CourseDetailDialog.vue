@@ -6,14 +6,26 @@
   >
     <v-card v-if="course" class="course-detail-card" rounded="lg">
       <!-- Modal Header -->
-      <v-card-title class="dialog-header d-flex align-center justify-space-between pa-4">
-        <div class="d-flex align-center">
+      <v-card-title
+        class="dialog-header d-flex align-center justify-space-between pa-4"
+      >
+        <div class="d-flex align-center event-dialog-title">
           <v-avatar color="primary" variant="tonal" size="36" class="ml-2">
-            <v-icon color="primary" size="20">mdi-book-open-page-variant</v-icon>
+            <v-icon color="primary" size="20"
+              >mdi-book-open-page-variant</v-icon
+            >
           </v-avatar>
           <div>
-            <span class="font-weight-bold text-h6 dialog-title">{{ course.title }}</span>
-            <v-chip color="primary" variant="flat" size="x-small" class="font-weight-bold mr-2">
+            <span
+              class="event-dialog-title-text font-weight-bold text-h6 dialog-title"
+              >{{ course.title }}</span
+            >
+            <v-chip
+              color="primary"
+              variant="flat"
+              size="x-small"
+              class="font-weight-bold mr-2"
+            >
               {{ course.vahed }} واحد
             </v-chip>
           </div>
@@ -41,7 +53,9 @@
 
           <div class="spec-row d-flex">
             <div class="spec-key">استاد درس</div>
-            <div class="spec-val font-weight-medium">{{ course.teacher || "—" }}</div>
+            <div class="spec-val font-weight-medium">
+              {{ course.teacher || "تعیین نشده" }}
+            </div>
           </div>
 
           <div class="spec-row d-flex">
@@ -56,17 +70,28 @@
 
           <div class="spec-row d-flex">
             <div class="spec-key">امتحان نهایی</div>
+
             <div class="spec-val">
               <v-chip
                 v-if="course.final_date"
                 color="error"
                 variant="tonal"
                 size="small"
-                class="font-weight-bold"
+                class="font-weight-bold final-exam-chip"
               >
-                <span>{{ course.final_date }}</span>
-                <span v-if="course.final_time" class="mr-1">(ساعت <span dir="ltr">{{ toFarsiNumber(course.final_time) }}</span>)</span>
+                <span class="final-exam-text">
+                  {{ course.final_date }}
+
+                  <span v-if="course.final_time" class="mr-1">
+                    (ساعت
+                    <span dir="ltr">
+                      {{ toFarsiNumber(course.final_time) }}
+                    </span>
+                    )
+                  </span>
+                </span>
               </v-chip>
+
               <span v-else class="text-medium-emphasis">نامشخص</span>
             </div>
           </div>
@@ -75,7 +100,10 @@
             <div class="spec-key">زمان و مکان کلاس</div>
             <div class="spec-val">
               <div
-                v-if="course.seperated_time_and_place && course.seperated_time_and_place.length"
+                v-if="
+                  course.seperated_time_and_place &&
+                  course.seperated_time_and_place.length
+                "
                 class="d-flex flex-column gap-1 py-1"
               >
                 <div
@@ -83,18 +111,29 @@
                   :key="idx"
                   class="d-flex align-center gap-1"
                 >
-                  <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-medium">
+                  <v-chip
+                    size="x-small"
+                    color="primary"
+                    variant="tonal"
+                    class="font-weight-medium"
+                  >
                     {{ slot.day }}
                   </v-chip>
                   <span dir="ltr" class="text-caption font-weight-medium">
-                    {{ formatSlotTime(slot.startHour, slot.startMinute) }} - {{ formatSlotTime(slot.endHour, slot.endMinute) }}
+                    {{ formatSlotTime(slot.startHour, slot.startMinute) }} -
+                    {{ formatSlotTime(slot.endHour, slot.endMinute) }}
                   </span>
-                  <span v-if="slot.place" class="text-caption text-medium-emphasis">
+                  <span
+                    v-if="slot.place"
+                    class="text-caption text-medium-emphasis"
+                  >
                     ({{ slot.place }})
                   </span>
                 </div>
               </div>
-              <span v-else class="text-medium-emphasis">{{ course.time_room || "—" }}</span>
+              <span v-else class="text-medium-emphasis">{{
+                course.time_room || "—"
+              }}</span>
             </div>
           </div>
 
@@ -137,10 +176,7 @@ interface Props {
   course?: Partial<Course> | null;
 }
 
-const {
-  modelValue = false,
-  course = null,
-} = defineProps<Props>();
+const { modelValue = false, course = null } = defineProps<Props>();
 
 defineEmits<{
   (e: "update:modelValue", value: boolean): void;
@@ -202,5 +238,39 @@ const formatSlotTime = (h: number, m?: number): string => {
   color: rgba(var(--v-theme-on-surface), 0.9);
   display: flex;
   align-items: center;
+}
+
+.event-dialog-title {
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.event-dialog-title-text {
+  min-width: 0;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+
+  line-height: 1.5;
+}
+
+.final-exam-chip {
+  max-width: 100%;
+  height: auto !important;
+  white-space: normal !important;
+}
+
+.final-exam-text {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  line-height: 1.6;
 }
 </style>

@@ -13,6 +13,7 @@
       :selected-count="selectedList.length"
       :loading="isLoading"
       @search="search"
+      @toggle-drawer="drawer = !drawer"
     >
       <template #selected-courses>
         <!-- 2. Selected Courses Tab in Drawer -->
@@ -28,10 +29,7 @@
     </FilterDrawer>
 
     <!-- 3. Course Details Modal -->
-    <CourseDetailDialog
-      v-model="dialog"
-      :course="dialogContent"
-    />
+    <CourseDetailDialog v-model="dialog" :course="dialogContent" />
 
     <!-- 4. Clash Conflict Modal -->
     <ClashAlertModal
@@ -72,7 +70,12 @@
               <div class="d-flex align-center gap-2">
                 <v-icon color="primary" size="22">mdi-table</v-icon>
                 <h2 class="text-h6 font-weight-bold mb-0">نتایج جستجو</h2>
-                <v-chip color="primary" variant="tonal" size="x-small" class="font-weight-bold mr-2">
+                <v-chip
+                  color="primary"
+                  variant="tonal"
+                  size="x-small"
+                  class="font-weight-bold mr-2"
+                >
                   {{ toFarsiNumber(courseResults.length) }} درس یافت شد
                 </v-chip>
               </div>
@@ -97,11 +100,14 @@
             elevation="1"
           >
             <v-avatar color="warning" variant="tonal" size="64" class="mb-3">
-              <v-icon color="warning" size="36">mdi-database-search-outline</v-icon>
+              <v-icon color="warning" size="36"
+                >mdi-database-search-outline</v-icon
+              >
             </v-avatar>
             <h3 class="text-h6 font-weight-bold mb-2">موردی یافت نشد</h3>
             <p class="text-body-2 text-medium-emphasis mb-0">
-              با معیارهای فیلتر انتخاب شده هیچ درسی پیدا نشد. لطفاً فیلترها را تغییر دهید.
+              با معیارهای فیلتر انتخاب شده هیچ درسی پیدا نشد. لطفاً فیلترها را
+              تغییر دهید.
             </p>
           </v-card>
 
@@ -119,7 +125,9 @@
               width="4"
               class="mb-4"
             />
-            <h3 class="text-h6 font-weight-bold mb-1">در حال دریافت و آماده‌سازی اطلاعات دروس...</h3>
+            <h3 class="text-h6 font-weight-bold mb-1">
+              در حال دریافت و آماده‌سازی اطلاعات دروس...
+            </h3>
             <p class="text-body-2 text-medium-emphasis mb-0">
               لطفاً چند لحظه شکیبا باشید
             </p>
@@ -135,7 +143,9 @@
             <v-avatar color="error" variant="tonal" size="56" class="mb-3">
               <v-icon color="error" size="32">mdi-alert-circle-outline</v-icon>
             </v-avatar>
-            <h3 class="text-h6 font-weight-bold mb-2 text-error">خطا در بارگذاری اطلاعات دروس</h3>
+            <h3 class="text-h6 font-weight-bold mb-2 text-error">
+              خطا در بارگذاری اطلاعات دروس
+            </h3>
             <p class="text-body-2 text-medium-emphasis mb-4">
               {{ loadError }}
             </p>
@@ -153,7 +163,10 @@
 
           <!-- 5. Initial Empty State (Only displayed when no courses are selected and no search is executed) -->
           <v-card
-            v-else-if="(!selectedList || selectedList.length === 0) && results.length === 0"
+            v-else-if="
+              (!selectedList || selectedList.length === 0) &&
+              results.length === 0
+            "
             class="pa-10 text-center mx-1 empty-state-card"
             rounded="lg"
             elevation="0"
@@ -161,9 +174,15 @@
             <v-avatar color="primary" variant="tonal" size="64" class="mb-3">
               <v-icon color="primary" size="36">mdi-filter-cog-outline</v-icon>
             </v-avatar>
-            <h3 class="text-h6 font-weight-bold mb-2">برای نمایش دروس، فیلترها را انتخاب کنید</h3>
-            <p class="text-body-2 text-medium-emphasis mb-5" style="max-width: 500px; margin: 0 auto;">
-              از منوی کشویی سمت راست، نیمسال تحصیلی و حداقل یکی از موارد بخش، درس یا استاد را انتخاب کرده و دکمه جستجو را بزنید.
+            <h3 class="text-h6 font-weight-bold mb-2">
+              برای نمایش دروس، فیلترها را انتخاب کنید
+            </h3>
+            <p
+              class="text-body-2 text-medium-emphasis mb-5"
+              style="max-width: 500px; margin: 0 auto"
+            >
+              از منوی کشویی سمت راست، نیمسال تحصیلی و حداقل یکی از موارد بخش،
+              درس یا استاد را انتخاب کرده و دکمه جستجو را بزنید.
             </p>
             <v-btn
               v-if="!drawer"
@@ -255,11 +274,11 @@ const courseResults = computed<Course[]>(() => {
 
 watch(
   () => totalConflictCount.value,
-  (newCount) => {
+  newCount => {
     if (newCount > 0) {
       snackbarAlert.value = true;
     }
-  }
+  },
 );
 
 const setDialogContent = (item: Course): void => {
@@ -277,7 +296,6 @@ const search = ({ filters, timeRange }: SearchEventPayload): void => {
   }
   timetableStore.executeSearch(rawJson.value, filters, timeRange);
 };
-
 </script>
 
 <style scoped>

@@ -1,7 +1,12 @@
 <template>
   <div class="course-data-table-wrapper">
     <!-- Desktop Table View (> 768px) -->
-    <v-card v-if="!mobileDevice" class="app-table-card" rounded="lg" elevation="0">
+    <v-card
+      v-if="!mobileDevice"
+      class="app-table-card"
+      rounded="lg"
+      elevation="0"
+    >
       <v-data-table
         :headers="headers"
         :items="results"
@@ -19,7 +24,9 @@
       >
         <!-- Custom Formatting for Course Title -->
         <template #item.title="{ item }">
-          <span class="font-weight-bold text-body-2 course-title-cell">{{ item.title }}</span>
+          <span class="font-weight-bold text-body-2 course-title-cell">{{
+            item.title
+          }}</span>
         </template>
 
         <!-- Custom Formatting for Instructor -->
@@ -29,7 +36,12 @@
 
         <!-- Custom Formatting for Group -->
         <template #item.group="{ item }">
-          <v-chip size="x-small" variant="tonal" color="secondary" class="font-weight-medium">
+          <v-chip
+            size="x-small"
+            variant="tonal"
+            color="secondary"
+            class="font-weight-medium"
+          >
             گروه {{ toFarsiNumber(item.group) }}
           </v-chip>
         </template>
@@ -37,7 +49,10 @@
         <!-- Clean Pill/Badge Formatting for Time & Room Column -->
         <template #item.time_room="{ item }">
           <div
-            v-if="item.seperated_time_and_place && item.seperated_time_and_place.length"
+            v-if="
+              item.seperated_time_and_place &&
+              item.seperated_time_and_place.length
+            "
             class="time-room-slots d-flex flex-column gap-1 py-1"
           >
             <div
@@ -45,18 +60,29 @@
               :key="idx"
               class="slot-pill d-flex align-center gap-1"
             >
-              <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-medium slot-day-chip">
+              <v-chip
+                size="x-small"
+                color="primary"
+                variant="tonal"
+                class="font-weight-medium slot-day-chip"
+              >
                 {{ slot.day }}
               </v-chip>
               <span dir="ltr" class="slot-time text-caption font-weight-medium">
-                {{ formatSlotTime(slot.startHour, slot.startMinute) }} - {{ formatSlotTime(slot.endHour, slot.endMinute) }}
+                {{ formatSlotTime(slot.startHour, slot.startMinute) }} -
+                {{ formatSlotTime(slot.endHour, slot.endMinute) }}
               </span>
-              <span v-if="slot.place" class="slot-place text-caption text-medium-emphasis">
+              <span
+                v-if="slot.place"
+                class="slot-place text-caption text-medium-emphasis"
+              >
                 ({{ slot.place }})
               </span>
             </div>
           </div>
-          <span v-else class="text-caption text-medium-emphasis">{{ item.time_room }}</span>
+          <span v-else class="text-caption text-medium-emphasis">{{
+            item.time_room
+          }}</span>
         </template>
 
         <!-- Structured Expanded Row -->
@@ -65,21 +91,44 @@
             <td :colspan="columns.length" class="pa-0">
               <div class="expanded-detail-box pa-4 ma-2 rounded-lg">
                 <!-- Top Summary Row -->
-                <div class="d-flex align-start justify-space-between mb-3 pb-2 border-bottom">
+                <div
+                  class="d-flex align-start justify-space-between mb-3 pb-2 border-bottom"
+                >
                   <div class="d-flex align-start">
-                    <v-avatar color="primary" variant="tonal" size="32" class="flex-shrink-0 mt-n1 ml-2">
-                      <v-icon color="primary" size="18">mdi-book-open-page-variant-outline</v-icon>
+                    <v-avatar
+                      color="primary"
+                      variant="tonal"
+                      size="32"
+                      class="flex-shrink-0 mt-n1 ml-2"
+                    >
+                      <v-icon color="primary" size="18"
+                        >mdi-book-open-page-variant-outline</v-icon
+                      >
                     </v-avatar>
                     <div>
-                      <h3 class="expanded-title mb-0 line-height-tight">{{ item.title }}</h3>
-                      <span class="text-caption text-medium-emphasis">{{ item.unit }}</span>
+                      <h3 class="expanded-title mb-0 line-height-tight">
+                        {{ item.title }}
+                      </h3>
+                      <span class="text-caption text-medium-emphasis">{{
+                        item.unit
+                      }}</span>
                     </div>
                   </div>
                   <div class="d-flex align-center gap-2">
-                    <v-chip v-if="item.capacity" color="info" variant="tonal" size="small">
+                    <v-chip
+                      v-if="item.capacity"
+                      color="info"
+                      variant="tonal"
+                      size="small"
+                    >
                       ظرفیت: {{ toFarsiNumber(item.capacity) }} نفر
                     </v-chip>
-                    <v-chip color="primary" variant="flat" size="small" class="font-weight-bold">
+                    <v-chip
+                      color="primary"
+                      variant="flat"
+                      size="small"
+                      class="font-weight-bold"
+                    >
                       {{ toFarsiNumber(item.vahed) }} واحد
                     </v-chip>
                   </div>
@@ -90,32 +139,49 @@
                   <v-col cols="12" sm="6" md="3" class="py-1">
                     <div class="spec-card pa-2 rounded">
                       <div class="spec-label">
-                        <v-icon size="14" class="ml-1" color="primary">mdi-account-tie-outline</v-icon>
+                        <v-icon size="14" class="ml-1" color="primary"
+                          >mdi-account-tie-outline</v-icon
+                        >
                         استاد:
                       </div>
-                      <div class="spec-val font-weight-medium">{{ item.teacher }}</div>
+                      <div class="spec-val font-weight-medium">
+                        {{ item.teacher }}
+                      </div>
                     </div>
                   </v-col>
 
                   <v-col cols="12" sm="6" md="3" class="py-1">
                     <div class="spec-card pa-2 rounded">
                       <div class="spec-label">
-                        <v-icon size="14" class="ml-1" color="secondary">mdi-account-group-outline</v-icon>
+                        <v-icon size="14" class="ml-1" color="secondary"
+                          >mdi-account-group-outline</v-icon
+                        >
                         گروه / جنسیت:
                       </div>
-                      <div class="spec-val">گروه {{ toFarsiNumber(item.group) }} ({{ item.gender || "مختلط" }})</div>
+                      <div class="spec-val">
+                        گروه {{ toFarsiNumber(item.group) }} ({{
+                          item.gender || "مختلط"
+                        }})
+                      </div>
                     </div>
                   </v-col>
 
                   <v-col cols="12" sm="6" md="3" class="py-1">
                     <div class="spec-card pa-2 rounded">
                       <div class="spec-label">
-                        <v-icon size="14" class="ml-1" color="error">mdi-calendar-alert</v-icon>
+                        <v-icon size="14" class="ml-1" color="error"
+                          >mdi-calendar-alert</v-icon
+                        >
                         امتحان نهایی:
                       </div>
                       <div class="spec-val text-error font-weight-medium">
                         {{ item.final_date || "نامشخص" }}
-                        <span v-if="item.final_time">(<span dir="ltr">{{ toFarsiNumber(item.final_time) }}</span>)</span>
+                        <span v-if="item.final_time"
+                          >(<span dir="ltr">{{
+                            toFarsiNumber(item.final_time)
+                          }}</span
+                          >)</span
+                        >
                       </div>
                     </div>
                   </v-col>
@@ -123,10 +189,14 @@
                   <v-col cols="12" sm="6" md="3" class="py-1">
                     <div class="spec-card pa-2 rounded">
                       <div class="spec-label">
-                        <v-icon size="14" class="ml-1" color="info">mdi-clock-outline</v-icon>
+                        <v-icon size="14" class="ml-1" color="info"
+                          >mdi-clock-outline</v-icon
+                        >
                         ساعت در هفته:
                       </div>
-                      <div class="spec-val">{{ toFarsiNumber(item.time_in_week) || "—" }} ساعت</div>
+                      <div class="spec-val">
+                        {{ toFarsiNumber(item.time_in_week) || "—" }} ساعت
+                      </div>
                     </div>
                   </v-col>
                 </v-row>
@@ -147,7 +217,9 @@
         elevation="0"
       >
         <!-- Top Row: Checkbox, Course Title, Chips & Info Action -->
-        <div class="card-header-row d-flex align-start justify-space-between w-100 mb-2">
+        <div
+          class="card-header-row d-flex align-start justify-space-between w-100 mb-2"
+        >
           <!-- Right Side (in RTL): Checkbox + Title + Chips -->
           <div class="d-flex align-start gap-2 flex-grow-1 min-w-0">
             <v-checkbox-btn
@@ -158,7 +230,9 @@
               @click.stop="toggleSelection(item)"
               aria-label="انتخاب درس"
             />
-            <div class="course-title-block d-flex flex-column align-start text-start flex-grow-1 min-w-0">
+            <div
+              class="course-title-block d-flex flex-column align-start text-start flex-grow-1 min-w-0"
+            >
               <span
                 class="course-card-title font-weight-bold text-body-1"
                 @click="emit('show-detail', item)"
@@ -166,42 +240,59 @@
                 {{ item.title }}
               </span>
               <!-- Badges: Group, Units, Capacity -->
-              <div class="course-chips-row d-flex align-center flex-wrap gap-1 mt-1">
-                <v-chip size="x-small" variant="tonal" color="secondary" class="font-weight-medium">
+              <div
+                class="course-chips-row d-flex align-center flex-wrap gap-1 mt-1"
+              >
+                <v-chip
+                  size="x-small"
+                  variant="tonal"
+                  color="secondary"
+                  class="font-weight-medium"
+                >
                   گروه {{ toFarsiNumber(item.group) }}
                 </v-chip>
-                <v-chip size="x-small" variant="tonal" color="primary" class="font-weight-bold">
+                <v-chip
+                  size="x-small"
+                  variant="tonal"
+                  color="primary"
+                  class="font-weight-bold"
+                >
                   {{ toFarsiNumber(item.vahed) }} واحد
                 </v-chip>
-                <v-chip v-if="item.capacity" size="x-small" variant="tonal" color="info">
+                <v-chip
+                  v-if="item.capacity"
+                  size="x-small"
+                  variant="tonal"
+                  color="info"
+                >
                   ظرفیت: {{ toFarsiNumber(item.capacity) }}
                 </v-chip>
               </div>
             </div>
           </div>
-
-          <!-- Left Side (in RTL): Info Trigger Button -->
-          <v-btn
-            icon="mdi-information-outline"
-            variant="tonal"
-            size="x-small"
-            color="primary"
-            class="flex-shrink-0 mr-1 mt-1"
-            aria-label="مشاهده مشخصات کامل"
-            @click="emit('show-detail', item)"
-          />
         </div>
 
         <!-- Instructor with Icon -->
-        <div class="instructor-row d-flex align-center gap-2 text-start mt-2 pr-1">
-          <v-icon size="16" color="primary" class="flex-shrink-0">mdi-account-tie-outline</v-icon>
-          <span class="instructor-name font-weight-medium text-body-2">{{ item.teacher }}</span>
-          <span v-if="item.gender" class="text-caption text-medium-emphasis">({{ item.gender }})</span>
+        <div
+          class="instructor-row d-flex align-center gap-2 text-start mt-2 pr-1"
+        >
+          <v-icon size="16" color="primary" class="flex-shrink-0"
+            >mdi-account-tie-outline</v-icon
+          >
+          <span class="instructor-name font-weight-medium text-body-2">{{
+            item.teacher
+          }}</span>
+          <span v-if="item.gender" class="text-caption text-medium-emphasis"
+            >({{ item.gender }})</span
+          >
         </div>
 
         <!-- Time & Room Slots -->
         <div
-          v-if="item.seperated_time_and_place && item.seperated_time_and_place.length"
+          v-if="
+            item.seperated_time_and_place &&
+            item.seperated_time_and_place.length
+          "
           class="mobile-slot-list d-flex flex-column gap-1 mt-2 pt-2 border-top-mobile-card"
         >
           <div
@@ -210,28 +301,46 @@
             class="mobile-slot-pill d-flex align-center justify-space-between px-2 py-1 rounded"
           >
             <div class="d-flex align-center gap-2">
-              <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-medium slot-day-chip">
+              <v-chip
+                size="x-small"
+                color="primary"
+                variant="tonal"
+                class="font-weight-medium slot-day-chip"
+              >
                 {{ slot.day }}
               </v-chip>
               <span dir="ltr" class="slot-time text-caption font-weight-medium">
-                {{ formatSlotTime(slot.startHour, slot.startMinute) }} - {{ formatSlotTime(slot.endHour, slot.endMinute) }}
+                {{ formatSlotTime(slot.startHour, slot.startMinute) }} -
+                {{ formatSlotTime(slot.endHour, slot.endMinute) }}
               </span>
             </div>
-            <span v-if="slot.place" class="slot-place text-caption text-medium-emphasis">
+            <span
+              v-if="slot.place"
+              class="slot-place text-caption text-medium-emphasis"
+            >
               ({{ slot.place }})
             </span>
           </div>
         </div>
-        <div v-else-if="item.time_room" class="text-caption text-medium-emphasis text-right mt-2 pt-1 border-top-mobile-card">
+        <div
+          v-else-if="item.time_room"
+          class="text-caption text-medium-emphasis text-right mt-2 pt-1 border-top-mobile-card"
+        >
           {{ item.time_room }}
         </div>
 
         <!-- Exam Date & Detail Trigger Footer -->
-        <div v-if="item.final_date" class="exam-footer-row d-flex align-center justify-space-between mt-2 pt-2 border-top-mobile-card text-caption">
+        <div
+          v-if="item.final_date"
+          class="exam-footer-row d-flex align-center justify-space-between mt-2 pt-2 border-top-mobile-card text-caption"
+        >
           <span class="text-error d-flex align-center gap-1 font-weight-medium">
             <v-icon size="14" color="error">mdi-calendar-alert</v-icon>
             امتحان: {{ item.final_date }}
-            <span v-if="item.final_time">(<span dir="ltr">{{ toFarsiNumber(item.final_time) }}</span>)</span>
+            <span v-if="item.final_time"
+              >(<span dir="ltr">{{ toFarsiNumber(item.final_time) }}</span
+              >)</span
+            >
           </span>
           <v-btn
             variant="text"
@@ -308,7 +417,7 @@ watch(
   () => results,
   () => {
     page.value = 1;
-  }
+  },
 );
 
 const formatSlotTime = (h: number, m?: number): string => {
@@ -321,20 +430,20 @@ const formatSlotTime = (h: number, m?: number): string => {
 const selectedIds = computed<string[]>({
   get() {
     return (modelValue || [])
-      .map((item) => (item && typeof item === "object" ? item.id : item))
+      .map(item => (item && typeof item === "object" ? item.id : item))
       .filter((id): id is string => Boolean(id));
   },
   set(newIds: string[]) {
     const courseMap = new Map<string, Course>();
-    (results || []).forEach((c) => {
+    (results || []).forEach(c => {
       if (c && c.id) courseMap.set(c.id, c);
     });
-    (modelValue || []).forEach((c) => {
+    (modelValue || []).forEach(c => {
       if (c && c.id) courseMap.set(c.id, c);
     });
 
     const newSelectedObjects: Course[] = newIds
-      .map((id) => courseMap.get(id))
+      .map(id => courseMap.get(id))
       .filter((c): c is Course => Boolean(c));
 
     emit("update:modelValue", newSelectedObjects);
@@ -454,7 +563,10 @@ const paginatedResults = computed<Course[]>(() => {
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   background-color: rgb(var(--v-theme-surface));
   box-shadow: var(--shadow-sm) !important;
-  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.15s ease;
 }
 
 .mobile-course-card--selected {

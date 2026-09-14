@@ -7,15 +7,19 @@
     rounded="lg"
     elevation="6"
     :timeout="8000"
-    class="clash-snackbar mb-6 mr-4"
+    class="clash-snackbar mb-6 mr-4 d-flex justify-center"
   >
     <div class="d-flex align-center gap-2">
       <v-avatar color="white" size="28" class="ml-2 flex-shrink-0">
         <v-icon color="error" size="18">mdi-alert-circle</v-icon>
       </v-avatar>
       <div>
-        <div class="font-weight-bold text-subtitle-2">تداخل در برنامه درسی یا امتحانات!</div>
-        <div class="text-caption text-white opacity-90">برخی از دروس انتخابی دارای هم‌پوشانی زمانی هستند.</div>
+        <div class="font-weight-bold text-subtitle-2">
+          تداخل در برنامه درسی یا امتحانات!
+        </div>
+        <div class="text-caption text-white opacity-90">
+          برخی از دروس انتخابی دارای هم‌پوشانی زمانی هستند.
+        </div>
       </div>
     </div>
 
@@ -47,9 +51,7 @@ interface Props {
   modelValue?: boolean;
 }
 
-const {
-  modelValue = false,
-} = defineProps<Props>();
+const { modelValue = false } = defineProps<Props>();
 
 defineEmits<{
   (e: "update:modelValue", value: boolean): void;
